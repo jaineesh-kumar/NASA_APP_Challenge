@@ -47,9 +47,11 @@ export const copy = {
     presetsTitle: 'Quick Presets',
     siteTitle: 'Landing Site',
     ridgeName: 'Malapert Ridge',
-    ridgeDesc: 'High peak with 90% sunlight. Two short 36-hour dark windows. 600 kg starting water.',
+    ridgeDesc:
+      'High peak with 90% sunlight. Two short 36-hour dark windows. 600 kg starting water.',
     craterName: 'Shackleton Crater Edge',
-    craterDesc: 'Closer to crater ice (900 kg starting water), but three long 72-hour dark windows.',
+    craterDesc:
+      'Closer to crater ice (900 kg starting water), but three long 72-hour dark windows.',
     powerSectionTitle: 'Power & Mast Systems',
     panelsLabel: 'Solar Panels (10 kW each)',
     panelsHelp: 'Generates electricity in sunlight. 5 mu each.',
