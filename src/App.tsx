@@ -5,10 +5,13 @@
 
 import React from 'react';
 import { AppStoreProvider, useAppStore } from './state/store.tsx';
+import { ErrorBoundary } from './ui/components/ErrorBoundary.tsx';
 import { Header } from './ui/components/Header.tsx';
 import { Nav } from './ui/components/Nav.tsx';
 import { BriefingScreen } from './ui/screens/Briefing.tsx';
 import { DesignScreen } from './ui/screens/Design.tsx';
+import { LearnScreen } from './ui/screens/Learn.tsx';
+import { ModelCardScreen } from './ui/screens/ModelCard.tsx';
 import { RehearseScreen } from './ui/screens/Rehearse.tsx';
 import { ReviewScreen } from './ui/screens/Review.tsx';
 import { RulesScreen } from './ui/screens/Rules.tsx';
@@ -29,18 +32,11 @@ const AppContent: React.FC = () => {
       case 'review':
         return <ReviewScreen />;
       case 'learn':
+        return <LearnScreen />;
       case 'model_card':
+        return <ModelCardScreen />;
       default:
-        return (
-          <div className="panel-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-            <h3 style={{ marginBottom: '12px', fontSize: '1.25rem' }}>
-              {state.currentScreen.toUpperCase()} Screen
-            </h3>
-            <p style={{ color: 'var(--color-text-muted)' }}>
-              Configured and unlocked in upcoming mission stages.
-            </p>
-          </div>
-        );
+        return <BriefingScreen />;
     }
   };
 
@@ -57,8 +53,10 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AppStoreProvider>
-      <AppContent />
-    </AppStoreProvider>
+    <ErrorBoundary>
+      <AppStoreProvider>
+        <AppContent />
+      </AppStoreProvider>
+    </ErrorBoundary>
   );
 }

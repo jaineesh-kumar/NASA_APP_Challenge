@@ -17,13 +17,7 @@ import {
 } from '../engine/types.ts';
 
 export type ScreenId =
-  | 'briefing'
-  | 'design'
-  | 'rules'
-  | 'rehearse'
-  | 'review'
-  | 'learn'
-  | 'model_card';
+  'briefing' | 'design' | 'rules' | 'rehearse' | 'review' | 'learn' | 'model_card';
 
 export interface AppState {
   currentScreen: ScreenId;
@@ -53,6 +47,7 @@ export type Action =
   | { type: 'ADD_RULE'; rule: IfThenRule }
   | { type: 'REMOVE_RULE'; index: number }
   | { type: 'SET_PRESET'; preset: MissionPreset }
+  | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules }
   | { type: 'START_CAMPAIGN' }
   | { type: 'SET_CAMPAIGN_PROGRESS'; progress: number }
   | {
@@ -190,6 +185,11 @@ export function appReducer(state: AppState, action: Action): AppState {
       nextRules = action.preset.rules;
       break;
 
+    case 'LOAD_SCENARIO':
+      nextDesign = action.design;
+      nextRules = action.rules;
+      break;
+
     default:
       return state;
   }
@@ -217,9 +217,7 @@ export function AppStoreProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialAppState);
 
   return (
-    <AppStoreContext.Provider value={{ state, dispatch }}>
-      {children}
-    </AppStoreContext.Provider>
+    <AppStoreContext.Provider value={{ state, dispatch }}>{children}</AppStoreContext.Provider>
   );
 }
 
