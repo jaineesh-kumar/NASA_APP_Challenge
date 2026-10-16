@@ -42,7 +42,11 @@ describe('ReviewScreen Component (Spec Part C L7 AC2, AC3, AC5, AC6, AC8)', () =
       { t: 100, type: 'dark_window_start', detail: 'Outpost entered dark window' },
       { t: 150, type: 'battery_empty', detail: 'Outpost energy storage fully exhausted' },
       { t: 151, type: 'load_off', detail: 'Load shed: life_support' },
-      { t: 229, type: 'failure', detail: 'Mission lost: critical deficit threshold breached for oxygen' },
+      {
+        t: 229,
+        type: 'failure',
+        detail: 'Mission lost: critical deficit threshold breached for oxygen',
+      },
     ],
   };
 
@@ -87,7 +91,7 @@ describe('ReviewScreen Component (Spec Part C L7 AC2, AC3, AC5, AC6, AC8)', () =
     expect(screen.getAllByText(/Hour 150/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it('displays cause chain and concept hint (AC6)', () => {
+  it('displays cause chain and concept hint (AC5)', () => {
     render(
       <AppStoreProvider>
         <PopulatedReview />
@@ -96,5 +100,30 @@ describe('ReviewScreen Component (Spec Part C L7 AC2, AC3, AC5, AC6, AC8)', () =
 
     expect(screen.getByText(copy.review.causeChainTitle)).toBeDefined();
     expect(screen.getByText(copy.review.conceptHintTitle)).toBeDefined();
+  });
+
+  it('renders working Why this number controls displaying provenance (AC6)', () => {
+    render(
+      <AppStoreProvider>
+        <PopulatedReview />
+      </AppStoreProvider>,
+    );
+
+    const whyBtn = screen.getByLabelText('Why this number for rating.flight_ready_survival');
+    expect(whyBtn).toBeDefined();
+
+    // Open provenance modal
+    fireEvent.click(whyBtn);
+
+    // Dialog should be present with scientific provenance
+    expect(screen.getByRole('dialog')).toBeDefined();
+    expect(screen.getByText('Scientific Provenance')).toBeDefined();
+    expect(screen.getByText('rating.flight_ready_survival')).toBeDefined();
+    expect(screen.getByText(/Illustrative/)).toBeDefined();
+
+    // Close dialog
+    const closeBtn = screen.getByRole('button', { name: 'Close' });
+    fireEvent.click(closeBtn);
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });

@@ -68,13 +68,17 @@ export const ConceptHintBox: React.FC<ConceptHintBoxProps> = ({ worstResult }) =
                 >
                   #{idx + 1}
                 </span>
-                <span style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-main)' }}>
+                <span
+                  style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-main)' }}
+                >
                   {link.effect}
                 </span>
                 <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
                   ← triggered by
                 </span>
-                <span style={{ color: 'var(--color-warning)', fontWeight: 500, fontSize: '0.9rem' }}>
+                <span
+                  style={{ color: 'var(--color-warning)', fontWeight: 500, fontSize: '0.9rem' }}
+                >
                   {link.causes.join(', ')}
                 </span>
               </div>

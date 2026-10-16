@@ -9,6 +9,7 @@ import { ConceptHintBox } from '../components/ConceptHintBox.tsx';
 import { MassVsRiskChart } from '../components/MassVsRiskChart.tsx';
 import { ReplayTimeline } from '../components/ReplayTimeline.tsx';
 import { RiskBarChart } from '../components/RiskBarChart.tsx';
+import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 export const ReviewScreen: React.FC = () => {
   const { state, dispatch } = useAppStore();
@@ -96,8 +97,11 @@ export const ReviewScreen: React.FC = () => {
       >
         {/* Survival Rate Card */}
         <div className="panel-card" style={{ marginBottom: 0 }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+          <div
+            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}
+          >
             {copy.review.survivalRateTitle}
+            <WhyThisNumber paramId="rating.flight_ready_survival" />
           </div>
           <div
             style={{
@@ -119,8 +123,11 @@ export const ReviewScreen: React.FC = () => {
 
         {/* Success Rate Card */}
         <div className="panel-card" style={{ marginBottom: 0 }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+          <div
+            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}
+          >
             {copy.review.successRateTitle}
+            <WhyThisNumber paramId="rating.flight_ready_success" />
           </div>
           <div
             style={{
@@ -142,8 +149,11 @@ export const ReviewScreen: React.FC = () => {
 
         {/* Mass Card */}
         <div className="panel-card" style={{ marginBottom: 0 }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}>
+          <div
+            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}
+          >
             {copy.review.massUsedTitle}
+            <WhyThisNumber paramId="mass.budget" />
           </div>
           <div
             style={{
@@ -182,8 +192,11 @@ export const ReviewScreen: React.FC = () => {
               border: '1px solid var(--color-border)',
             }}
           >
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}>
+            <div
+              style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}
+            >
               {copy.review.batteryP5Label}
+              <WhyThisNumber paramId="power.battery_kwh_per_unit" />
             </div>
             <div
               style={{
@@ -191,7 +204,9 @@ export const ReviewScreen: React.FC = () => {
                 fontWeight: 700,
                 fontSize: '1.25rem',
                 color:
-                  campaignResult.minBatteryPctP5 > 10 ? 'var(--color-success)' : 'var(--color-danger)',
+                  campaignResult.minBatteryPctP5 > 10
+                    ? 'var(--color-success)'
+                    : 'var(--color-danger)',
               }}
             >
               {campaignResult.minBatteryPctP5.toFixed(1)}%
@@ -206,8 +221,11 @@ export const ReviewScreen: React.FC = () => {
               border: '1px solid var(--color-border)',
             }}
           >
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}>
+            <div
+              style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}
+            >
               {copy.review.o2P5Label}
+              <WhyThisNumber paramId="loss.o2_deficit_hours" />
             </div>
             <div
               style={{
@@ -230,8 +248,11 @@ export const ReviewScreen: React.FC = () => {
               border: '1px solid var(--color-border)',
             }}
           >
-            <div style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}>
+            <div
+              style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}
+            >
               {copy.review.doseP95Label}
+              <WhyThisNumber paramId="radiation.dose_limit_usv_mission" />
             </div>
             <div
               style={{
@@ -239,7 +260,9 @@ export const ReviewScreen: React.FC = () => {
                 fontWeight: 700,
                 fontSize: '1.25rem',
                 color:
-                  campaignResult.doseUsvP95 < 60000 ? 'var(--color-success)' : 'var(--color-danger)',
+                  campaignResult.doseUsvP95 < 60000
+                    ? 'var(--color-success)'
+                    : 'var(--color-danger)',
               }}
             >
               {Math.round(campaignResult.doseUsvP95).toLocaleString()} µSv

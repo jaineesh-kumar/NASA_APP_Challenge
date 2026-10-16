@@ -66,7 +66,8 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
           >
             <title>Failure Causes Bar Chart</title>
             <desc>
-              Bar chart displaying occurrence counts of oxygen, CO2, water, food, radiation, and science missed.
+              Bar chart displaying occurrence counts of oxygen, CO2, water, food, radiation, and
+              science missed.
             </desc>
 
             {/* Gridlines */}

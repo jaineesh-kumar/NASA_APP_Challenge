@@ -8,6 +8,7 @@ import { loadParams } from '../../engine/params.ts';
 import { runMission } from '../../engine/sim.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { WorkerIncomingMessage, WorkerOutgoingMessage } from '../../worker/campaign.worker.ts';
+import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const params = loadParams();
 
@@ -25,10 +26,9 @@ export const RehearseScreen: React.FC = () => {
     try {
       if (typeof window !== 'undefined' && window.Worker) {
         // Instantiate campaign worker
-        const worker = new Worker(
-          new URL('../../worker/campaign.worker.ts', import.meta.url),
-          { type: 'module' },
-        );
+        const worker = new Worker(new URL('../../worker/campaign.worker.ts', import.meta.url), {
+          type: 'module',
+        });
         workerRef.current = worker;
 
         worker.onmessage = (event: MessageEvent<WorkerOutgoingMessage>) => {
@@ -115,31 +115,47 @@ export const RehearseScreen: React.FC = () => {
         >
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Site: </span>
-            <span style={{ fontWeight: 600 }}>{design.site === 'ridge' ? 'Malapert Ridge' : 'Shackleton Edge'}</span>
+            <span style={{ fontWeight: 600 }}>
+              {design.site === 'ridge' ? 'Malapert Ridge' : 'Shackleton Edge'}
+            </span>
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Solar Panels: </span>
-            <span style={{ fontWeight: 600 }}>{design.panels} ({design.panels * 10} kW)</span>
+            <span style={{ fontWeight: 600 }}>
+              {design.panels} ({design.panels * 10} kW)
+            </span>
+            <WhyThisNumber paramId="power.panel_kw" />
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Batteries: </span>
-            <span style={{ fontWeight: 600 }}>{design.batteries} ({design.batteries * 100} kWh)</span>
+            <span style={{ fontWeight: 600 }}>
+              {design.batteries} ({design.batteries * 100} kWh)
+            </span>
+            <WhyThisNumber paramId="power.battery_kwh_per_unit" />
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Mast Level: </span>
             <span style={{ fontWeight: 600 }}>{design.mastLevel}</span>
+            <WhyThisNumber paramId="power.mast_dark_reduction_per_level" />
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Water Loop: </span>
-            <span style={{ fontWeight: 600 }}>{design.waterLoopTier === 1 ? '98% (Brine)' : '90% (Base)'}</span>
+            <span style={{ fontWeight: 600 }}>
+              {design.waterLoopTier === 1 ? '98% (Brine)' : '90% (Base)'}
+            </span>
+            <WhyThisNumber paramId="water.recovery_upgraded" />
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>O2 Loop: </span>
-            <span style={{ fontWeight: 600 }}>{design.o2LoopTier === 1 ? 'Sabatier Reactor' : 'Stored Tanks'}</span>
+            <span style={{ fontWeight: 600 }}>
+              {design.o2LoopTier === 1 ? 'Sabatier Reactor' : 'Stored Tanks'}
+            </span>
+            <WhyThisNumber paramId="o2.sabatier_recovery" />
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Shielding Layers: </span>
             <span style={{ fontWeight: 600 }}>{design.shieldingLayers}</span>
+            <WhyThisNumber paramId="radiation.shield_factor_by_layers" />
           </div>
           <div>
             <span style={{ color: 'var(--color-text-muted)' }}>Automated Rules: </span>
@@ -149,7 +165,10 @@ export const RehearseScreen: React.FC = () => {
       </div>
 
       {/* Campaign Launcher and Progress */}
-      <div className="panel-card" style={{ textAlign: 'center', padding: '36px 20px', marginBottom: '24px' }}>
+      <div
+        className="panel-card"
+        style={{ textAlign: 'center', padding: '36px 20px', marginBottom: '24px' }}
+      >
         {!isRunningCampaign && !campaignResult && (
           <button
             type="button"
@@ -201,7 +220,13 @@ export const RehearseScreen: React.FC = () => {
               />
             </div>
 
-            <div style={{ fontFamily: 'var(--font-family-mono)', color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>
+            <div
+              style={{
+                fontFamily: 'var(--font-family-mono)',
+                color: 'var(--color-text-muted)',
+                fontSize: '0.9rem',
+              }}
+            >
               {statusMessage || `${progressPct}%`}
             </div>
           </div>

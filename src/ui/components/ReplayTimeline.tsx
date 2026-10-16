@@ -36,7 +36,8 @@ export const ReplayTimeline: React.FC<ReplayTimelineProps> = ({ worstResult }) =
         {worstResult.seed})
       </h3>
       <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-        Step through hourly events of this mission to inspect the cascade leading to loss or recovery.
+        Step through hourly events of this mission to inspect the cascade leading to loss or
+        recovery.
       </p>
 
       {/* SVG Overview Ribbon */}
@@ -51,7 +52,14 @@ export const ReplayTimeline: React.FC<ReplayTimelineProps> = ({ worstResult }) =
         >
           <title>720-Hour Mission Overview</title>
           {/* Base timeline axis */}
-          <line x1="0" y1="30" x2={timelineWidth} y2="30" stroke="var(--color-border)" strokeWidth="2" />
+          <line
+            x1="0"
+            y1="30"
+            x2={timelineWidth}
+            y2="30"
+            stroke="var(--color-border)"
+            strokeWidth="2"
+          />
 
           {/* Dark Windows */}
           {darkStarts.map((t, idx) => (
@@ -157,7 +165,9 @@ export const ReplayTimeline: React.FC<ReplayTimelineProps> = ({ worstResult }) =
         </div>
 
         {logsAtHour.length === 0 ? (
-          <div style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>
+          <div
+            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', fontStyle: 'italic' }}
+          >
             Routine nominal outpost operations; all active subsystems stable.
           </div>
         ) : (
@@ -173,7 +183,9 @@ export const ReplayTimeline: React.FC<ReplayTimelineProps> = ({ worstResult }) =
           >
             {logsAtHour.map((log: LogEntry, idx: number) => {
               const isAlert =
-                log.type === 'failure' || log.type === 'component_failed' || log.type === 'battery_empty';
+                log.type === 'failure' ||
+                log.type === 'component_failed' ||
+                log.type === 'battery_empty';
               return (
                 <li
                   key={idx}
