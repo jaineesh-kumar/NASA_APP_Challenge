@@ -1,0 +1,558 @@
+{
+  "version": "0.1.0",
+  "params": {
+    "mission.hours": {
+      "value": 720,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "high",
+      "note": "30-day mission design choice"
+    },
+    "campaign.runs": {
+      "value": 300,
+      "unit": "runs",
+      "source": "ASSUMPTION",
+      "confidence": "high",
+      "note": "default Monte Carlo size"
+    },
+    "crew.size": {
+      "value": 4,
+      "unit": "crew",
+      "source": "ASSUMPTION",
+      "confidence": "high",
+      "note": "design choice"
+    },
+    "crew.o2_kg_per_day": {
+      "value": 0.84,
+      "unit": "kg/crew/day",
+      "source": "S10",
+      "confidence": "medium",
+      "note": "TODO(human): verify in S01 BVAD"
+    },
+    "crew.co2_kg_per_day": {
+      "value": 1.0,
+      "unit": "kg/crew/day",
+      "source": "S10",
+      "confidence": "medium",
+      "note": "TODO(human): verify in S01 BVAD"
+    },
+    "crew.water_total_kg_per_day": {
+      "value": 4.35,
+      "unit": "kg/crew/day",
+      "source": "S08",
+      "confidence": "high",
+      "note": "BVAD value quoted by S08; verify in S01"
+    },
+    "crew.food_kcal_per_day": {
+      "value": 2500,
+      "unit": "kcal/crew/day",
+      "source": "S10",
+      "confidence": "medium",
+      "note": "TODO(human): verify"
+    },
+    "crew.food_kg_per_day": {
+      "value": 0.6,
+      "unit": "kg/crew/day",
+      "source": "S10",
+      "confidence": "medium",
+      "note": "display only, not used by the engine"
+    },
+    "crew.productive_hours_per_day": {
+      "value": 8,
+      "unit": "h/crew/day",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "water.recovery_base": {
+      "value": 0.9,
+      "unit": "fraction",
+      "source": "S04",
+      "confidence": "high",
+      "note": "ISS water recovery, older hardware"
+    },
+    "water.recovery_upgraded": {
+      "value": 0.98,
+      "unit": "fraction",
+      "source": "S04",
+      "confidence": "high",
+      "note": "ISS with brine processor"
+    },
+    "o2.sabatier_recovery": {
+      "value": 0.5,
+      "unit": "fraction",
+      "source": "S05",
+      "confidence": "high",
+      "note": "ceiling of Sabatier oxygen recovery"
+    },
+    "o2.electrolysis_water_per_o2": {
+      "value": 1.125,
+      "unit": "kg water/kg O2",
+      "source": "DERIVED",
+      "confidence": "high",
+      "note": "2 H2O to 2 H2 + O2: 36 g water per 32 g oxygen"
+    },
+    "o2.generator_capacity_factor": {
+      "value": 1.5,
+      "unit": "x need",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "co2.scrubber_capacity_factor": {
+      "value": 1.5,
+      "unit": "x production",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "co2.cabin_limit_kg": {
+      "value": 2.0,
+      "unit": "kg",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game limit, illustrative"
+    },
+    "loss.o2_deficit_hours": {
+      "value": 3,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game rule"
+    },
+    "loss.co2_over_hours": {
+      "value": 6,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game rule"
+    },
+    "loss.water_deficit_hours": {
+      "value": 72,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game rule"
+    },
+    "loss.food_shortfall_hours": {
+      "value": 168,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game rule"
+    },
+    "radiation.surface_usv_per_day": {
+      "value": 1369,
+      "unit": "uSv/day",
+      "source": "S02",
+      "confidence": "high",
+      "note": "measured dose equivalent, far side, lunar day, suit-level proxy"
+    },
+    "radiation.iss_usv_per_day": {
+      "value": 731,
+      "unit": "uSv/day",
+      "source": "S02",
+      "confidence": "high",
+      "note": "ISS reference over the same period; display only"
+    },
+    "radiation.shield_factor_by_layers": {
+      "value": [1.0, 0.67, 0.5, 0.4],
+      "unit": "factor",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative; non-increasing; index = layers built"
+    },
+    "radiation.shelter_factor": {
+      "value": 0.25,
+      "unit": "factor",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.spe_multiplier": {
+      "value": 20,
+      "unit": "x",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.spe_duration_h": {
+      "value": 12,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.spe_warning_lead_h": {
+      "value": 2,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.spe_per_month": {
+      "value": 1.0,
+      "unit": "events/30 d",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.dose_limit_usv_mission": {
+      "value": 60000,
+      "unit": "uSv",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game limit; TODO(human): verify against S11 NASA-STD-3001"
+    },
+    "power.panel_kw": {
+      "value": 10,
+      "unit": "kW/panel",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "power.battery_kwh_per_unit": {
+      "value": 100,
+      "unit": "kWh/unit",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "power.charge_efficiency": {
+      "value": 0.9,
+      "unit": "fraction",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "power.dust_events_per_month": {
+      "value": 1.5,
+      "unit": "events/30 d",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "power.dust_factor": {
+      "value": 0.85,
+      "unit": "factor",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "power.dust_duration_h": {
+      "value": 72,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "power.array_failure_factor": {
+      "value": 0.75,
+      "unit": "factor",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "one of four strings lost"
+    },
+    "power.mast_dark_reduction_per_level": {
+      "value": 0.1,
+      "unit": "fraction/level",
+      "source": "S03",
+      "confidence": "low",
+      "note": "S03 shows height raises illumination (qualitative); the size is our assumption"
+    },
+    "power.thermal_dark_multiplier": {
+      "value": 1.5,
+      "unit": "x",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "load.life_support_kw": {
+      "value": 5,
+      "unit": "kW",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "load.thermal_kw": {
+      "value": 4,
+      "unit": "kW",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "load.comms_kw": {
+      "value": 1,
+      "unit": "kW",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "load.greenhouse_kw_per_module": {
+      "value": 3,
+      "unit": "kW/module",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "load.science_kw": {
+      "value": 3,
+      "unit": "kW",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "load.construction_kw": {
+      "value": 3,
+      "unit": "kW",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "site.ridge.dark_starts_h": {
+      "value": [200, 560],
+      "unit": "h",
+      "source": "S09",
+      "confidence": "medium",
+      "note": "illustrative schedule matching the about 90% illumination band"
+    },
+    "site.ridge.dark_length_h": {
+      "value": 36,
+      "unit": "h",
+      "source": "S09",
+      "confidence": "medium",
+      "note": "2 x 36 h = 10% of 720 h"
+    },
+    "site.ridge.start_water_kg": {
+      "value": 600,
+      "unit": "kg",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "site.crater_edge.dark_starts_h": {
+      "value": [120, 330, 540],
+      "unit": "h",
+      "source": "S03",
+      "confidence": "medium",
+      "note": "illustrative schedule matching the about 70% illumination band"
+    },
+    "site.crater_edge.dark_length_h": {
+      "value": 72,
+      "unit": "h",
+      "source": "S03",
+      "confidence": "medium",
+      "note": "3 x 72 h = 30% of 720 h"
+    },
+    "site.crater_edge.start_water_kg": {
+      "value": 900,
+      "unit": "kg",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "closer to ice; illustrative"
+    },
+    "site.dark_jitter_h": {
+      "value": 24,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "window start variation"
+    },
+    "start.o2_tank_kg": {
+      "value": 130,
+      "unit": "kg",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "start.food_kcal": {
+      "value": 220000,
+      "unit": "kcal",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "about 22 days for 4 crew"
+    },
+    "greenhouse.kcal_per_module_per_day": {
+      "value": 5000,
+      "unit": "kcal/day",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "greenhouse.water_kg_per_module_per_day": {
+      "value": 3,
+      "unit": "kg/day",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "greenhouse.crew_hours_per_module_per_tick": {
+      "value": 0.2,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "greenhouse.low_power_factor": {
+      "value": 0.5,
+      "unit": "factor",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "power and yield both scaled"
+    },
+    "construction.hours_per_shield_layer": {
+      "value": 40,
+      "unit": "crew-h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "science.target_hours": {
+      "value": 120,
+      "unit": "crew-h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "science.max_hours_per_tick": {
+      "value": 0.6,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "failure.mtbf_h.co2_scrubber": {
+      "value": 900,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "failure.mtbf_h.o2_generator": {
+      "value": 1100,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "failure.mtbf_h.water_processor": {
+      "value": 800,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "failure.mtbf_h.power_array": {
+      "value": 1500,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "repair.hours.co2_scrubber": {
+      "value": 6,
+      "unit": "crew-h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "repair.hours.o2_generator": {
+      "value": 10,
+      "unit": "crew-h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "repair.hours.water_processor": {
+      "value": 12,
+      "unit": "crew-h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "repair.hours.power_array": {
+      "value": 8,
+      "unit": "crew-h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "mass.budget": {
+      "value": 120,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.panel": {
+      "value": 5,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.mast_level": {
+      "value": 6,
+      "unit": "mu/level",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.battery": {
+      "value": 5,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.water_tier1": {
+      "value": 8,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.o2_tier1": {
+      "value": 10,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.greenhouse_module": {
+      "value": 10,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.shield_layer": {
+      "value": 12,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "mass.spare": {
+      "value": 3,
+      "unit": "mu",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game unit"
+    },
+    "rating.flight_ready_survival": {
+      "value": 0.95,
+      "unit": "fraction",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game threshold, not a NASA requirement"
+    },
+    "rating.flight_ready_success": {
+      "value": 0.8,
+      "unit": "fraction",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game threshold, not a NASA requirement"
+    }
+  }
+}

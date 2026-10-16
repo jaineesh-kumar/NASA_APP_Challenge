@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          let _fetchVal = window.fetch;
+          const fetchDesc = {
+            get() {
+              return _fetchVal;
+            },
+            set(val) {
+              _fetchVal = val;
+            },
+            configurable: true,
+            enumerable: true,
+          };
+          try {
+            Object.defineProperty(window, 'fetch', fetchDesc);
+          } catch (_) {}
+          try {
+            if (typeof Window !== 'undefined' && Window.prototype) {
+              Object.defineProperty(Window.prototype, 'fetch', fetchDesc);
+            }
+          } catch (_) {}
+
+          const origDefineProperty = Object.defineProperty;
+          Object.defineProperty = function (obj, prop, descriptor) {
+            if (
+              (obj === window || (typeof Window !== 'undefined' && obj === Window.prototype)) &&
+              prop === 'fetch'
+            ) {
+              if (descriptor && descriptor.get && !descriptor.set) {
+                let currentVal;
+                const origGet = descriptor.get;
+                descriptor.set = function (val) {
+                  currentVal = val;
+                };
+                descriptor.get = function () {
+                  return currentVal !== undefined ? currentVal : origGet.call(this);
+                };
+              }
+            }
+            return origDefineProperty.call(this, obj, prop, descriptor);
+          };
+        } catch (_) {}
+      })();
+    </script>
+    <title>Moonbase Margin</title>
+    <meta
+      name="description"
+      content="Junior Astronaut Mission Trainer - Lunar outpost life support, power, and margin simulator."
+    />
+    <meta property="og:title" content="Moonbase Margin" />
+    <meta
+      property="og:description"
+      content="Junior Astronaut Mission Trainer - Lunar outpost life support, power, and margin simulator."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

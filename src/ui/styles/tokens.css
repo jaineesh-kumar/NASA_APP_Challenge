@@ -1,0 +1,53 @@
+/* Design tokens for Moonbase Margin */
+/* Spec B2, B4.9 */
+
+:root {
+  /* Color Palette (High Contrast Deep Space Theme) */
+  --color-bg-base: #0b0f19;
+  --color-bg-surface: #131c2e;
+  --color-bg-surface-elevated: #1c273e;
+  --color-bg-highlight: #283756;
+
+  --color-text-main: #f0f4fc;
+  --color-text-muted: #9bb0d3;
+  --color-text-faint: #63779b;
+
+  --color-border: #2a3b5c;
+  --color-border-focus: #3b82f6;
+
+  /* Semantic Alerts & Status */
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.2);
+
+  /* Primary Action */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-text: #ffffff;
+
+  /* Typography */
+  --font-family-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Radii & Shadows */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+
+  /* Layout Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+}

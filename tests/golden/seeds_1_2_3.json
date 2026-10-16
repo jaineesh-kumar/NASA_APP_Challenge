@@ -1,0 +1,1218 @@
+[
+  {
+    "seed": 1,
+    "survived": true,
+    "failureCause": null,
+    "failureHour": null,
+    "scienceMet": true,
+    "minBatteryPct": 0,
+    "minO2Days": 8.690476190476128,
+    "peakDoseUsv": 21882.324166666564,
+    "log": [
+      {
+        "t": 35,
+        "type": "shield_layer_built",
+        "detail": "Regolith shielding layer 1 completed"
+      },
+      {
+        "t": 71,
+        "type": "shield_layer_built",
+        "detail": "Regolith shielding layer 2 completed"
+      },
+      {
+        "t": 206,
+        "type": "dark_window_start",
+        "detail": "Outpost entered lunar surface dark window"
+      },
+      {
+        "t": 229,
+        "type": "component_failed",
+        "detail": "Component failure: co2_scrubber"
+      },
+      {
+        "t": 229,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 230,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 231,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 232,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 233,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 233,
+        "type": "component_repaired",
+        "detail": "Component restored: co2_scrubber"
+      },
+      {
+        "t": 234,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 234,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 234,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 234,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 235,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 235,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 235,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 235,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 235,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 235,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 236,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 236,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 236,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 236,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 236,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 236,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 237,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 237,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 237,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 237,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 237,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 237,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 238,
+        "type": "dark_window_end",
+        "detail": "Outpost exited dark window into direct sunlight"
+      },
+      {
+        "t": 238,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 239,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 240,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 241,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 242,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 274,
+        "type": "component_failed",
+        "detail": "Component failure: o2_generator"
+      },
+      {
+        "t": 281,
+        "type": "component_repaired",
+        "detail": "Component restored: o2_generator"
+      },
+      {
+        "t": 439,
+        "type": "dust_start",
+        "detail": "Lunar surface dust storm initiated"
+      },
+      {
+        "t": 536,
+        "type": "dark_window_start",
+        "detail": "Outpost entered lunar surface dark window"
+      },
+      {
+        "t": 536,
+        "type": "component_failed",
+        "detail": "Component failure: power_array"
+      },
+      {
+        "t": 542,
+        "type": "component_repaired",
+        "detail": "Component restored: power_array"
+      },
+      {
+        "t": 559,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 560,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 561,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 562,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 563,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 564,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 564,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 564,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 564,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 565,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 565,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 565,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 565,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 565,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 565,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 566,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 566,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 567,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 567,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 568,
+        "type": "dark_window_end",
+        "detail": "Outpost exited dark window into direct sunlight"
+      },
+      {
+        "t": 568,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 569,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 570,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 571,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 572,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 637,
+        "type": "component_failed",
+        "detail": "Component failure: water_processor"
+      }
+    ]
+  },
+  {
+    "seed": 2,
+    "survived": true,
+    "failureCause": null,
+    "failureHour": null,
+    "scienceMet": true,
+    "minBatteryPct": 0,
+    "minO2Days": 8.690476190476128,
+    "peakDoseUsv": 34917.48583333283,
+    "log": [
+      {
+        "t": 6,
+        "type": "spe_warning",
+        "detail": "SPE warning: event expected in 2 hours"
+      },
+      {
+        "t": 6,
+        "type": "rule_fired",
+        "detail": "Rule fired: spe_warning -> shelter"
+      },
+      {
+        "t": 7,
+        "type": "rule_fired",
+        "detail": "Rule fired: spe_warning -> shelter"
+      },
+      {
+        "t": 8,
+        "type": "spe_start",
+        "detail": "Solar Particle Event flux commenced"
+      },
+      {
+        "t": 20,
+        "type": "spe_end",
+        "detail": "Solar Particle Event flux ended"
+      },
+      {
+        "t": 37,
+        "type": "shield_layer_built",
+        "detail": "Regolith shielding layer 1 completed"
+      },
+      {
+        "t": 67,
+        "type": "component_failed",
+        "detail": "Component failure: power_array"
+      },
+      {
+        "t": 73,
+        "type": "component_repaired",
+        "detail": "Component restored: power_array"
+      },
+      {
+        "t": 79,
+        "type": "shield_layer_built",
+        "detail": "Regolith shielding layer 2 completed"
+      },
+      {
+        "t": 211,
+        "type": "dark_window_start",
+        "detail": "Outpost entered lunar surface dark window"
+      },
+      {
+        "t": 234,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 235,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 236,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 237,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 238,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 239,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 239,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 239,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 239,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 240,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 240,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 241,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 241,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 242,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 242,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 243,
+        "type": "dark_window_end",
+        "detail": "Outpost exited dark window into direct sunlight"
+      },
+      {
+        "t": 243,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 244,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 245,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 246,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 247,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 468,
+        "type": "component_failed",
+        "detail": "Component failure: water_processor"
+      },
+      {
+        "t": 551,
+        "type": "dark_window_start",
+        "detail": "Outpost entered lunar surface dark window"
+      },
+      {
+        "t": 574,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 575,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 576,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 577,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 578,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 579,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 579,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 579,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 579,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 580,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 580,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 580,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 580,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 580,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 580,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 581,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 581,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 581,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 581,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 581,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 581,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 582,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 582,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 582,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 582,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 582,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 582,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 583,
+        "type": "dark_window_end",
+        "detail": "Outpost exited dark window into direct sunlight"
+      },
+      {
+        "t": 583,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 584,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 585,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 586,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 587,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      }
+    ]
+  },
+  {
+    "seed": 3,
+    "survived": true,
+    "failureCause": null,
+    "failureHour": null,
+    "scienceMet": true,
+    "minBatteryPct": 0,
+    "minO2Days": 8.690476190476128,
+    "peakDoseUsv": 28342.292916666593,
+    "log": [
+      {
+        "t": 5,
+        "type": "dust_start",
+        "detail": "Lunar surface dust storm initiated"
+      },
+      {
+        "t": 35,
+        "type": "shield_layer_built",
+        "detail": "Regolith shielding layer 1 completed"
+      },
+      {
+        "t": 71,
+        "type": "shield_layer_built",
+        "detail": "Regolith shielding layer 2 completed"
+      },
+      {
+        "t": 211,
+        "type": "dark_window_start",
+        "detail": "Outpost entered lunar surface dark window"
+      },
+      {
+        "t": 234,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 235,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 236,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 237,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 238,
+        "type": "dust_start",
+        "detail": "Lunar surface dust storm initiated"
+      },
+      {
+        "t": 238,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 239,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 239,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 239,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 239,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 240,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 240,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 240,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 241,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 241,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 241,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 242,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 242,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 242,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 243,
+        "type": "dark_window_end",
+        "detail": "Outpost exited dark window into direct sunlight"
+      },
+      {
+        "t": 243,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 244,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 245,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 246,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 247,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 248,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 429,
+        "type": "component_failed",
+        "detail": "Component failure: co2_scrubber"
+      },
+      {
+        "t": 433,
+        "type": "component_repaired",
+        "detail": "Component restored: co2_scrubber"
+      },
+      {
+        "t": 537,
+        "type": "dark_window_start",
+        "detail": "Outpost entered lunar surface dark window"
+      },
+      {
+        "t": 560,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 561,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 562,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 563,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 564,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 565,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 565,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 565,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 565,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 566,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 566,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 566,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 567,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 567,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 567,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 568,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 568,
+        "type": "battery_empty",
+        "detail": "Outpost energy storage fully exhausted"
+      },
+      {
+        "t": 568,
+        "type": "load_off",
+        "detail": "Load shed: life_support"
+      },
+      {
+        "t": 568,
+        "type": "load_off",
+        "detail": "Load shed: thermal"
+      },
+      {
+        "t": 568,
+        "type": "load_off",
+        "detail": "Load shed: comms"
+      },
+      {
+        "t": 568,
+        "type": "load_off",
+        "detail": "Load shed: greenhouse"
+      },
+      {
+        "t": 569,
+        "type": "dark_window_end",
+        "detail": "Outpost exited dark window into direct sunlight"
+      },
+      {
+        "t": 569,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 570,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 571,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 572,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 573,
+        "type": "rule_fired",
+        "detail": "Rule fired: battery_below_pct -> shed"
+      },
+      {
+        "t": 701,
+        "type": "spe_warning",
+        "detail": "SPE warning: event expected in 2 hours"
+      },
+      {
+        "t": 701,
+        "type": "rule_fired",
+        "detail": "Rule fired: spe_warning -> shelter"
+      },
+      {
+        "t": 702,
+        "type": "rule_fired",
+        "detail": "Rule fired: spe_warning -> shelter"
+      },
+      {
+        "t": 703,
+        "type": "spe_start",
+        "detail": "Solar Particle Event flux commenced"
+      },
+      {
+        "t": 715,
+        "type": "spe_end",
+        "detail": "Solar Particle Event flux ended"
+      }
+    ]
+  }
+]

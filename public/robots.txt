@@ -1,0 +1,3 @@
+# Static assets for Moonbase Margin
+User-agent: *
+Allow: /

@@ -1,0 +1,25 @@
+# Project Status: Moonbase Margin
+
+**Current Level:** L6 (UI foundation, Design screen, Rules screen)  
+**Status:** Complete / Awaiting Gate L6  
+
+## Level Checklist
+
+- [x] L0 Preflight and bootstrap (skeleton, toolchain, configs, smoke test)
+- [x] L1 Contracts, params, RNG, mass (frozen types, params.json, validation, mulberry32, massUsed)
+- [x] L2 Schedule and power (dark windows, jitter, mast reduction, solar generation, dust, priority ladder, battery)
+- [x] L3 Life support, water, oxygen, CO2 (water recovery loops, Sabatier, CO2 scrubbing, deficit counters)
+- [x] L4 Food, crew time, radiation, events and failures (stored food, greenhouse yield, crew priority, shield building, radiation shielding, SPE and MTBF failures)
+- [x] L5 Rules, mission loop, Monte Carlo, worker (IF-THEN rule engine, 720-tick sim, Wilson 95% CI, review cause chain, Web Worker, golden tests)
+- [x] L6 UI foundation, Design screen, Rules screen (useReducer store, mass budget bar, steppers, priority ladder, rule editor, presets)
+- [ ] L7 Rehearse and Review screens
+- [ ] L8 Learn, Model Card, scenario codes
+- [ ] L9 Hardening and release
+
+## Open Questions (ASK-HUMAN)
+
+- None.
+
+## Decisions Log Reference
+
+See `docs/DECISIONS.md`.
