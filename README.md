@@ -42,8 +42,8 @@ Through an iterative engineering loop—**Design, Rules, Rehearse, Review, and L
 graph LR
     A[1. Design] --> B[2. Rules]
     B --> C[3. Rehearse]
-    C --> D[4. Review]
-    D --> E[5. Learn & Share]
+    C --> D["4. Review"]
+    D --> E["5. Learn and Share"]
     E --> A
 ```
 
@@ -94,42 +94,42 @@ graph LR
 ```mermaid
 graph TD
     subgraph Data Layer
-        PJSON[data/params.json Single Source of Truth] --> PLOAD[src/engine/params.ts Schema Validation]
+        PJSON["data/params.json Single Source of Truth"] --> PLOAD["src/engine/params.ts Schema Validation"]
     end
 
     subgraph Simulation Engine [src/engine/ - Pure TypeScript]
-        PLOAD --> SIM[sim.ts: runMission]
-        RNG[rng.ts: mulberry32 PRNG] --> SIM
-        MASS[mass.ts: massUsed & isWithinBudget]
-        SCHED[schedule.ts: dark windows & mast elevation] --> SIM
-        POW[power.ts: solar, dust factor, battery charge] --> SIM
-        LIFE[lifeSupport.ts: O2, CO2, water, Sabatier] --> SIM
-        CREW[crew.ts: work shifts & repair allocation] --> SIM
-        RAD[radiation.ts: galactic background, SPE, shielding] --> SIM
-        EVT[events.ts: MTBF, dust storms, solar events] --> SIM
-        RULES[rules.ts: priority ladder & IF-THEN rules] --> SIM
-        SIM --> MC[montecarlo.ts: runCampaign & Wilson 95% CI]
-        SIM --> REV[review.ts: buildCauseChain]
+        PLOAD --> SIM["sim.ts: runMission"]
+        RNG["rng.ts: mulberry32 PRNG"] --> SIM
+        MASS["mass.ts: massUsed and isWithinBudget"]
+        SCHED["schedule.ts: dark windows and mast elevation"] --> SIM
+        POW["power.ts: solar, dust factor, battery charge"] --> SIM
+        LIFE["lifeSupport.ts: O2, CO2, water, Sabatier"] --> SIM
+        CREW["crew.ts: work shifts and repair allocation"] --> SIM
+        RAD["radiation.ts: galactic background, SPE, shielding"] --> SIM
+        EVT["events.ts: MTBF, dust storms, solar events"] --> SIM
+        RULES["rules.ts: priority ladder and IF-THEN rules"] --> SIM
+        SIM --> MC["montecarlo.ts: runCampaign and Wilson 95% CI"]
+        SIM --> REV["review.ts: buildCauseChain"]
     end
 
     subgraph Concurrency
-        MC --> WORKER[src/worker/campaign.worker.ts Background Web Worker]
+        MC --> WORKER["src/worker/campaign.worker.ts Background Web Worker"]
     end
 
     subgraph Application State
-        STORE[src/state/store.tsx: React useReducer + Context]
-        SCENARIO[src/state/scenarioCode.ts: URL Encode/Decode]
+        STORE["src/state/store.tsx: React useReducer and Context"]
+        SCENARIO["src/state/scenarioCode.ts: URL Encode/Decode"]
     end
 
     subgraph UI Screens [src/ui/screens/]
-        WORKER -. Progress Updates & Results .-> STORE
-        STORE --> SCR_BRIEF[Briefing.tsx]
-        STORE --> SCR_DES[Design.tsx]
-        STORE --> SCR_RULES[Rules.tsx]
-        STORE --> SCR_REH[Rehearse.tsx]
-        STORE --> SCR_REV[Review.tsx]
-        STORE --> SCR_LRN[Learn.tsx]
-        STORE --> SCR_MC[ModelCard.tsx]
+        WORKER -. "Progress Updates and Results" .-> STORE
+        STORE --> SCR_BRIEF["Briefing.tsx"]
+        STORE --> SCR_DES["Design.tsx"]
+        STORE --> SCR_RULES["Rules.tsx"]
+        STORE --> SCR_REH["Rehearse.tsx"]
+        STORE --> SCR_REV["Review.tsx"]
+        STORE --> SCR_LRN["Learn.tsx"]
+        STORE --> SCR_MC["ModelCard.tsx"]
     end
 ```
 
@@ -153,11 +153,11 @@ sequenceDiagram
 
     Sim->>Evt: 1. Generate seeded stochastic events (SPE, dust, component MTBF)
     Sim->>Rules: 2. Evaluate IF-THEN rules based on t-1 state
-    Sim->>Power: 3. Calculate solar irradiance & available energy (genKw + batteryKwh)
-    Sim->>Power: 4. Allocate power across 6 loads; update battery charge/discharge
+    Sim->>Power: 3. Calculate solar irradiance and available energy (genKw + batteryKwh)
+    Sim->>Power: 4. Allocate power across 6 loads and update battery storage
     Sim->>Life: 5. Process ECLSS (O2 electrolysis, CO2 scrubbing, water reclamation, Sabatier)
     Sim->>Crew: 6. Allocate productive crew hours (repairs, greenhouse, science, shielding)
-    Sim->>Life: 7. Deduct crew caloric intake & harvest greenhouse yields
+    Sim->>Life: 7. Deduct crew caloric intake and harvest greenhouse yields
     Sim->>Rad: 8. Compute hourly radiation dose (background GCR + SPE storm attenuation)
     Sim->>Check: 9. Test deficit counters (hypoxia, dehydration, hypercapnia, starvation, dose)
 ```
