@@ -3,6 +3,7 @@
 import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { Icon } from '../components/Icon.tsx';
+import { MediaCard } from '../components/MediaCard.tsx';
 
 export const BriefingScreen: React.FC = () => {
   const b = copy.briefing;
@@ -16,7 +17,10 @@ export const BriefingScreen: React.FC = () => {
   return (
     <div className="briefing">
       <h2 className="screen-title">{b.heading}</h2>
-      <p className="briefing-lead">{b.summary}</p>
+      <div className="briefing-intro">
+        <p className="briefing-lead">{b.summary}</p>
+        <MediaCard id="base-scene" ratio="4/3" caption={b.mediaCaption} className="media-small" />
+      </div>
 
       <h3 className="card-title">{b.taskTitle}</h3>
       <ol className="briefing-steps">

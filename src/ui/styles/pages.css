@@ -245,13 +245,6 @@ a.real-data-badge {
   margin: var(--space-6) 0 var(--space-2);
 }
 
-.landing-scene {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-coupon);
-}
-
 .data-badge {
   display: flex;
   gap: var(--space-4);
@@ -348,9 +341,6 @@ a.real-data-badge {
 @media (max-width: 720px) {
   .landing-hero {
     grid-template-columns: 1fr;
-  }
-  .landing-scene {
-    order: -1;
   }
   .data-badge {
     padding: var(--space-4);
@@ -1053,4 +1043,62 @@ a.real-data-badge {
   box-shadow: none;
   border-radius: 0;
   background: transparent;
+}
+
+/* ---------- Media placement ---------- */
+
+.landing-media-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-6);
+}
+
+.landing-storm-link {
+  margin-top: var(--space-3);
+}
+
+/* Decorative Moon horizon under the landing page: a short strip of the ground. */
+.horizon-strip {
+  margin-top: var(--space-8);
+}
+
+.horizon-strip .media-frame {
+  aspect-ratio: 6 / 1 !important;
+}
+
+.horizon-strip img {
+  object-position: center 80%;
+}
+
+.briefing-intro {
+  display: grid;
+  grid-template-columns: 1fr minmax(200px, 300px);
+  gap: var(--space-4);
+  align-items: start;
+  margin-bottom: var(--space-4);
+}
+
+.media-loader {
+  max-width: 420px;
+  margin: 0 auto var(--space-4);
+}
+
+.media-storm {
+  max-width: 520px;
+  margin-bottom: var(--space-3);
+}
+
+.mission-media {
+  max-width: 420px;
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .landing-hero-media {
+    order: -1;
+  }
+  .landing-media-row,
+  .briefing-intro {
+    grid-template-columns: 1fr;
+  }
 }

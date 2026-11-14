@@ -81,6 +81,7 @@ export const copy = {
     realDataBody:
       'You can test your base against real solar storms. NASA recorded them in a space weather database called DONKI. The game uses a saved copy, so it is not live.',
     startButton: 'Start building',
+    mediaCaption: 'Your base at the Moon’s south pole.',
   },
   landing: {
     kicker: 'Incoming message from Mission Control',
@@ -89,7 +90,12 @@ export const copy = {
       `${crew} astronauts are about to land at the Moon’s south pole. They will live there for ${days} days. You are the Commander. Your rocket cannot carry everything, so every choice costs something. Pack well, plan for trouble, and test your plan before they fly.`,
     play: 'Play',
     playHint: 'Start with a quick “How to play”, then fly your first mission.',
-    sceneLabel: 'A small Moon base on a grey hill, with Earth and the low Sun in the black sky.',
+    heroCaption: 'Your crew’s home for the next month.',
+    storyTitle: 'Watch the journey',
+    storyCaption: 'From Earth to the Moon. Press Play to watch.',
+    stormTitle: 'Real storms from the Sun',
+    stormTeaser: 'Test your base against a real NASA storm',
+    stormLink: 'Pick a real storm',
     badgeTitle: 'Real NASA data',
     badgeBody: (storms: number, date: string) =>
       `Test your base against ${storms} real solar storms from NASA’s DONKI database, and read real astronaut studies from NASA OSDR. These are saved copies, retrieved ${date}. Not live.`,
@@ -153,6 +159,7 @@ export const copy = {
     notStarted: 'Not started yet',
     best: (n: number) => `Best test: ${n} out of 100 home`,
     goalStar: 'Goal reached',
+    stormCaption: 'This mission faces a real solar storm.',
     complete: 'Mission complete',
   },
   debrief: {
@@ -541,6 +548,7 @@ export const copy = {
     honesty:
       'Which storm happened, and when, is real NASA data. How strong it is in the game is our simplification: DONKI gives each linked flare a class, and in this game a C flare makes a small storm, M a medium one and X the biggest.',
     donkiLink: 'See this storm in NASA DONKI',
+    mediaCaption: 'When a storm comes, the crew runs for the shelter.',
     evidenceLink: 'See the DONKI alert that names the flare class',
   },
   pass: {
@@ -627,6 +635,7 @@ export const copy = {
     progressLabel: 'Test progress',
     progressText: (done: number, total: number) => `${done} of ${total} missions done`,
     completedNotice: 'Tests finished! See what happened in Review.',
+    loaderCaption: 'Flying your base again and again…',
     rerunButton: 'Test again',
     proceedToReview: 'See the results',
     backToRules: 'Change rules',

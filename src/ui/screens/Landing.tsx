@@ -1,4 +1,5 @@
-// Landing page (#/): the story hook, one big Play button and the real-NASA-data badge.
+// Landing page (#/): the story hook beside the hero clip, one big Play button, the real-data
+// badge, the journey and storm clips, and a decorative Moon horizon at the bottom.
 // Crew size, mission length and test count come from data/params.json (A5.4).
 
 import React from 'react';
@@ -6,6 +7,7 @@ import { copy } from '../../content/copy.ts';
 import { osdr } from '../../content/osdr.ts';
 import { getDonkiArchive, loadParams } from '../../engine/params.ts';
 import { Icon } from '../components/Icon.tsx';
+import { MediaCard } from '../components/MediaCard.tsx';
 import { hrefFor } from '../router.ts';
 
 const params = loadParams();
@@ -15,41 +17,6 @@ const runs = params.getNumber('campaign.runs');
 const archive = getDonkiArchive();
 // Both archives were fetched on the same day; show the older date if they ever differ.
 const retrieved = [archive.retrievedAt, osdr.retrievedAt].sort()[0] ?? archive.retrievedAt;
-
-/** Decorative scene: grey hill, two base domes, Earth and a low Sun (south pole light). */
-const MoonScene: React.FC = () => (
-  <svg
-    className="landing-scene"
-    viewBox="0 0 360 200"
-    role="img"
-    aria-label={copy.landing.sceneLabel}
-    focusable="false"
-  >
-    <rect width="360" height="200" rx="18" fill="var(--navy)" />
-    {[
-      [30, 30],
-      [80, 60],
-      [140, 22],
-      [210, 48],
-      [250, 18],
-      [320, 40],
-      [300, 88],
-      [60, 100],
-    ].map(([x, y]) => (
-      <circle key={`${x}-${y}`} cx={x} cy={y} r="1.6" fill="#e7ebf5" />
-    ))}
-    <circle cx="290" cy="56" r="20" fill="#2a78d6" />
-    <path d="M278 48c6 2 9 7 6 12s2 8 8 7" fill="none" stroke="#1baf7a" strokeWidth="5" />
-    <circle cx="46" cy="150" r="16" fill="var(--sun)" />
-    <path d="M0 150c60-30 130-34 200-20s120 10 160-6V200H0Z" fill="#9fb3dd" />
-    <path d="M0 168c80-18 170-20 250-8s80 6 110 0V200H0Z" fill="#c3d2f0" />
-    <path d="M150 150a26 26 0 0 1 52 0Z" fill="var(--coupon)" />
-    <path d="M196 152a18 18 0 0 1 36 0Z" fill="#e4ecff" />
-    <rect x="168" y="138" width="16" height="12" rx="3" fill="var(--rocket)" />
-    <path d="M236 152v-24M228 128h16" stroke="var(--coupon)" strokeWidth="3" />
-    <rect x="226" y="120" width="20" height="8" fill="var(--carbon)" />
-  </svg>
-);
 
 export const LandingScreen: React.FC = () => {
   const l = copy.landing;
@@ -71,7 +38,7 @@ export const LandingScreen: React.FC = () => {
           </div>
           <p className="muted small">{l.playHint}</p>
         </div>
-        <MoonScene />
+        <MediaCard id="crew-walkout" caption={l.heroCaption} className="landing-hero-media" />
       </section>
 
       <a className="data-badge" href={hrefFor('data')}>
@@ -86,6 +53,24 @@ export const LandingScreen: React.FC = () => {
           </span>
         </span>
       </a>
+
+      <div className="landing-media-row page-section">
+        <section aria-labelledby="story-title">
+          <h3 id="story-title" className="card-title">
+            {l.storyTitle}
+          </h3>
+          <MediaCard id="rocket-flight" caption={l.storyCaption} autoPlay={false} />
+        </section>
+        <section aria-labelledby="storm-teaser-title">
+          <h3 id="storm-teaser-title" className="card-title">
+            {l.stormTitle}
+          </h3>
+          <MediaCard id="storm-shelter" caption={l.stormTeaser} />
+          <a className="btn-link landing-storm-link" href={hrefFor('data')}>
+            <Icon name="sun" size={18} /> {l.stormLink}
+          </a>
+        </section>
+      </div>
 
       <section className="page-section" aria-labelledby="inside-title">
         <h3 id="inside-title">{l.insideTitle}</h3>
@@ -113,6 +98,8 @@ export const LandingScreen: React.FC = () => {
           </li>
         </ul>
       </section>
+
+      <MediaCard id="moon-horizon" decorative className="horizon-strip" />
     </div>
   );
 };

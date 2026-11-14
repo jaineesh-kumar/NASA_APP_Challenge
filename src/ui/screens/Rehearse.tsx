@@ -7,6 +7,7 @@ import { loadParams } from '../../engine/params.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { CAMPAIGN_RUNS, useCampaign } from '../../state/useCampaign.ts';
 import { DataPanel } from '../components/DataPanel.tsx';
+import { MediaCard } from '../components/MediaCard.tsx';
 import { StormPicker, StormResultLine } from '../components/StormPicker.tsx';
 import { Icon } from '../components/Icon.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
@@ -92,6 +93,7 @@ export const RehearseScreen: React.FC = () => {
 
         {isRunningCampaign ? (
           <div>
+            <MediaCard id="missions-grid" caption={t.loaderCaption} className="media-loader" />
             <p style={{ fontWeight: 600, marginBottom: 12 }}>{t.runningButton}</p>
             <div
               role="progressbar"

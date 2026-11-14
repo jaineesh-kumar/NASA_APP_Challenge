@@ -10,6 +10,7 @@ import { useProgress } from '../../state/progress.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { Debrief } from '../components/Debrief.tsx';
 import { Icon } from '../components/Icon.tsx';
+import { MediaCard } from '../components/MediaCard.tsx';
 import { PageIntro } from '../components/PageIntro.tsx';
 import { missionById, startMission } from '../missionFlow.ts';
 import { hrefFor, useRoute } from '../router.ts';
@@ -31,6 +32,14 @@ const MissionCard: React.FC<{ mission: GuidedMission; n: number }> = ({ mission,
       <div className="mission-card-body">
         <h3 id={titleId}>{mission.title}</h3>
         <p className="mission-card-sub">{mission.subtitle}</p>
+        {mission.stormMode.kind === 'replay' ? (
+          <MediaCard
+            id="storm-shelter"
+            caption={p.stormCaption}
+            autoPlay={false}
+            className="mission-media"
+          />
+        ) : null}
         <p className="small">
           <strong>{p.concept}</strong> {conceptTitle(mission.conceptTarget)}
         </p>
