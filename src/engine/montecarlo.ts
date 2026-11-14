@@ -1,63 +1,46 @@
-// Monte Carlo campaign execution and statistical aggregations
+// Monte Carlo campaign, Wilson interval, nearest-rank percentile
 // Spec B5.7
 
+import { getSimConstants } from './constants.ts';
 import { massUsed } from './mass.ts';
 import { LoadedParams, loadParams } from './params.ts';
 import { runMission } from './sim.ts';
-import { CampaignResult, Design, FailureCause, Interval, MissionResult, Rules } from './types.ts';
+import { getSpaceWeather } from './spaceWeather.ts';
+import { CampaignResult, Design, FailureCause, Interval, MissionOptions, Rules } from './types.ts';
 
-/**
- * Computes the Wilson score interval for a proportion at 95% confidence level.
- * Spec B5.7:
- * z = 1.95996 for 95% two-sided normal approximation.
- */
-export function wilsonScoreInterval(successes: number, total: number): Interval {
-  if (total <= 0) {
-    return { low: 0, high: 0 };
-  }
+const Z95 = 1.96;
 
-  const p = successes / total;
-  const z = 1.95996;
-  const zSquared = z * z;
-
-  const denominator = 1 + zSquared / total;
-  const center = (p + zSquared / (2 * total)) / denominator;
-  const margin =
-    (z / denominator) * Math.sqrt((p * (1 - p)) / total + zSquared / (4 * total * total));
-
-  return {
-    low: Math.max(0, center - margin),
-    high: Math.min(1, center + margin),
-  };
+/** Spec B5.7 Wilson 95% interval for p = successes / n, clamped to [0, 1]. */
+export function wilsonScoreInterval(successes: number, n: number): Interval {
+  if (n <= 0) return { low: 0, high: 0 };
+  const p = successes / n;
+  const z2 = Z95 * Z95;
+  const denom = 1 + z2 / n;
+  const centre = (p + z2 / (2 * n)) / denom;
+  const half = (Z95 * Math.sqrt((p * (1 - p)) / n + z2 / (4 * n * n))) / denom;
+  return { low: Math.max(0, centre - half), high: Math.min(1, centre + half) };
 }
 
-/**
- * Computes the p-th percentile from a sorted array of numbers (0 <= p <= 1).
- */
-export function percentile(sorted: readonly number[], p: number): number {
+/** Spec B5.7 nearest-rank percentile on an ascending array: index ceil(q * n) - 1. */
+export function percentile(sorted: readonly number[], q: number): number {
   if (sorted.length === 0) return 0;
-  const index = Math.max(0, Math.min(sorted.length - 1, Math.floor(p * (sorted.length - 1))));
-  return sorted[index] ?? 0;
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil(q * sorted.length) - 1));
+  return sorted[idx] ?? 0;
 }
 
-/**
- * Executes a Monte Carlo campaign of N seeded missions (default 300).
- * Seeds run from 1 to N.
- * Spec B5.7.
- */
 export function runCampaign(
   design: Design,
   rules: Rules,
-  n = 300,
+  n?: number,
   paramsInput?: LoadedParams,
   onProgress?: (progress: number) => void,
+  options: MissionOptions = {},
 ): CampaignResult {
   const params = paramsInput ?? loadParams();
-  const runsCount = n > 0 ? n : params.getNumber('campaign.runs');
-
-  const results: MissionResult[] = [];
-  let survivedCount = 0;
-  let successCount = 0;
+  const k = getSimConstants(params);
+  const runs = n !== undefined && n > 0 ? Math.floor(n) : k.campaignRuns;
+  const sw = getSpaceWeather();
+  const missionOptions: MissionOptions = { sunEra: options.sunEra ?? 'all' };
 
   const causeCounts: Record<FailureCause | 'science_missed', number> = {
     oxygen: 0,
@@ -67,99 +50,79 @@ export function runCampaign(
     dose: 0,
     science_missed: 0,
   };
+  const battery: number[] = [];
+  const o2Days: number[] = [];
+  const dose: number[] = [];
+  let survivedCount = 0;
+  let successCount = 0;
+  let stormsTotal = 0;
+  let stormsMax = 0;
+  let warningsMissed = 0;
 
-  const batteryPcts: number[] = [];
-  const o2DaysList: number[] = [];
-  const doseList: number[] = [];
+  // Worst run (B5.7): earliest failure (ties: lowest seed); if none failed, lowest min battery.
+  let worstFailSeed = -1;
+  let worstFailHour = Infinity;
+  let lowestBatterySeed = 1;
+  let lowestBattery = Infinity;
 
-  const progressInterval = Math.max(1, Math.floor(runsCount / 10));
-
-  for (let seed = 1; seed <= runsCount; seed++) {
-    const res = runMission(design, rules, seed, params);
-    results.push(res);
-
-    if (res.survived) {
+  const step = Math.max(1, Math.floor(runs / 20));
+  for (let seed = 1; seed <= runs; seed++) {
+    const r = runMission(design, rules, seed, params, missionOptions, sw);
+    if (r.survived) {
       survivedCount++;
-      if (res.scienceMet) {
-        successCount++;
-      } else {
-        causeCounts.science_missed++;
+      if (r.scienceMet) successCount++;
+      else causeCounts.science_missed++;
+    } else if (r.failureCause) {
+      causeCounts[r.failureCause]++;
+      const h = r.failureHour ?? Infinity;
+      if (h < worstFailHour) {
+        worstFailHour = h;
+        worstFailSeed = seed;
       }
-    } else if (res.failureCause) {
-      causeCounts[res.failureCause]++;
     }
-
-    batteryPcts.push(res.minBatteryPct);
-    o2DaysList.push(res.minO2Days);
-    doseList.push(res.peakDoseUsv);
-
-    if (onProgress && (seed % progressInterval === 0 || seed === runsCount)) {
-      onProgress(seed / runsCount);
+    if (r.minBatteryPct < lowestBattery) {
+      lowestBattery = r.minBatteryPct;
+      lowestBatterySeed = seed;
     }
+    battery.push(r.minBatteryPct);
+    o2Days.push(r.minO2Days);
+    dose.push(r.peakDoseUsv);
+    stormsTotal += r.sun.storms.length;
+    stormsMax = Math.max(stormsMax, r.sun.storms.length);
+    for (const s of r.sun.storms) {
+      if (s.leadH > 0 && s.warningReceivedH === null && (r.failureHour ?? Infinity) >= s.onsetH) {
+        warningsMissed++;
+      }
+    }
+    if (onProgress && (seed % step === 0 || seed === runs)) onProgress(seed / runs);
   }
 
-  batteryPcts.sort((a, b) => a - b);
-  o2DaysList.sort((a, b) => a - b);
-  doseList.sort((a, b) => a - b);
+  const asc = (a: number, b: number) => a - b;
+  battery.sort(asc);
+  o2Days.sort(asc);
+  dose.sort(asc);
 
-  const survivalRate = survivedCount / runsCount;
-  const successRate = successCount / runsCount;
-
-  const survivalCi = wilsonScoreInterval(survivedCount, runsCount);
-  const successCi = wilsonScoreInterval(successCount, runsCount);
-
-  const minBatteryPctP5 = percentile(batteryPcts, 0.05);
-  const minO2DaysP5 = percentile(o2DaysList, 0.05);
-  const doseUsvP95 = percentile(doseList, 0.95);
-
-  // Identify worst seed
-  // Primary priority: failed missions (earliest failureHour, lowest minBatteryPct)
-  // Secondary: surviving missions with missed science or lowest minBatteryPct
-  let worstSeed = 1;
-  let worstScore = Infinity;
-
-  for (let i = 0; i < results.length; i++) {
-    const r = results[i];
-    if (!r) continue;
-
-    let score: number;
-    if (!r.survived) {
-      // Failed runs have score < 100000 based on failureHour
-      score = (r.failureHour ?? 0) * 100 + r.minBatteryPct;
-    } else if (!r.scienceMet) {
-      score = 200000 + r.minBatteryPct;
-    } else {
-      score = 300000 + r.minBatteryPct;
-    }
-
-    if (score < worstScore) {
-      worstScore = score;
-      worstSeed = r.seed;
-    }
-  }
-
-  const flightReadySurvival = params.getNumber('rating.flight_ready_survival');
-  const flightReadySuccess = params.getNumber('rating.flight_ready_success');
-
-  const rating =
-    survivalRate >= flightReadySurvival && successRate >= flightReadySuccess
-      ? 'flight_ready'
-      : 'needs_work';
-
-  const usedMass = massUsed(design, params);
-
+  const survivalRate = survivedCount / runs;
+  const successRate = successCount / runs;
   return {
-    runs: runsCount,
+    runs,
     survivalRate,
     successRate,
-    survivalCi,
-    successCi,
-    minBatteryPctP5,
-    minO2DaysP5,
-    doseUsvP95,
+    survivalCi: wilsonScoreInterval(survivedCount, runs),
+    successCi: wilsonScoreInterval(successCount, runs),
+    minBatteryPctP5: percentile(battery, 0.05),
+    minO2DaysP5: percentile(o2Days, 0.05),
+    doseUsvP95: percentile(dose, 0.95),
     causeCounts,
-    massUsed: usedMass,
-    worstSeed,
-    rating,
+    massUsed: massUsed(design, params),
+    worstSeed: worstFailSeed > 0 ? worstFailSeed : lowestBatterySeed,
+    rating:
+      survivalRate >= k.flightReadySurvival && successRate >= k.flightReadySuccess
+        ? 'flight_ready'
+        : 'needs_work',
+    sunEra: missionOptions.sunEra ?? 'all',
+    stormsPerRunMean: stormsTotal / runs,
+    stormsMaxInRun: stormsMax,
+    warningsMissed,
   };
 }

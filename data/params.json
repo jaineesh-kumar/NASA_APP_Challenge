@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "params": {
     "mission.hours": {
       "value": 720,
@@ -30,7 +30,7 @@
       "note": "TODO(human): verify in S01 BVAD"
     },
     "crew.co2_kg_per_day": {
-      "value": 1.0,
+      "value": 1,
       "unit": "kg/crew/day",
       "source": "S10",
       "confidence": "medium",
@@ -107,7 +107,7 @@
       "note": "illustrative"
     },
     "co2.cabin_limit_kg": {
-      "value": 2.0,
+      "value": 2,
       "unit": "kg",
       "source": "ASSUMPTION",
       "confidence": "low",
@@ -156,7 +156,7 @@
       "note": "ISS reference over the same period; display only"
     },
     "radiation.shield_factor_by_layers": {
-      "value": [1.0, 0.67, 0.5, 0.4],
+      "value": [1, 0.67, 0.5, 0.4],
       "unit": "factor",
       "source": "ASSUMPTION",
       "confidence": "low",
@@ -179,20 +179,6 @@
     "radiation.spe_duration_h": {
       "value": 12,
       "unit": "h",
-      "source": "ASSUMPTION",
-      "confidence": "low",
-      "note": "illustrative"
-    },
-    "radiation.spe_warning_lead_h": {
-      "value": 2,
-      "unit": "h",
-      "source": "ASSUMPTION",
-      "confidence": "low",
-      "note": "illustrative"
-    },
-    "radiation.spe_per_month": {
-      "value": 1.0,
-      "unit": "events/30 d",
       "source": "ASSUMPTION",
       "confidence": "low",
       "note": "illustrative"
@@ -553,6 +539,20 @@
       "source": "ASSUMPTION",
       "confidence": "low",
       "note": "game threshold, not a NASA requirement"
+    },
+    "comms.earth_moon_light_delay_s": {
+      "value": 1.28,
+      "unit": "s",
+      "source": "DERIVED",
+      "confidence": "high",
+      "note": "384,400 km average Earth-Moon distance divided by the speed of light (299,792 km/s); display only"
+    },
+    "comms.earth_mars_light_delay_min": {
+      "value": [3, 22],
+      "unit": "min",
+      "source": "DERIVED",
+      "confidence": "high",
+      "note": "closest (54.6 million km) and farthest (401 million km) Earth-Mars distance divided by the speed of light; display only"
     }
   }
 }

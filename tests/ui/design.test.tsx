@@ -2,62 +2,74 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
-import { AppStoreProvider } from '../../src/state/store.tsx';
+import { missionPresets } from '../../src/content/missions.ts';
+import { loadParams } from '../../src/engine/params.ts';
+import { AppStoreProvider, initialAppState } from '../../src/state/store.tsx';
 import { DesignScreen } from '../../src/ui/screens/Design.tsx';
 
-describe('DesignScreen Component (Spec Part C L6 AC1, AC2, AC3, AC6, AC9)', () => {
-  it('renders mass budget bar and updates with controls (AC1, AC2)', () => {
-    render(
-      <AppStoreProvider>
-        <DesignScreen />
-      </AppStoreProvider>,
-    );
+const budget = loadParams().getNumber('mass.budget');
 
+const renderDesign = () =>
+  render(
+    <AppStoreProvider>
+      <DesignScreen />
+    </AppStoreProvider>,
+  );
+
+describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
+  it('renders the mass meter and steppers with accessible names', () => {
+    renderDesign();
     expect(screen.getByText(copy.design.heading)).toBeDefined();
-    const progressbar = screen.getByRole('progressbar');
-    expect(progressbar).toBeDefined();
-
-    // Find panels stepper
-    const increasePanelsBtn = screen.getByLabelText(`Increase ${copy.design.panelsLabel}`);
-    expect(increasePanelsBtn).toBeDefined();
-
-    fireEvent.click(increasePanelsBtn);
-    // Mass bar reflects updated usage
-    expect(progressbar.getAttribute('aria-valuenow')).toBeDefined();
+    expect(screen.getByRole('progressbar')).toBeDefined();
+    expect(
+      screen.getByRole('button', { name: `Increase ${copy.design.panelsLabel}` }),
+    ).toBeDefined();
   });
 
-  it('prevents advancing past Design when over budget (AC3)', () => {
+  it('AC2: "+" is disabled once the next item would break the mass budget', () => {
+    renderDesign();
+    const plus = screen.getByRole('button', {
+      name: `Increase ${copy.design.batteriesLabel}`,
+    }) as HTMLButtonElement;
+    for (let i = 0; i < 20 && !plus.disabled; i++) fireEvent.click(plus);
+    expect(plus.disabled).toBe(true);
+    const bar = screen.getByRole('progressbar');
+    expect(Number(bar.getAttribute('aria-valuenow'))).toBeLessThanOrEqual(budget);
+    const next = screen.getByRole('button', { name: copy.design.nextButton }) as HTMLButtonElement;
+    expect(next.disabled).toBe(false);
+  });
+
+  it('blocks moving on when a loaded design is over budget', () => {
+    const heavy = {
+      ...initialAppState.design,
+      batteries: 12,
+      panels: 8,
+      shieldingLayers: 3 as const,
+    };
     render(
-      <AppStoreProvider>
+      <AppStoreProvider
+        initialState={{
+          ...initialAppState,
+          design: heavy,
+          massUsed: budget + 1,
+          isWithinBudget: false,
+        }}
+      >
         <DesignScreen />
       </AppStoreProvider>,
     );
-
-    const nextBtn = screen.getByText(copy.design.nextButton) as HTMLButtonElement;
-    expect(nextBtn.disabled).toBe(false);
-
-    // Max out batteries to exceed budget
-    const increaseBatteriesBtn = screen.getByLabelText(`Increase ${copy.design.batteriesLabel}`);
-    for (let i = 0; i < 7; i++) {
-      fireEvent.click(increaseBatteriesBtn);
-    }
-
-    // Now over budget -> button should be disabled
     expect(screen.getByText(copy.design.overBudgetWarning)).toBeDefined();
-    expect(nextBtn.disabled).toBe(true);
+    expect(
+      (screen.getByRole('button', { name: copy.design.nextButton }) as HTMLButtonElement).disabled,
+    ).toBe(true);
   });
 
-  it('preset buttons load documented designs (AC6)', () => {
-    render(
-      <AppStoreProvider>
-        <DesignScreen />
-      </AppStoreProvider>,
-    );
-
-    const powerGridPresetBtn = screen.getByText('High-Power Grid');
-    fireEvent.click(powerGridPresetBtn);
-
-    // Site switched to Shackleton Crater Edge
-    expect(screen.getByText(copy.design.craterName)).toBeDefined();
+  it('example bases load their designs', () => {
+    renderDesign();
+    const crater = missionPresets.find((p) => p.id === 'crater_camp');
+    expect(crater).toBeDefined();
+    fireEvent.click(screen.getByText(crater?.name ?? ''));
+    const craterRadio = screen.getByRole('radio', { name: new RegExp(copy.design.craterName) });
+    expect(craterRadio.getAttribute('aria-checked')).toBe('true');
   });
 });

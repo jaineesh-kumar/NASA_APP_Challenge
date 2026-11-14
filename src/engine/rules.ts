@@ -1,132 +1,113 @@
-// IF-THEN rules evaluator and condition matching
-// Spec B5.2, B5.4 (Step 2)
+// Priority ladder validation and IF-THEN rule interpreter
+// Spec B5.2, B5.4 step 2
 
-import { LoadedParams } from './params.ts';
-import { DarkWindow } from './schedule.ts';
-import { Condition, IfThenRule, LoadId, LogEntry, Rules } from './types.ts';
+import { LOAD_IDS } from './constants.ts';
+import { Condition, EngineError, LoadId, Rules } from './types.ts';
 
-export interface RuleEvaluationState {
-  batteryKwh: number;
-  batteryCapacityKwh: number;
-  o2TankKg: number;
-  isSpeWarningActive: boolean;
-  componentsOk: Record<string, boolean>;
-  darkWindows: readonly DarkWindow[];
+export const MAX_RULES = 5;
+
+/** State at the end of the previous tick (rules never see the current tick). */
+export interface RuleState {
+  batteryPct: number;
+  o2Days: number;
+  /** Radiation alert: a storm warning heard over comms, or a storm detected at the base. */
+  isRadiationAlert: boolean;
+  hoursToNextDark: number;
+  isAnyComponentFailed: boolean;
 }
 
-export interface RuleEvaluationResult {
+export interface RuleFlags {
   forcedOff: Set<LoadId>;
   shelter: boolean;
   repairFirst: boolean;
   ghLow: boolean;
   pauseScience: boolean;
-  logs: LogEntry[];
+  /** Index of each rule that fired this tick. */
+  fired: boolean[];
 }
 
-/**
- * Checks whether a single rule condition is met based on the state at the end of the previous tick.
- */
-export function checkCondition(
-  condition: Condition,
-  state: RuleEvaluationState,
-  t: number,
-  params: LoadedParams,
-): boolean {
-  switch (condition.kind) {
-    case 'battery_below_pct': {
-      if (state.batteryCapacityKwh <= 0) return true;
-      const pct = (state.batteryKwh / state.batteryCapacityKwh) * 100;
-      return pct < condition.value;
-    }
-    case 'spe_warning': {
-      return state.isSpeWarningActive;
-    }
-    case 'o2_days_below': {
-      const crewSize = params.getNumber('crew.size');
-      const o2KgPerDay = params.getNumber('crew.o2_kg_per_day');
-      const dailyConsumption = crewSize * o2KgPerDay;
-      const o2Days = dailyConsumption > 0 ? state.o2TankKg / dailyConsumption : 0;
-      return o2Days < condition.value;
-    }
-    case 'dark_window_within_h': {
-      // Check if any dark window starts within condition.value hours from now
-      for (let i = 0; i < state.darkWindows.length; i++) {
-        const w = state.darkWindows[i];
-        if (w) {
-          const hoursUntilStart = w.start - t;
-          if (hoursUntilStart > 0 && hoursUntilStart <= condition.value) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
-    case 'component_failed': {
-      for (const compId of Object.keys(state.componentsOk)) {
-        if (!state.componentsOk[compId]) {
-          return true;
-        }
-      }
-      return false;
-    }
+export function validateRules(rules: Rules): void {
+  if (rules.ifThen.length > MAX_RULES) {
+    throw new EngineError('TOO_MANY_RULES', `At most ${MAX_RULES} IF-THEN rules are allowed.`);
+  }
+  const seen = new Set(rules.priority);
+  if (rules.priority.length !== LOAD_IDS.length || seen.size !== LOAD_IDS.length) {
+    throw new EngineError('INVALID_PRIORITY', 'Priority must list each of the 6 loads once.');
+  }
+  for (const id of LOAD_IDS) {
+    if (!seen.has(id)) throw new EngineError('INVALID_PRIORITY', `Priority is missing '${id}'.`);
   }
 }
 
-/**
- * Evaluates rules.ifThen in order.
- * Spec B5.4 Step 2:
- * Evaluated against previous tick state. Re-evaluated every tick (no latching).
- */
-export function evaluateRules(
-  rules: Rules,
-  state: RuleEvaluationState,
-  t: number,
-  params: LoadedParams,
-): RuleEvaluationResult {
-  const forcedOff = new Set<LoadId>();
-  let shelter = false;
-  let repairFirst = false;
-  let ghLow = false;
-  let pauseScience = false;
-  const logs: LogEntry[] = [];
-
-  for (let i = 0; i < rules.ifThen.length; i++) {
-    const rule: IfThenRule | undefined = rules.ifThen[i];
-    if (!rule) continue;
-
-    if (checkCondition(rule.condition, state, t, params)) {
-      logs.push({
-        t,
-        type: 'rule_fired',
-        detail: `Rule fired: ${rule.condition.kind} -> ${rule.action.kind}`,
-      });
-
-      switch (rule.action.kind) {
-        case 'shed':
-          forcedOff.add(rule.action.load);
-          break;
-        case 'shelter':
-          shelter = true;
-          break;
-        case 'repair_first':
-          repairFirst = true;
-          break;
-        case 'greenhouse_low_power':
-          ghLow = true;
-          break;
-        case 'pause_science':
-          pauseScience = true;
-          break;
-      }
-    }
+export function checkCondition(c: Condition, s: RuleState): boolean {
+  switch (c.kind) {
+    case 'battery_below_pct':
+      return s.batteryPct < c.value;
+    case 'spe_warning':
+      return s.isRadiationAlert;
+    case 'o2_days_below':
+      return s.o2Days < c.value;
+    case 'dark_window_within_h':
+      return s.hoursToNextDark <= c.value;
+    case 'component_failed':
+      return s.isAnyComponentFailed;
   }
+}
 
-  return {
-    forcedOff,
-    shelter,
-    repairFirst,
-    ghLow,
-    pauseScience,
-    logs,
+/** Spec B5.4 step 2: evaluated in order every tick, no latching. */
+const NO_RULES_FIRED: boolean[] = [];
+
+export function evaluateRules(rules: Rules, s: RuleState): RuleFlags {
+  if (rules.ifThen.length === 0) {
+    return {
+      forcedOff: new Set<LoadId>(),
+      shelter: false,
+      repairFirst: false,
+      ghLow: false,
+      pauseScience: false,
+      fired: NO_RULES_FIRED,
+    };
+  }
+  const flags: RuleFlags = {
+    forcedOff: new Set<LoadId>(),
+    shelter: false,
+    repairFirst: false,
+    ghLow: false,
+    pauseScience: false,
+    fired: [],
   };
+  for (const rule of rules.ifThen) {
+    const hit = checkCondition(rule.condition, s);
+    flags.fired.push(hit);
+    if (!hit) continue;
+    const a = rule.action;
+    switch (a.kind) {
+      case 'shed':
+        flags.forcedOff.add(a.load);
+        break;
+      case 'shelter':
+        flags.shelter = true;
+        break;
+      case 'repair_first':
+        flags.repairFirst = true;
+        break;
+      case 'greenhouse_low_power':
+        flags.ghLow = true;
+        break;
+      case 'pause_science':
+        flags.pauseScience = true;
+        break;
+    }
+  }
+  return flags;
+}
+
+export function describeRule(rules: Rules, index: number): string {
+  const r = rules.ifThen[index];
+  if (!r) return '';
+  const cond =
+    'value' in r.condition ? `${r.condition.kind} ${r.condition.value}` : r.condition.kind;
+  const act = r.action.kind === 'shed' ? `shed ${r.action.load}` : r.action.kind;
+  // Action first so the cause chain can match e.g. "shed life_support" (Spec B5.9).
+  return `${act} when ${cond}`;
 }

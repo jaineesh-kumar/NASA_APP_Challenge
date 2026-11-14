@@ -4,6 +4,7 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
+import { copy } from '../../src/content/copy.ts';
 import { REQUIRED_PARAM_IDS } from '../../src/engine/params.ts';
 import { AppStoreProvider } from '../../src/state/store.tsx';
 import { ModelCardScreen } from '../../src/ui/screens/ModelCard.tsx';
@@ -16,10 +17,11 @@ describe('ModelCardScreen Component (Spec Part C L8 AC3)', () => {
       </AppStoreProvider>,
     );
 
-    expect(screen.getByText('Documented Modeling Simplifications (Spec B1)')).toBeDefined();
-    expect(screen.getByText('Discrete Hourly Time Ticks')).toBeDefined();
-    expect(screen.getByText('Surface-Level Radiation vs. EVA Spacewalks')).toBeDefined();
-    expect(screen.getByText('No Runtime Telemetry or Backend')).toBeDefined();
+    expect(screen.getByText(copy.modelCard.simplificationsTitle)).toBeDefined();
+    for (const item of copy.modelCard.simplifications)
+      expect(screen.getByText(item.topic)).toBeDefined();
+    expect(screen.getByText(new RegExp(copy.modelCard.dataTitle))).toBeDefined();
+    expect(screen.getByText(/DONKI records/)).toBeDefined();
   });
 
   it('renders table containing every parameter with value, unit, source, confidence (AC3)', () => {

@@ -1,10 +1,10 @@
-// Global state management using useReducer and Context
-// Spec B2, B5.2, Part C (L6, L7)
+// App state: useReducer + Context (Spec B2; L6, L7)
 
 import React, { createContext, useContext, useReducer } from 'react';
-import { missionPresets, MissionPreset } from '../content/missions.ts';
+import { GuidedMission, missionPresets, MissionPreset } from '../content/missions.ts';
 import { isWithinBudget, massUsed } from '../engine/mass.ts';
 import { loadParams } from '../engine/params.ts';
+import { MAX_RULES } from '../engine/rules.ts';
 import {
   CampaignResult,
   ComponentId,
@@ -14,21 +14,37 @@ import {
   MissionResult,
   Rules,
   SiteId,
+  SunEra,
 } from '../engine/types.ts';
 
 export type ScreenId =
   'briefing' | 'design' | 'rules' | 'rehearse' | 'review' | 'learn' | 'model_card';
 
+/** One tested design, for the mass-vs-risk chart (Spec B8: every design tried this session). */
+export interface TriedDesign {
+  n: number;
+  massUsed: number;
+  riskPct: number;
+  sunEra: SunEra;
+}
+
+const MAX_HISTORY = 30;
+
 export interface AppState {
   currentScreen: ScreenId;
   design: Design;
   rules: Rules;
+  sunEra: SunEra;
   massUsed: number;
   isWithinBudget: boolean;
   campaignResult: CampaignResult | null;
   worstMissionResult: MissionResult | null;
+  /** Design, rules or era changed since the last campaign. */
+  isResultStale: boolean;
   isRunningCampaign: boolean;
   campaignProgress: number;
+  campaignError: string | null;
+  history: TriedDesign[];
 }
 
 export type Action =
@@ -47,163 +63,153 @@ export type Action =
   | { type: 'ADD_RULE'; rule: IfThenRule }
   | { type: 'REMOVE_RULE'; index: number }
   | { type: 'SET_PRESET'; preset: MissionPreset }
-  | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules }
+  | { type: 'LOAD_MISSION'; mission: GuidedMission }
+  | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules; sunEra?: SunEra }
+  | { type: 'SET_SUN_ERA'; sunEra: SunEra }
   | { type: 'START_CAMPAIGN' }
   | { type: 'SET_CAMPAIGN_PROGRESS'; progress: number }
-  | {
-      type: 'SET_CAMPAIGN_RESULT';
-      result: CampaignResult;
-      worstRun: MissionResult;
-    };
+  | { type: 'SET_CAMPAIGN_RESULT'; result: CampaignResult; worstRun: MissionResult }
+  | { type: 'CAMPAIGN_FAILED'; message: string };
 
-const defaultParams = loadParams();
-const initialPreset = missionPresets[0]!;
+const params = loadParams();
+const initialPreset = missionPresets[0];
+if (!initialPreset) throw new Error('missionPresets must not be empty');
 
 export const initialAppState: AppState = {
   currentScreen: 'briefing',
   design: initialPreset.design,
   rules: initialPreset.rules,
-  massUsed: massUsed(initialPreset.design, defaultParams),
-  isWithinBudget: isWithinBudget(initialPreset.design, defaultParams),
+  sunEra: 'all',
+  massUsed: massUsed(initialPreset.design, params),
+  isWithinBudget: isWithinBudget(initialPreset.design, params),
   campaignResult: null,
   worstMissionResult: null,
+  isResultStale: false,
   isRunningCampaign: false,
   campaignProgress: 0,
+  campaignError: null,
+  history: [],
 };
 
-export function appReducer(state: AppState, action: Action): AppState {
-  let nextDesign = state.design;
-  let nextRules = state.rules;
+const clampInt = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, Math.floor(v)));
 
+function withConfig(
+  state: AppState,
+  design: Design,
+  rules: Rules,
+  sunEra = state.sunEra,
+): AppState {
+  const mass = massUsed(design, params);
+  return {
+    ...state,
+    design,
+    rules,
+    sunEra,
+    massUsed: mass,
+    isWithinBudget: isWithinBudget(design, params),
+    isResultStale: state.campaignResult !== null,
+  };
+}
+
+/** Applies a design change only if it stays within the mass budget (L6 AC2). Removing is always allowed. */
+function tryDesign(state: AppState, next: Design): AppState {
+  const nextMass = massUsed(next, params);
+  if (nextMass > state.massUsed && !isWithinBudget(next, params)) return state;
+  return withConfig(state, next, state.rules);
+}
+
+export function appReducer(state: AppState, action: Action): AppState {
+  const d = state.design;
   switch (action.type) {
     case 'SET_SCREEN':
       return { ...state, currentScreen: action.screen };
-
     case 'START_CAMPAIGN':
-      return { ...state, isRunningCampaign: true, campaignProgress: 0 };
-
+      return { ...state, isRunningCampaign: true, campaignProgress: 0, campaignError: null };
     case 'SET_CAMPAIGN_PROGRESS':
       return { ...state, campaignProgress: action.progress };
-
-    case 'SET_CAMPAIGN_RESULT':
+    case 'CAMPAIGN_FAILED':
+      return { ...state, isRunningCampaign: false, campaignError: action.message };
+    case 'SET_CAMPAIGN_RESULT': {
+      const n = (state.history.at(-1)?.n ?? 0) + 1;
+      const entry: TriedDesign = {
+        n,
+        massUsed: action.result.massUsed,
+        riskPct: (1 - action.result.survivalRate) * 100,
+        sunEra: action.result.sunEra,
+      };
       return {
         ...state,
         isRunningCampaign: false,
-        campaignProgress: 1.0,
+        campaignProgress: 1,
+        campaignError: null,
         campaignResult: action.result,
         worstMissionResult: action.worstRun,
+        isResultStale: false,
+        history: [...state.history, entry].slice(-MAX_HISTORY),
       };
-
-    case 'SET_SITE':
-      nextDesign = { ...state.design, site: action.site };
-      break;
-
-    case 'SET_PANELS':
-      nextDesign = {
-        ...state.design,
-        panels: Math.max(1, Math.min(8, Math.floor(action.panels))),
-      };
-      break;
-
-    case 'SET_MAST':
-      nextDesign = { ...state.design, mastLevel: action.mastLevel };
-      break;
-
-    case 'SET_BATTERIES':
-      nextDesign = {
-        ...state.design,
-        batteries: Math.max(1, Math.min(12, Math.floor(action.batteries))),
-      };
-      break;
-
-    case 'SET_WATER_TIER':
-      nextDesign = { ...state.design, waterLoopTier: action.tier };
-      break;
-
-    case 'SET_O2_TIER':
-      nextDesign = { ...state.design, o2LoopTier: action.tier };
-      break;
-
-    case 'SET_GREENHOUSE':
-      nextDesign = { ...state.design, greenhouseModules: action.modules };
-      break;
-
-    case 'SET_SHIELDING':
-      nextDesign = { ...state.design, shieldingLayers: action.layers };
-      break;
-
-    case 'SET_SPARE':
-      nextDesign = {
-        ...state.design,
-        spares: {
-          ...state.design.spares,
-          [action.component]: action.count,
-        },
-      };
-      break;
-
-    case 'SET_PRIORITY':
-      nextRules = { ...state.rules, priority: action.priority };
-      break;
-
-    case 'MOVE_PRIORITY': {
-      const { index, direction } = action;
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= state.rules.priority.length) {
-        return state;
-      }
-      const newPriority = [...state.rules.priority];
-      const itemToMove = newPriority[index];
-      const itemToSwap = newPriority[targetIndex];
-      if (itemToMove && itemToSwap) {
-        newPriority[index] = itemToSwap;
-        newPriority[targetIndex] = itemToMove;
-      }
-      nextRules = { ...state.rules, priority: newPriority };
-      break;
     }
-
-    case 'ADD_RULE':
-      if (state.rules.ifThen.length >= 5) {
+    case 'SET_SITE':
+      return tryDesign(state, { ...d, site: action.site });
+    case 'SET_PANELS':
+      return tryDesign(state, { ...d, panels: clampInt(action.panels, 1, 8) });
+    case 'SET_MAST':
+      return tryDesign(state, { ...d, mastLevel: action.mastLevel });
+    case 'SET_BATTERIES':
+      return tryDesign(state, { ...d, batteries: clampInt(action.batteries, 1, 12) });
+    case 'SET_WATER_TIER':
+      return tryDesign(state, { ...d, waterLoopTier: action.tier });
+    case 'SET_O2_TIER':
+      return tryDesign(state, { ...d, o2LoopTier: action.tier });
+    case 'SET_GREENHOUSE':
+      return tryDesign(state, { ...d, greenhouseModules: action.modules });
+    case 'SET_SHIELDING':
+      return tryDesign(state, { ...d, shieldingLayers: action.layers });
+    case 'SET_SPARE':
+      return tryDesign(state, { ...d, spares: { ...d.spares, [action.component]: action.count } });
+    case 'SET_PRIORITY': {
+      // Only accept a full permutation of the six loads (L6 AC3).
+      const cur = new Set(state.rules.priority);
+      const next = action.priority;
+      if (
+        next.length !== cur.size ||
+        new Set(next).size !== cur.size ||
+        next.some((l) => !cur.has(l))
+      ) {
         return state;
       }
-      nextRules = {
-        ...state.rules,
-        ifThen: [...state.rules.ifThen, action.rule],
-      };
-      break;
-
+      return withConfig(state, d, { ...state.rules, priority: [...next] });
+    }
+    case 'MOVE_PRIORITY': {
+      const to = action.direction === 'up' ? action.index - 1 : action.index + 1;
+      const p = [...state.rules.priority];
+      const a = p[action.index];
+      const b = p[to];
+      if (a === undefined || b === undefined) return state;
+      p[action.index] = b;
+      p[to] = a;
+      return withConfig(state, d, { ...state.rules, priority: p });
+    }
+    case 'ADD_RULE':
+      if (state.rules.ifThen.length >= MAX_RULES) return state;
+      return withConfig(state, d, { ...state.rules, ifThen: [...state.rules.ifThen, action.rule] });
     case 'REMOVE_RULE':
-      nextRules = {
+      return withConfig(state, d, {
         ...state.rules,
-        ifThen: state.rules.ifThen.filter((_, idx) => idx !== action.index),
-      };
-      break;
-
+        ifThen: state.rules.ifThen.filter((_, i) => i !== action.index),
+      });
     case 'SET_PRESET':
-      nextDesign = action.preset.design;
-      nextRules = action.preset.rules;
-      break;
-
+      return withConfig(state, action.preset.design, action.preset.rules);
+    case 'LOAD_MISSION':
+      return withConfig(state, action.mission.design, action.mission.rules, action.mission.sunEra);
     case 'LOAD_SCENARIO':
-      nextDesign = action.design;
-      nextRules = action.rules;
-      break;
-
+      return withConfig(state, action.design, action.rules, action.sunEra ?? state.sunEra);
+    case 'SET_SUN_ERA':
+      return action.sunEra === state.sunEra
+        ? state
+        : withConfig(state, d, state.rules, action.sunEra);
     default:
       return state;
   }
-
-  const updatedMass = massUsed(nextDesign, defaultParams);
-  const updatedWithinBudget = isWithinBudget(nextDesign, defaultParams);
-
-  return {
-    ...state,
-    design: nextDesign,
-    rules: nextRules,
-    massUsed: updatedMass,
-    isWithinBudget: updatedWithinBudget,
-  };
 }
 
 interface AppStoreContextType {
@@ -213,18 +219,20 @@ interface AppStoreContextType {
 
 const AppStoreContext = createContext<AppStoreContextType | null>(null);
 
-export function AppStoreProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(appReducer, initialAppState);
-
-  return (
-    <AppStoreContext.Provider value={{ state, dispatch }}>{children}</AppStoreContext.Provider>
-  );
+export function AppStoreProvider({
+  children,
+  initialState = initialAppState,
+}: {
+  children: React.ReactNode;
+  initialState?: AppState;
+}) {
+  const [state, dispatch] = useReducer(appReducer, initialState);
+  const value = React.useMemo(() => ({ state, dispatch }), [state]);
+  return <AppStoreContext.Provider value={value}>{children}</AppStoreContext.Provider>;
 }
 
 export function useAppStore(): AppStoreContextType {
   const context = useContext(AppStoreContext);
-  if (!context) {
-    throw new Error('useAppStore must be used within an AppStoreProvider');
-  }
+  if (!context) throw new Error('useAppStore must be used within an AppStoreProvider');
   return context;
 }

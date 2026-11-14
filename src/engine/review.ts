@@ -1,125 +1,121 @@
-// Cause chain construction and educational concept hints
-// Spec B5.9
+// Cause chain and concept hint from a mission log
+// Spec B5.9 (table extended by ADR-006 for comms-carried storm warnings)
 
 import { FailureCause, LogEntry, MissionResult } from './types.ts';
 
+export type ConceptId =
+  | 'redundancy'
+  | 'single_point_of_failure'
+  | 'margin'
+  | 'loop_closure'
+  | 'trade_offs'
+  | 'communication';
+
+/** One link: `effect` happened because of `cause`. Both are real log entries. */
 export interface CauseChainLink {
-  effect: string;
-  causes: string[];
+  effect: LogEntry;
+  cause: LogEntry;
 }
 
 export interface CauseChainResult {
+  failure: LogEntry | null;
   chain: CauseChainLink[];
-  conceptHint: string;
+  concept: ConceptId | null;
 }
 
-/**
- * Builds a causal chain from the log of a failed mission run.
- * Spec B5.9:
- * Walks back through at most 5 linked log entries in priority order. Never invents links.
- * Maps concept hint by primary failure root cause.
- */
-export function buildCauseChain(input: LogEntry[] | MissionResult): CauseChainResult {
-  let logs: LogEntry[];
-  let failureCause: FailureCause | null = null;
+type Pattern = (e: LogEntry) => boolean;
 
-  if (Array.isArray(input)) {
-    logs = input;
-    const failEntry = logs.find((l) => l.type === 'failure');
-    if (failEntry) {
-      if (failEntry.detail.includes('oxygen')) failureCause = 'oxygen';
-      else if (failEntry.detail.includes('co2')) failureCause = 'co2';
-      else if (failEntry.detail.includes('water')) failureCause = 'water';
-      else if (failEntry.detail.includes('food')) failureCause = 'food';
-      else if (failEntry.detail.includes('dose')) failureCause = 'dose';
+const is =
+  (type: LogEntry['type'], detailStart?: string): Pattern =>
+  (e) =>
+    e.type === type && (detailStart === undefined || e.detail.startsWith(detailStart));
+
+/** Key of an entry for table lookup, e.g. "load_off:life_support". */
+function keyOf(e: LogEntry): string {
+  if (e.type === 'failure') return `failure:${e.detail}`;
+  if (e.type === 'load_off') return `load_off:${e.detail}`;
+  if (e.type === 'spe_start') return `spe_start:${e.detail}`;
+  return e.type;
+}
+
+// Spec B5.9 table, causes in priority order. "water at zero" and "too few shield layers" are
+// not log events, so they are not linked (never invent a link).
+const CAUSES: Readonly<Record<string, readonly Pattern[]>> = {
+  'failure:oxygen': [is('component_failed', 'o2_generator'), is('load_off', 'life_support')],
+  'failure:co2': [is('component_failed', 'co2_scrubber'), is('load_off', 'life_support')],
+  'failure:water': [is('component_failed', 'water_processor'), is('load_off', 'life_support')],
+  'failure:food': [is('load_off', 'greenhouse'), is('component_failed', 'water_processor')],
+  'failure:dose': [is('spe_start', 'unsheltered'), is('spe_start')],
+  'spe_start:unsheltered': [is('warning_missed')],
+  warning_missed: [is('load_off', 'comms'), is('rule_fired', 'shed comms')],
+  'load_off:comms': [is('battery_empty')],
+  'load_off:life_support': [
+    is('battery_empty'),
+    is('rule_fired', 'shed life_support'),
+    is('component_failed', 'power_array'),
+  ],
+  'load_off:greenhouse': [is('battery_empty'), is('component_failed', 'power_array')],
+  battery_empty: [is('dark_window_start'), is('dust_start'), is('component_failed', 'power_array')],
+};
+
+const MAX_LINKS = 5;
+
+export function buildCauseChain(input: MissionResult | readonly LogEntry[]): CauseChainResult {
+  const log: readonly LogEntry[] = Array.isArray(input) ? input : (input as MissionResult).log;
+  let failureIdx = -1;
+  for (let i = log.length - 1; i >= 0; i--) {
+    if (log[i]?.type === 'failure') {
+      failureIdx = i;
+      break;
     }
-  } else {
-    logs = input.log;
-    failureCause = input.failureCause;
   }
-
-  if (!failureCause) {
-    return {
-      chain: [],
-      conceptHint: 'All mission criteria survived; maintain margins for resilience.',
-    };
-  }
+  const failure = failureIdx >= 0 ? (log[failureIdx] ?? null) : null;
+  if (!failure) return { failure: null, chain: [], concept: null };
 
   const chain: CauseChainLink[] = [];
-  const foundEffects: string[] = [];
-
-  // Walk backwards from failure event
-  const reversed = [...logs].reverse();
-
-  for (let i = 0; i < reversed.length && foundEffects.length < 5; i++) {
-    const entry = reversed[i];
-    if (!entry) continue;
-
-    if (entry.type === 'failure') {
-      foundEffects.push(`Fatal loss: ${failureCause}`);
-    } else if (entry.type === 'load_off' && entry.detail.includes('life_support')) {
-      if (!foundEffects.includes('Life support load shed')) {
-        foundEffects.push('Life support load shed');
+  let effect = failure;
+  let effectIdx = failureIdx;
+  while (chain.length < MAX_LINKS) {
+    const patterns = CAUSES[keyOf(effect)];
+    if (!patterns) break;
+    let found = -1;
+    // Priority order first, then the most recent matching entry before the effect.
+    for (const p of patterns) {
+      for (let i = effectIdx - 1; i >= 0; i--) {
+        const e = log[i];
+        if (e && p(e)) {
+          found = i;
+          break;
+        }
       }
-    } else if (entry.type === 'battery_empty') {
-      if (!foundEffects.includes('Main battery fully exhausted')) {
-        foundEffects.push('Main battery fully exhausted');
-      }
-    } else if (entry.type === 'component_failed') {
-      const desc = `Component failure: ${entry.detail}`;
-      if (!foundEffects.includes(desc)) {
-        foundEffects.push(desc);
-      }
-    } else if (entry.type === 'dark_window_start') {
-      if (!foundEffects.includes('Outpost entered dark window')) {
-        foundEffects.push('Outpost entered dark window');
-      }
-    } else if (entry.type === 'dust_start') {
-      if (!foundEffects.includes('Dust storm obscured solar arrays')) {
-        foundEffects.push('Dust storm obscured solar arrays');
-      }
-    } else if (entry.type === 'spe_start') {
-      if (!foundEffects.includes('Solar Particle Event radiation storm')) {
-        foundEffects.push('Solar Particle Event radiation storm');
-      }
+      if (found >= 0) break;
     }
+    const cause = found >= 0 ? log[found] : undefined;
+    if (!cause) break;
+    chain.push({ effect, cause });
+    effect = cause;
+    effectIdx = found;
   }
 
-  // Build sequential causal links from reversed walk
-  for (let i = 0; i < foundEffects.length - 1; i++) {
-    const effect = foundEffects[i];
-    const cause = foundEffects[i + 1];
-    if (effect && cause) {
-      chain.push({
-        effect,
-        causes: [cause],
-      });
-    }
+  return { failure, chain, concept: conceptFor(failure.detail as FailureCause, chain) };
+}
+
+// Spec B5.9 concept hint by effect.
+function conceptFor(cause: FailureCause, chain: readonly CauseChainLink[]): ConceptId {
+  const types = new Set(chain.map((l) => l.cause.type));
+  if (types.has('warning_missed')) return 'communication';
+  if (types.has('battery_empty')) return 'margin';
+  switch (cause) {
+    case 'water':
+      return 'loop_closure';
+    case 'dose':
+      return 'trade_offs';
+    case 'food':
+      return 'margin';
+    case 'oxygen':
+    case 'co2':
+      return chain.some((l) => l.cause.type === 'component_failed')
+        ? 'single_point_of_failure'
+        : 'redundancy';
   }
-
-  // Map concept hint per Spec B5.9 table
-  let conceptHint = 'Margin: Maintain adequate reserves across power and life support subsystems.';
-  const hasBatteryExhaustion = foundEffects.some((e) => e.includes('battery'));
-
-  if (hasBatteryExhaustion) {
-    conceptHint =
-      'Margin: Expand battery capacity or mast illumination height to bridge surface dark windows and dust storms.';
-  } else if (failureCause === 'water') {
-    conceptHint =
-      'Loop closure: Upgrade water recovery loops to reduce daily expendable fluid replenishment.';
-  } else if (failureCause === 'oxygen' || failureCause === 'co2') {
-    conceptHint =
-      'Redundancy: Carry component spares or install backup loops to avoid single-point failure.';
-  } else if (failureCause === 'dose') {
-    conceptHint =
-      'Trade-off: Invest launch mass in shielding layers and activate storm shelter during solar particle events.';
-  } else if (failureCause === 'food') {
-    conceptHint =
-      'Resilience: Install greenhouse capacity to offset finite rations and ensure caloric stability.';
-  }
-
-  return {
-    chain,
-    conceptHint,
-  };
 }

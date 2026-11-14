@@ -1,5 +1,6 @@
-// Astronaut Trainer Pre/Post Mission Quiz Questions (6 Questions)
-// Spec B8, B9, Part C (L8 AC2, AC6: agent-drafted content has needsReview: true)
+// Pre/post quiz, 6 questions (Spec B8, B9; L8 AC2, AC6).
+// Agent-drafted: every item carries needsReview: true until a human clears it.
+// Claims are limited to what params.json, docs/SOURCES.md or data/spaceWeather.json support.
 
 export interface QuizQuestion {
   id: string;
@@ -14,97 +15,94 @@ export interface QuizQuestion {
 export const quizQuestions: QuizQuestion[] = [
   {
     id: 'q1',
-    question:
-      'Why does a lunar south pole outpost need massive battery storage despite high sunlight peaks?',
+    question: 'The Moon base has lots of sunshine. Why does it still need batteries?',
     options: [
-      'Batteries generate extra solar energy at night.',
-      'Jagged crater rims and topography cast dark windows lasting up to 72 hours.',
-      'Lunar dust improves battery charge speed.',
-      'Batteries are required to cool the solar panels.',
+      'Batteries make extra sunlight.',
+      'Mountains sometimes block the Sun, so panels make no power for many hours.',
+      'Moon dust charges the batteries.',
+      'Batteries keep the panels cool.',
     ],
     correctIndex: 1,
     explanation:
-      'Even in near-permanent illumination regions, topography periodically blocks the low-angle Sun, producing dark windows where all power must come from batteries (Source: S03, S09).',
+      'Near the Moon’s south pole the Sun stays low, so hills and crater walls can block it. Then all power must come from batteries (sources S03, S09).',
     conceptRef: 'margin',
     needsReview: true,
   },
   {
     id: 'q2',
-    question:
-      'What is the primary advantage of upgrading from a 90% base water processor to a 98% brine processor?',
+    question: 'What does a better water recycler do?',
     options: [
-      'It creates artificial gravity inside the habitat.',
-      'It drastically reduces resupply water mass by extracting almost all liquid from wastewater brine.',
-      'It stops the crew from needing oxygen.',
-      'It cools the habitat without using electricity.',
+      'It makes gravity stronger.',
+      'It cleans more of the used water, so less water is lost.',
+      'It lets the crew stop breathing.',
+      'It cools the base without power.',
     ],
     correctIndex: 1,
     explanation:
-      'A brine processor recovers precious water trapped in urine brine, boosting total water recovery to 98% and preventing water reserve depletion on long expeditions (Source: S04).',
+      'The space station’s upgraded system recovers more of its water than the older one (source S04). Less water lost means less water to carry from Earth.',
     conceptRef: 'loop_closure',
     needsReview: true,
   },
   {
     id: 'q3',
-    question: 'What does having a "Single Point of Failure" (SPOF) mean in mission architecture?',
+    question: 'Your base has only one oxygen maker and no spare. What is the problem?',
     options: [
-      'Every astronaut has their own separate rover.',
-      'A component whose isolated breakdown leads directly to mission loss because no backup exists.',
-      'A mission that succeeds on its first test flight.',
-      'Having extra backup parts for every system.',
+      'Nothing. One is enough.',
+      'If it breaks, there is no way to fix it. One broken part can end the mission.',
+      'It makes too much oxygen.',
+      'It uses no power at all.',
     ],
     correctIndex: 1,
     explanation:
-      'A single point of failure means no backup or spare exists; if that machine fails, the whole system collapses (Source: S06).',
+      'Engineers call this a single point of failure: one part whose breakdown stops everything. Spares or backups remove it.',
     conceptRef: 'single_point_of_failure',
     needsReview: true,
   },
   {
     id: 'q4',
-    question:
-      'When a Solar Particle Event (SPE) warning is received, what is the safest crew action?',
+    question: 'A solar storm warning arrives. What is the safest thing for the crew to do?',
     options: [
-      'Perform a surface spacewalk immediately to clean dust off solar panels.',
-      'Retreat into the regolith-shielded storm shelter until the high-energy proton storm passes.',
-      'Turn off all life support systems to save battery.',
-      'Eject the greenhouse food modules.',
+      'Go outside to clean the solar panels.',
+      'Go into the storm shelter until the storm is over.',
+      'Turn off life support to save power.',
+      'Ignore it. Storms do not matter on the Moon.',
     ],
     correctIndex: 1,
     explanation:
-      'Solar particle events produce lethal radiation doses. Sheltering behind thick regolith shielding cuts exposure by up to 75% (Source: S02).',
+      'The shelter has extra walls between the crew and the storm. In this game the shelter blocks part of the radiation (an illustrative number). The cost: no science or building while hiding.',
     conceptRef: 'trade_offs',
     needsReview: true,
   },
   {
     id: 'q5',
     question:
-      'In the power allocation priority ladder, which system should usually be shed LAST during a severe power shortage?',
+      'Your rules switch off the radio to save power. What can go wrong during a solar storm?',
     options: [
-      'Lunar Surface Science Experiments.',
-      'Regolith Shield Construction Robotics.',
-      'Crew Life Support (Cabin Atmosphere & O2).',
-      'Greenhouse Hydroponics Lighting.',
+      'Nothing. The radio only plays music.',
+      'The storm warning from Earth cannot reach the base, so the crew may not hide in time.',
+      'The radio makes the storm stronger.',
+      'The batteries fill up too fast.',
     ],
-    correctIndex: 2,
+    correctIndex: 1,
     explanation:
-      'Life support keeps astronauts alive and must receive the highest priority. Non-vital loads like science and construction must be shed first during power emergencies.',
-    conceptRef: 'margin',
+      'In this game, warnings from Earth travel by radio. Saving power on the radio is a real trade-off: it can cost you the warning.',
+    conceptRef: 'communication',
     needsReview: true,
   },
   {
     id: 'q6',
     question:
-      'How does an oxygen Sabatier reactor help close life support resource loops on the Moon?',
+      'Some years had many more solar storms than others. What should a careful engineer do?',
     options: [
-      'It converts exhaled carbon dioxide and byproduct hydrogen into water and methane.',
-      'It mines lunar rocks for liquid water.',
-      'It directly turns sunlight into solid food.',
-      'It replaces the need for solar panels.',
+      'Plan only for the calmest year.',
+      'Test the base against stormy years too, and keep extra protection.',
+      'Ignore the Sun completely.',
+      'Launch only at night.',
     ],
-    correctIndex: 0,
+    correctIndex: 1,
     explanation:
-      'The Sabatier catalytic reactor combines waste CO2 with H2 from water electrolysis to produce water, recovering up to 50% of oxygen otherwise lost as carbon dioxide (Source: S05).',
-    conceptRef: 'loop_closure',
+      'NASA’s DONKI records show big changes from year to year (source S12). A good design keeps a margin for the stormy years.',
+    conceptRef: 'margin',
     needsReview: true,
   },
 ];

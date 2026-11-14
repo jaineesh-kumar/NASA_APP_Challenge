@@ -1,43 +1,40 @@
 import { describe, expect, it } from 'vitest';
-import { loadParams } from '../../src/engine/params.ts';
-import { stepRadiation } from '../../src/engine/radiation.ts';
+import { runMission } from '../../src/engine/sim.ts';
+import { hourlyDoseUsv } from '../../src/engine/radiation.ts';
+import { goldenDesign, goldenRules, k, noRules, params } from './fixtures.ts';
 
-describe('radiation dose accumulation and shielding (Spec B5.4 Step 9, AC5)', () => {
-  const params = loadParams();
-  const surfaceUsvPerDay = params.getNumber('radiation.surface_usv_per_day'); // 1369
-  const hourlyBase = surfaceUsvPerDay / 24;
-
-  it('radiation dose scales with active shield layers and shelter flag (AC5)', () => {
-    // 0 layers, unshielded, no shelter, no SPE
-    const step0 = stepRadiation(0, 0, false, false, params);
-    expect(step0.shieldFactor).toBe(1.0);
-    expect(step0.shelterFactor).toBe(1.0);
-    expect(step0.hourlyDoseUsv).toBeCloseTo(hourlyBase, 6);
-
-    // 1 layer (factor 0.67)
-    const step1 = stepRadiation(0, 1, false, false, params);
-    expect(step1.shieldFactor).toBe(0.67);
-    expect(step1.hourlyDoseUsv).toBeCloseTo(hourlyBase * 0.67, 6);
-
-    // 2 layers (factor 0.5) + shelter (factor 0.25)
-    const step2Shelter = stepRadiation(0, 2, true, false, params);
-    expect(step2Shelter.shieldFactor).toBe(0.5);
-    expect(step2Shelter.shelterFactor).toBe(0.25);
-    expect(step2Shelter.hourlyDoseUsv).toBeCloseTo(hourlyBase * 0.5 * 0.25, 6);
-
-    // SPE event active (multiplier 20x)
-    const speMultiplier = params.getNumber('radiation.spe_multiplier'); // 20
-    const stepSpe = stepRadiation(0, 0, false, true, params);
-    expect(stepSpe.speMultiplier).toBe(speMultiplier);
-    expect(stepSpe.hourlyDoseUsv).toBeCloseTo(hourlyBase * speMultiplier, 6);
+describe('radiation (L4 AC1-AC3)', () => {
+  it('AC1: hourly dose is never negative, so dose never decreases', () => {
+    for (const layers of [0, 1, 2, 3])
+      for (const sh of [false, true])
+        for (const storm of [false, true])
+          expect(hourlyDoseUsv(layers, sh, storm, k)).toBeGreaterThan(0);
   });
 
-  it('flags dose deficit when accumulated dose exceeds mission limit', () => {
-    const doseLimit = params.getNumber('radiation.dose_limit_usv_mission'); // 60000
-    const belowLimitStep = stepRadiation(doseLimit - 100, 0, false, false, params);
-    expect(belowLimitStep.doseOverLimit).toBe(false);
+  it('AC2: more built shielding never raises dose', () => {
+    for (const storm of [false, true]) {
+      for (let l = 1; l <= 3; l++) {
+        expect(hourlyDoseUsv(l, false, storm, k)).toBeLessThanOrEqual(
+          hourlyDoseUsv(l - 1, false, storm, k),
+        );
+      }
+    }
+    // Fixed seed, whole mission: a design with more shielding ends with no more dose.
+    const thin = runMission({ ...goldenDesign, shieldingLayers: 0 }, noRules, 2, params);
+    const thick = runMission({ ...goldenDesign, shieldingLayers: 2 }, noRules, 2, params);
+    if (thin.survived && thick.survived)
+      expect(thick.peakDoseUsv).toBeLessThanOrEqual(thin.peakDoseUsv);
+  });
 
-    const aboveLimitStep = stepRadiation(doseLimit, 0, false, false, params);
-    expect(aboveLimitStep.doseOverLimit).toBe(true);
+  it('AC3: sheltering never raises dose', () => {
+    for (let l = 0; l <= 3; l++) {
+      expect(hourlyDoseUsv(l, true, true, k)).toBeLessThanOrEqual(hourlyDoseUsv(l, false, true, k));
+    }
+  });
+
+  it('dose in a run is monotonic over the trace', () => {
+    const r = runMission(goldenDesign, goldenRules, 3, params, { trace: true, sunEra: 'stormy' });
+    const d = r.trace?.doseUsv ?? [];
+    for (let i = 1; i < d.length; i++) expect(d[i] ?? 0).toBeGreaterThanOrEqual(d[i - 1] ?? 0);
   });
 });

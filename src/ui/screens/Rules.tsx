@@ -21,6 +21,10 @@ export const RulesScreen: React.FC = () => {
         </p>
       </div>
 
+      <p className="notice" style={{ marginBottom: 20 }}>
+        📡 {copy.rules.commsNote}
+      </p>
+
       <div className="grid-2col">
         <div>
           <PriorityLadder />

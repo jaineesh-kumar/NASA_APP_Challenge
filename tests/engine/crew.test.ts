@@ -1,108 +1,88 @@
 import { describe, expect, it } from 'vitest';
-import { allocateCrewTime } from '../../src/engine/crew.ts';
-import { loadParams } from '../../src/engine/params.ts';
-import { Design } from '../../src/engine/types.ts';
+import { allocateCrewTime, CrewInputs, crewTaskOrder } from '../../src/engine/crew.ts';
+import { mulberry32 } from '../../src/engine/rng.ts';
+import { goldenDesign, k } from './fixtures.ts';
 
-describe('crew time allocation, repairs, and shield construction (Spec B5.4 Step 8, AC3, AC4, AC9)', () => {
-  const params = loadParams();
+const base: CrewInputs = {
+  isSheltering: false,
+  repairFirst: false,
+  pauseScience: false,
+  isGreenhousePowered: true,
+  isSciencePowered: true,
+  isConstructionPowered: true,
+  shieldBuilt: 0,
+  shieldProgressH: 0,
+  repairsLeftH: { o2_generator: 10 },
+};
 
-  const standardDesign: Design = {
-    site: 'ridge',
-    panels: 4,
-    mastLevel: 1,
-    batteries: 4,
-    waterLoopTier: 0,
-    o2LoopTier: 0,
-    greenhouseModules: 2,
-    shieldingLayers: 2,
-    spares: {
-      co2_scrubber: 1,
-      o2_generator: 1,
-      water_processor: 1,
-      power_array: 1,
-    },
-  };
-
-  it('allocates crew hours in strict order: repairs before greenhouse before construction before science (AC3)', () => {
-    // Total crew hours available per hour = (4 * 8) / 24 = 1.3333... hours
-    // Scenario 1: Active repair needing 1.0 hour.
-    // 1.3333 total available:
-    // 1.0 goes to repair -> remaining 0.3333
-    // Greenhouse (2 modules * 0.2 = 0.4 demand): 0.3333 goes to greenhouse -> remaining 0
-    // Construction: gets 0
-    // Science: gets 0
-    const activeRepairs = { co2_scrubber: 1.0 };
-
-    const result = allocateCrewTime(
-      standardDesign,
-      activeRepairs,
-      0, // shieldBuilt
-      0, // shieldProgressH
-      0, // scienceHours
-      true, // ghPowered
-      true, // constrPowered
-      true, // sciPowered
-      false, // sheltering
-      false, // sciPaused
-      params,
-    );
-
-    expect(result.hoursAllocated.repairs).toBeCloseTo(1.0, 5);
-    expect(result.hoursAllocated.greenhouse).toBeCloseTo(0.33333, 4);
-    expect(result.hoursAllocated.construction).toBe(0);
-    expect(result.hoursAllocated.science).toBe(0);
-    expect(result.ghLaborFraction).toBeCloseTo(0.33333 / 0.4, 4);
+describe('crew hours (L4 AC4, AC5)', () => {
+  it('AC4: hours allocated never exceed the pool', () => {
+    const rng = mulberry32(21);
+    for (let i = 0; i < 2000; i++) {
+      const r = allocateCrewTime(
+        { ...goldenDesign, greenhouseModules: (i % 4) as 0 | 1 | 2 | 3 },
+        {
+          isSheltering: rng() < 0.1,
+          repairFirst: rng() < 0.5,
+          pauseScience: rng() < 0.3,
+          isGreenhousePowered: rng() < 0.8,
+          isSciencePowered: rng() < 0.8,
+          isConstructionPowered: rng() < 0.8,
+          shieldBuilt: Math.floor(rng() * 3),
+          shieldProgressH: rng() * 30,
+          repairsLeftH: rng() < 0.5 ? { co2_scrubber: rng() * 6, power_array: Infinity } : {},
+        },
+        k,
+      );
+      const used = r.hours.greenhouse + r.hours.science + r.hours.construction + r.hours.repairs;
+      expect(used).toBeLessThanOrEqual(r.poolH + 1e-12);
+      expect(r.poolH).toBeLessThanOrEqual(k.crewPoolHPerTick);
+    }
   });
 
-  it('finishes shield layer when accumulated crew hours reach construction.hours_per_shield_layer (AC4)', () => {
-    const hoursPerLayer = params.getNumber('construction.hours_per_shield_layer'); // 40
-    // Start with 39.5 hours progress towards layer 1
-    const initialProgress = hoursPerLayer - 0.5;
+  it('AC5: repairFirst moves repairs from last to first', () => {
+    expect(crewTaskOrder(false, false)).toEqual([
+      'greenhouse',
+      'science',
+      'construction',
+      'repairs',
+    ]);
+    expect(crewTaskOrder(true, false)).toEqual([
+      'repairs',
+      'greenhouse',
+      'science',
+      'construction',
+    ]);
+    expect(crewTaskOrder(false, true)).not.toContain('science');
 
-    const result = allocateCrewTime(
-      standardDesign,
-      {}, // no repairs
-      0, // 0 layers built
-      initialProgress,
-      0,
-      false, // no greenhouse
-      true, // construction powered
-      true,
-      false,
-      false,
-      params,
-    );
-
-    expect(result.layerCompletedThisTick).toBe(true);
-    expect(result.updatedShieldBuilt).toBe(1);
-    expect(result.updatedShieldProgressH).toBe(0);
-    expect(result.hoursAllocated.construction).toBeCloseTo(0.5, 5);
-    // Remaining crew time (1.3333 - 0.5 = 0.8333) cascades into science (capped at max 0.6)
-    expect(result.hoursAllocated.science).toBeCloseTo(0.6, 5);
+    const normal = allocateCrewTime(goldenDesign, base, k);
+    const first = allocateCrewTime(goldenDesign, { ...base, repairFirst: true }, k);
+    expect(first.hours.repairs).toBeGreaterThan(normal.hours.repairs);
+    expect(first.hours.repairs).toBeCloseTo(Math.min(k.crewPoolHPerTick, 10), 12);
   });
 
-  it('repair finishes after required crew hours and marks component ok (AC9)', () => {
-    const repairHoursNeeded = params.getNumber('repair.hours.co2_scrubber'); // 6
-    expect(repairHoursNeeded).toBe(6);
-    // Suppose 1.0 hour remaining on scrubber
-    const activeRepairs = { co2_scrubber: 1.0 };
-
-    const result = allocateCrewTime(
-      standardDesign,
-      activeRepairs,
-      0,
-      0,
-      0,
-      false,
-      false,
-      false,
-      false,
-      false,
-      params,
+  it('sheltering empties the pool; permanent failures get no repair hours', () => {
+    expect(allocateCrewTime(goldenDesign, { ...base, isSheltering: true }, k).poolH).toBe(0);
+    const r = allocateCrewTime(
+      goldenDesign,
+      { ...base, repairFirst: true, repairsLeftH: { o2_generator: Infinity } },
+      k,
     );
+    expect(r.hours.repairs).toBe(0);
+  });
 
-    expect(result.hoursAllocated.repairs).toBeCloseTo(1.0, 5);
-    expect(result.repairedThisTick).toContain('co2_scrubber');
-    expect(result.remainingRepairs['co2_scrubber']).toBeUndefined();
+  it('a layer completes when construction hours reach the per-layer target', () => {
+    const r = allocateCrewTime(
+      { ...goldenDesign, greenhouseModules: 0 },
+      {
+        ...base,
+        isSciencePowered: false,
+        shieldProgressH: k.hoursPerShieldLayer - 0.1,
+        repairsLeftH: {},
+      },
+      k,
+    );
+    expect(r.isLayerCompleted).toBe(true);
+    expect(r.shieldBuilt).toBe(1);
   });
 });

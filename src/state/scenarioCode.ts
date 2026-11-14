@@ -1,227 +1,197 @@
-// URL Scenario Code Encoder and Decoder
-// Spec Part C (L8 AC4, AC5)
+// Shareable scenario codes: encode / decode design + rules + sun era (L8 AC4, AC5)
+// Format "MM<version>-<base64url JSON>". v2 adds the sun era (ADR-005); v1 codes still load.
 
-import { Design, EngineError, IfThenRule, LoadId, Rules } from '../engine/types.ts';
+import { LOAD_IDS } from '../engine/constants.ts';
+import { validateRules } from '../engine/rules.ts';
+import {
+  Action,
+  ComponentId,
+  Condition,
+  Design,
+  EngineError,
+  IfThenRule,
+  LoadId,
+  Rules,
+  SiteId,
+  SunEra,
+} from '../engine/types.ts';
 
-export const SCENARIO_CODE_VERSION = 1;
+export const SCENARIO_CODE_VERSION = 2;
+const SUPPORTED_VERSIONS: ReadonlySet<number> = new Set([1, 2]);
 const MAX_CODE_LENGTH = 2048;
 
-interface ScenarioPayload {
-  v: number;
-  d: Design;
-  r: Rules;
+export interface Scenario {
+  design: Design;
+  rules: Rules;
+  sunEra: SunEra;
 }
 
-const VALID_SITES = new Set(['ridge', 'crater_edge']);
-const VALID_LOADS = new Set([
-  'life_support',
-  'thermal',
-  'comms',
-  'greenhouse',
-  'science',
-  'construction',
-]);
-const VALID_CONDITIONS = new Set([
+const SITES: ReadonlySet<string> = new Set<SiteId>(['ridge', 'crater_edge']);
+const ERAS: ReadonlySet<string> = new Set<SunEra>(['all', 'quiet', 'stormy']);
+const LOADS: ReadonlySet<string> = new Set<string>(LOAD_IDS);
+const COMPONENTS: readonly ComponentId[] = [
+  'co2_scrubber',
+  'o2_generator',
+  'water_processor',
+  'power_array',
+];
+const VALUE_CONDITIONS: ReadonlySet<string> = new Set([
   'battery_below_pct',
-  'spe_warning',
   'o2_days_below',
   'dark_window_within_h',
-  'component_failed',
 ]);
-const VALID_ACTIONS = new Set([
-  'shed',
+const FLAG_CONDITIONS: ReadonlySet<string> = new Set(['spe_warning', 'component_failed']);
+const FLAG_ACTIONS: ReadonlySet<string> = new Set([
   'shelter',
   'repair_first',
   'greenhouse_low_power',
   'pause_science',
 ]);
+// Rule thresholds are percentages, days or hours; anything outside this range is corrupt input.
+const MAX_RULE_VALUE = 1000;
 
-function toBase64(str: string): string {
-  return globalThis.btoa(unescape(encodeURIComponent(str)));
+function corrupt(msg: string): never {
+  throw new EngineError('CORRUPT_SCENARIO_CODE', msg);
 }
 
-function fromBase64(b64: string): string {
-  return decodeURIComponent(escape(globalThis.atob(b64)));
+const isObj = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v);
+
+function intIn(v: unknown, lo: number, hi: number, what: string): number {
+  if (typeof v !== 'number' || !Number.isInteger(v) || v < lo || v > hi) {
+    corrupt(`${what} must be an integer between ${lo} and ${hi}.`);
+  }
+  return v;
 }
 
-/**
- * Encodes a Design and Rules configuration into a URL-safe scenario code string.
- * Format: "MM1-<base64_payload>"
- */
-export function encodeScenarioCode(design: Design, rules: Rules): string {
-  const payload: ScenarioPayload = {
-    v: SCENARIO_CODE_VERSION,
-    d: design,
-    r: rules,
+function toBase64Url(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  bytes.forEach((b) => (bin += String.fromCharCode(b)));
+  return globalThis.btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(s: string): string {
+  let b64 = s.replace(/-/g, '+').replace(/_/g, '/');
+  while (b64.length % 4 !== 0) b64 += '=';
+  const bin = globalThis.atob(b64);
+  return new TextDecoder('utf-8', { fatal: true }).decode(
+    Uint8Array.from(bin, (c) => c.charCodeAt(0)),
+  );
+}
+
+export function encodeScenarioCode(design: Design, rules: Rules, sunEra: SunEra = 'all'): string {
+  const json = JSON.stringify({ v: SCENARIO_CODE_VERSION, d: design, r: rules, e: sunEra });
+  return `MM${SCENARIO_CODE_VERSION}-${toBase64Url(json)}`;
+}
+
+function parseDesign(d: unknown): Design {
+  if (!isObj(d)) corrupt('Scenario is missing a valid design.');
+  if (typeof d['site'] !== 'string' || !SITES.has(d['site']))
+    corrupt(`Invalid site: ${String(d['site'])}`);
+  const spares = d['spares'];
+  if (!isObj(spares)) corrupt('Design is missing spares.');
+  return {
+    site: d['site'] as SiteId,
+    panels: intIn(d['panels'], 1, 8, 'Panels'),
+    mastLevel: intIn(d['mastLevel'], 0, 3, 'Mast level') as Design['mastLevel'],
+    batteries: intIn(d['batteries'], 1, 12, 'Batteries'),
+    waterLoopTier: intIn(d['waterLoopTier'], 0, 1, 'Water loop tier') as Design['waterLoopTier'],
+    o2LoopTier: intIn(d['o2LoopTier'], 0, 1, 'O2 loop tier') as Design['o2LoopTier'],
+    greenhouseModules: intIn(
+      d['greenhouseModules'],
+      0,
+      3,
+      'Greenhouse modules',
+    ) as Design['greenhouseModules'],
+    shieldingLayers: intIn(
+      d['shieldingLayers'],
+      0,
+      3,
+      'Shielding layers',
+    ) as Design['shieldingLayers'],
+    spares: Object.fromEntries(
+      COMPONENTS.map((id) => [id, intIn(spares[id], 0, 2, `Spares for ${id}`)]),
+    ) as Design['spares'],
   };
-  const json = JSON.stringify(payload);
-  const encoded = toBase64(json).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  return `MM${SCENARIO_CODE_VERSION}-${encoded}`;
 }
 
-/**
- * Validates the decoded structure to ensure strict data integrity.
- */
-function validateScenario(payload: unknown): { design: Design; rules: Rules } {
-  if (typeof payload !== 'object' || payload === null) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Scenario payload must be an object.');
+function parseCondition(c: unknown): Condition {
+  if (!isObj(c) || typeof c['kind'] !== 'string') corrupt('Rule condition is missing.');
+  const kind = c['kind'];
+  if (FLAG_CONDITIONS.has(kind)) return { kind } as Condition;
+  if (VALUE_CONDITIONS.has(kind)) {
+    const v = c['value'];
+    if (typeof v !== 'number' || !Number.isFinite(v) || v < 0 || v > MAX_RULE_VALUE) {
+      corrupt(`Rule value for ${kind} must be a number between 0 and ${MAX_RULE_VALUE}.`);
+    }
+    return { kind, value: v } as Condition;
   }
+  return corrupt(`Invalid rule condition kind: ${kind}`);
+}
 
-  const p = payload as Record<string, unknown>;
-
-  if (typeof p['v'] !== 'number' || p['v'] !== SCENARIO_CODE_VERSION) {
-    throw new EngineError(
-      'UNSUPPORTED_VERSION',
-      `Unsupported scenario version: ${String(p['v'])}. Expected ${SCENARIO_CODE_VERSION}.`,
-    );
+function parseAction(a: unknown): Action {
+  if (!isObj(a) || typeof a['kind'] !== 'string') corrupt('Rule action is missing.');
+  const kind = a['kind'];
+  if (FLAG_ACTIONS.has(kind)) return { kind } as Action;
+  if (kind === 'shed') {
+    if (typeof a['load'] !== 'string' || !LOADS.has(a['load']))
+      corrupt(`Invalid load to switch off: ${String(a['load'])}`);
+    return { kind: 'shed', load: a['load'] as LoadId };
   }
+  return corrupt(`Invalid rule action kind: ${kind}`);
+}
 
-  const d = p['d'] as Record<string, unknown> | undefined;
-  if (!d || typeof d !== 'object') {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Scenario is missing valid design object.');
+function parseRules(r: unknown): Rules {
+  if (!isObj(r)) corrupt('Scenario is missing valid rules.');
+  const priority = r['priority'];
+  const ifThen = r['ifThen'];
+  if (!Array.isArray(priority) || !priority.every((l) => typeof l === 'string' && LOADS.has(l))) {
+    corrupt('Priority ladder must list the 6 loads.');
   }
-
-  if (typeof d['site'] !== 'string' || !VALID_SITES.has(d['site'])) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', `Invalid design site: ${String(d['site'])}`);
-  }
-
-  const design: Design = {
-    site: d['site'] as 'ridge' | 'crater_edge',
-    panels: Number(d['panels']),
-    mastLevel: Number(d['mastLevel']) as 0 | 1 | 2 | 3,
-    batteries: Number(d['batteries']),
-    waterLoopTier: Number(d['waterLoopTier']) as 0 | 1,
-    o2LoopTier: Number(d['o2LoopTier']) as 0 | 1,
-    greenhouseModules: Number(d['greenhouseModules']) as 0 | 1 | 2 | 3,
-    shieldingLayers: Number(d['shieldingLayers']) as 0 | 1 | 2 | 3,
-    spares: d['spares'] as Design['spares'],
+  if (!Array.isArray(ifThen)) corrupt('IF-THEN rules must be a list.');
+  const rules: Rules = {
+    priority: priority as LoadId[],
+    ifThen: ifThen.map((rule): IfThenRule => {
+      if (!isObj(rule)) corrupt('Each rule needs a condition and an action.');
+      return { condition: parseCondition(rule['condition']), action: parseAction(rule['action']) };
+    }),
   };
-
-  if (!Number.isInteger(design.panels) || design.panels < 1 || design.panels > 8) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Panels must be an integer between 1 and 8.');
+  try {
+    validateRules(rules); // permutation + max rule count, same check the engine uses
+  } catch (err) {
+    corrupt(err instanceof Error ? err.message : String(err));
   }
-  if (![0, 1, 2, 3].includes(design.mastLevel)) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Mast level must be 0, 1, 2, or 3.');
-  }
-  if (!Number.isInteger(design.batteries) || design.batteries < 1 || design.batteries > 12) {
-    throw new EngineError(
-      'CORRUPT_SCENARIO_CODE',
-      'Batteries must be an integer between 1 and 12.',
-    );
-  }
-  if (![0, 1].includes(design.waterLoopTier)) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Water loop tier must be 0 or 1.');
-  }
-  if (![0, 1].includes(design.o2LoopTier)) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'O2 loop tier must be 0 or 1.');
-  }
-  if (![0, 1, 2, 3].includes(design.greenhouseModules)) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Greenhouse modules must be 0, 1, 2, or 3.');
-  }
-  if (![0, 1, 2, 3].includes(design.shieldingLayers)) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Shielding layers must be 0, 1, 2, or 3.');
-  }
-  if (!design.spares || typeof design.spares !== 'object') {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Design is missing spares object.');
-  }
-
-  const r = p['r'] as Record<string, unknown> | undefined;
-  if (!r || typeof r !== 'object') {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Scenario is missing valid rules object.');
-  }
-
-  const priority = r['priority'] as LoadId[] | undefined;
-  if (!Array.isArray(priority) || priority.length !== 6) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Priority ladder must contain exactly 6 loads.');
-  }
-  const seenLoads = new Set<string>();
-  for (const load of priority) {
-    if (!VALID_LOADS.has(load) || seenLoads.has(load)) {
-      throw new EngineError(
-        'CORRUPT_SCENARIO_CODE',
-        `Invalid or duplicate load in priority ladder: ${load}`,
-      );
-    }
-    seenLoads.add(load);
-  }
-
-  const ifThen = r['ifThen'] as IfThenRule[] | undefined;
-  if (!Array.isArray(ifThen) || ifThen.length > 5) {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'IF-THEN rules list must contain 0 to 5 rules.');
-  }
-
-  for (const rule of ifThen) {
-    if (!rule || !rule.condition || !rule.action) {
-      throw new EngineError(
-        'CORRUPT_SCENARIO_CODE',
-        'Rule must contain both condition and action.',
-      );
-    }
-    if (!VALID_CONDITIONS.has(rule.condition.kind)) {
-      throw new EngineError(
-        'CORRUPT_SCENARIO_CODE',
-        `Invalid rule condition kind: ${rule.condition.kind}`,
-      );
-    }
-    if (!VALID_ACTIONS.has(rule.action.kind)) {
-      throw new EngineError(
-        'CORRUPT_SCENARIO_CODE',
-        `Invalid rule action kind: ${rule.action.kind}`,
-      );
-    }
-  }
-
-  return { design, rules: { priority, ifThen } };
+  return rules;
 }
 
-/**
- * Decodes a scenario code string.
- * Rejects corrupt or oversized input with a clear EngineError message.
- */
-export function decodeScenarioCode(code: string): { design: Design; rules: Rules } {
+export function decodeScenarioCode(code: string): Scenario {
   if (typeof code !== 'string' || code.trim() === '') {
     throw new EngineError('INVALID_SCENARIO_CODE', 'Scenario code cannot be empty.');
   }
-
   if (code.length > MAX_CODE_LENGTH) {
     throw new EngineError(
       'OVERSIZED_SCENARIO_CODE',
-      `Scenario code exceeds maximum allowed length of ${MAX_CODE_LENGTH} characters.`,
+      `Scenario code is longer than ${MAX_CODE_LENGTH} characters.`,
     );
   }
-
-  const prefixMatch = code.match(/^MM(\d+)-(.*)$/);
-  if (!prefixMatch) {
-    throw new EngineError(
-      'INVALID_SCENARIO_CODE',
-      'Scenario code format invalid. Must begin with "MM<version>-" prefix.',
-    );
+  const match = /^MM(\d+)-([A-Za-z0-9_-]+)$/.exec(code.trim());
+  if (!match || match[2] === undefined) {
+    throw new EngineError('INVALID_SCENARIO_CODE', 'Scenario code must look like "MM2-..."');
   }
-
-  const rawB64 = prefixMatch[2];
-  if (!rawB64) {
-    throw new EngineError('INVALID_SCENARIO_CODE', 'Scenario code payload is missing.');
-  }
-
-  // Restore base64 standard padding
-  let b64 = rawB64.replace(/-/g, '+').replace(/_/g, '/');
-  while (b64.length % 4 !== 0) {
-    b64 += '=';
-  }
-
-  let jsonStr: string;
-  try {
-    jsonStr = fromBase64(b64);
-  } catch {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Failed to decode base64 payload.');
-  }
-
   let parsed: unknown;
   try {
-    parsed = JSON.parse(jsonStr);
+    parsed = JSON.parse(fromBase64Url(match[2]));
   } catch {
-    throw new EngineError('CORRUPT_SCENARIO_CODE', 'Scenario payload is not valid JSON.');
+    corrupt('Scenario code is damaged and could not be read.');
   }
-
-  return validateScenario(parsed);
+  if (!isObj(parsed)) corrupt('Scenario payload must be an object.');
+  const v = parsed['v'];
+  if (typeof v !== 'number' || !SUPPORTED_VERSIONS.has(v) || String(v) !== match[1]) {
+    throw new EngineError('UNSUPPORTED_VERSION', `Unsupported scenario version: ${String(v)}.`);
+  }
+  const e = parsed['e'];
+  const sunEra: SunEra = v >= 2 && typeof e === 'string' && ERAS.has(e) ? (e as SunEra) : 'all';
+  if (v >= 2 && (typeof e !== 'string' || !ERAS.has(e))) corrupt(`Invalid sun era: ${String(e)}`);
+  return { design: parseDesign(parsed['d']), rules: parseRules(parsed['r']), sunEra };
 }

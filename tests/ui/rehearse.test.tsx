@@ -2,34 +2,38 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
-import { AppStoreProvider } from '../../src/state/store.tsx';
+import { AppStoreProvider, useAppStore } from '../../src/state/store.tsx';
+import { CAMPAIGN_RUNS } from '../../src/state/useCampaign.ts';
 import { RehearseScreen } from '../../src/ui/screens/Rehearse.tsx';
 
-describe('RehearseScreen Component (Spec Part C L7 AC1, AC7, AC8)', () => {
-  it('renders summary and allows initiating rehearsal campaign (AC1, AC7, AC8)', async () => {
+const Probe: React.FC = () => {
+  const { state } = useAppStore();
+  return <output data-testid="era">{state.sunEra}</output>;
+};
+
+describe('RehearseScreen (L7 AC1)', () => {
+  it('lets the player pick the real Sun and run the campaign (main-thread fallback in jsdom)', async () => {
     render(
       <AppStoreProvider>
         <RehearseScreen />
+        <Probe />
       </AppStoreProvider>,
     );
-
-    expect(screen.getByText(copy.rehearse.heading)).toBeDefined();
-    expect(screen.getByText(copy.rehearse.summaryTitle)).toBeDefined();
-
-    const runBtn = screen.getByText(`▶ ${copy.rehearse.runButton}`);
-    expect(runBtn).toBeDefined();
-
-    // Click run rehearsal
-    fireEvent.click(runBtn);
-
-    // Should transition to running or completed
-    await waitFor(
-      () => {
-        const completedElem = screen.queryByText(new RegExp(copy.rehearse.completedNotice));
-        const progressElem = screen.queryByRole('progressbar');
-        expect(completedElem || progressElem).toBeDefined();
-      },
-      { timeout: 10000 },
+    expect(screen.getByText(copy.spaceWeather.title)).toBeDefined();
+    expect(screen.getByText(/NASA DONKI/)).toBeDefined();
+    fireEvent.click(
+      screen.getByRole('radio', { name: new RegExp(copy.spaceWeather.eras.stormy.name) }),
     );
-  });
+    expect(screen.getByTestId('era').textContent).toBe('stormy');
+
+    fireEvent.click(
+      screen.getByRole('button', { name: new RegExp(copy.rehearse.runButton(CAMPAIGN_RUNS)) }),
+    );
+    await waitFor(
+      () => expect(screen.getByText(new RegExp(copy.rehearse.completedNotice))).toBeDefined(),
+      {
+        timeout: 20000,
+      },
+    );
+  }, 30000);
 });

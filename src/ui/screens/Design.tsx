@@ -1,268 +1,208 @@
-// Outpost Design screen
-// Spec B5.2, Part C (L6 AC1, AC2, AC3, AC6)
+// Build screen: site, hardware, spares within the mass budget (Spec B8; L6 AC1, AC2, AC6)
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { missionPresets } from '../../content/missions.ts';
+import { getSimConstants } from '../../engine/constants.ts';
+import { loadParams } from '../../engine/params.ts';
+import { ComponentId, SiteId } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { MassBudgetBar } from '../components/MassBudgetBar.tsx';
 import { NumberStepper } from '../components/NumberStepper.tsx';
 import { SegmentedControl } from '../components/SegmentedControl.tsx';
 
+const params = loadParams();
+const k = getSimConstants(params);
+const m = (id: string) => params.getNumber(`mass.${id}`);
+const budget = m('budget');
+const muText = (id: string) => `${m(id)} ${copy.design.mu}`;
+const pctOf = (v: number) => Math.round(v * 100);
+
+function darkPct(site: SiteId): number {
+  return Math.round(((k.darkStartsH[site].length * k.darkLengthH[site]) / k.missionHours) * 100);
+}
+
+const SPARES: Array<[ComponentId, string]> = [
+  ['co2_scrubber', copy.design.co2ScrubberSpares],
+  ['o2_generator', copy.design.o2GenSpares],
+  ['water_processor', copy.design.waterProcSpares],
+  ['power_array', copy.design.powerArraySpares],
+];
+
 export const DesignScreen: React.FC = () => {
   const { state, dispatch } = useAppStore();
-  const { design, isWithinBudget } = state;
+  const { design, isWithinBudget, massUsed } = state;
+  const d = copy.design;
+  const fits = (massId: string) => massUsed + m(massId) <= budget;
 
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '4px' }}>
-          {copy.design.heading}
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-          {copy.design.subheading}
-        </p>
-      </div>
+      <h2 className="screen-title">{d.heading}</h2>
+      <p className="muted" style={{ marginBottom: 20 }}>
+        {d.subheading}
+      </p>
 
-      {/* Mass Budget Bar */}
       <MassBudgetBar />
 
-      {/* Preset Pickers */}
-      <div className="panel-card" style={{ marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '1rem', fontWeight: 600, marginBottom: '12px' }}>
-          {copy.design.presetsTitle}
+      <section className="panel-card" aria-labelledby="presets-title">
+        <h3 id="presets-title" className="card-title">
+          {d.presetsTitle}
         </h3>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+        <div className="row">
           {missionPresets.map((preset) => (
             <button
               key={preset.id}
               type="button"
               onClick={() => dispatch({ type: 'SET_PRESET', preset })}
-              style={{
-                textAlign: 'left',
-                padding: '8px 14px',
-                fontSize: '0.85rem',
-              }}
+              style={{ textAlign: 'left' }}
             >
               <div style={{ fontWeight: 600 }}>{preset.name}</div>
-              <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
-                {preset.tagline}
-              </div>
+              <div className="muted small">{preset.tagline}</div>
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       <div className="grid-2col">
-        {/* Column 1: Site and Power */}
         <div>
-          <div className="panel-card">
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '12px' }}>
-              {copy.design.siteTitle}
-            </h3>
+          <section className="panel-card">
+            <h3 className="card-title">{d.siteTitle}</h3>
             <SegmentedControl
-              label="Select Landing Location"
+              label={d.siteLabel}
               options={[
                 {
                   value: 'ridge',
-                  label: copy.design.ridgeName,
-                  sublabel: copy.design.ridgeDesc,
+                  label: d.ridgeName,
+                  sublabel: d.ridgeDesc(darkPct('ridge'), k.startWaterKg.ridge),
                 },
                 {
                   value: 'crater_edge',
-                  label: copy.design.craterName,
-                  sublabel: copy.design.craterDesc,
+                  label: d.craterName,
+                  sublabel: d.craterDesc(darkPct('crater_edge'), k.startWaterKg.crater_edge),
                 },
               ]}
               value={design.site}
               onChange={(site) => dispatch({ type: 'SET_SITE', site })}
             />
-          </div>
+          </section>
 
-          <div className="panel-card">
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '12px' }}>
-              {copy.design.powerSectionTitle}
-            </h3>
-
+          <section className="panel-card">
+            <h3 className="card-title">{d.powerSectionTitle}</h3>
             <NumberStepper
-              label={copy.design.panelsLabel}
-              helpText={copy.design.panelsHelp}
+              label={d.panelsLabel}
+              helpText={d.panelsHelp(k.panelKw, m('panel'))}
               value={design.panels}
               min={1}
               max={8}
+              canIncrement={fits('panel')}
               onChange={(panels) => dispatch({ type: 'SET_PANELS', panels })}
             />
-
             <NumberStepper
-              label={copy.design.mastLabel}
-              helpText={copy.design.mastHelp}
+              label={d.mastLabel}
+              helpText={d.mastHelp(m('mast_level'))}
               value={design.mastLevel}
               min={0}
               max={3}
-              onChange={(mastLevel) =>
-                dispatch({ type: 'SET_MAST', mastLevel: mastLevel as 0 | 1 | 2 | 3 })
-              }
+              canIncrement={fits('mast_level')}
+              onChange={(v) => dispatch({ type: 'SET_MAST', mastLevel: v as 0 | 1 | 2 | 3 })}
             />
-
             <NumberStepper
-              label={copy.design.batteriesLabel}
-              helpText={copy.design.batteriesHelp}
+              label={d.batteriesLabel}
+              helpText={d.batteriesHelp(k.batteryKwhPerUnit, m('battery'))}
               value={design.batteries}
               min={1}
               max={12}
+              canIncrement={fits('battery')}
               onChange={(batteries) => dispatch({ type: 'SET_BATTERIES', batteries })}
             />
-          </div>
+          </section>
         </div>
 
-        {/* Column 2: Life Support, Shielding, and Spares */}
         <div>
-          <div className="panel-card">
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '12px' }}>
-              {copy.design.lifeSupportSectionTitle}
-            </h3>
-
+          <section className="panel-card">
+            <h3 className="card-title">{d.lifeSupportSectionTitle}</h3>
             <SegmentedControl
-              label={copy.design.waterLoopLabel}
+              label={d.waterLoopLabel}
               options={[
-                { value: 0, label: 'Base Loop', sublabel: copy.design.waterLoopBase },
-                { value: 1, label: 'Brine Upgrade', sublabel: copy.design.waterLoopUpgraded },
+                {
+                  value: 0,
+                  label: copy.rehearse.basic,
+                  sublabel: d.waterLoopBase(pctOf(k.recoveryBase)),
+                },
+                {
+                  value: 1,
+                  label: copy.rehearse.upgraded,
+                  sublabel: d.waterLoopUpgraded(pctOf(k.recoveryUpgraded), m('water_tier1')),
+                },
               ]}
               value={design.waterLoopTier}
               onChange={(tier) => dispatch({ type: 'SET_WATER_TIER', tier })}
             />
-
             <SegmentedControl
-              label={copy.design.o2LoopLabel}
+              label={d.o2LoopLabel}
               options={[
-                { value: 0, label: 'Standard Tank', sublabel: copy.design.o2LoopBase },
-                { value: 1, label: 'Sabatier Loop', sublabel: copy.design.o2LoopSabatier },
+                { value: 0, label: copy.rehearse.basic, sublabel: d.o2LoopBase },
+                {
+                  value: 1,
+                  label: 'Sabatier',
+                  sublabel: d.o2LoopSabatier(pctOf(k.sabatierRecovery), m('o2_tier1')),
+                },
               ]}
               value={design.o2LoopTier}
               onChange={(tier) => dispatch({ type: 'SET_O2_TIER', tier })}
             />
-
             <NumberStepper
-              label={copy.design.greenhouseLabel}
-              helpText={copy.design.greenhouseHelp}
+              label={d.greenhouseLabel}
+              helpText={d.greenhouseHelp(m('greenhouse_module'))}
               value={design.greenhouseModules}
               min={0}
               max={3}
-              onChange={(modules) =>
-                dispatch({
-                  type: 'SET_GREENHOUSE',
-                  modules: modules as 0 | 1 | 2 | 3,
-                })
-              }
+              canIncrement={fits('greenhouse_module')}
+              onChange={(v) => dispatch({ type: 'SET_GREENHOUSE', modules: v as 0 | 1 | 2 | 3 })}
             />
-
             <NumberStepper
-              label={copy.design.shieldingLabel}
-              helpText={copy.design.shieldingHelp}
+              label={d.shieldingLabel}
+              helpText={d.shieldingHelp(m('shield_layer'))}
               value={design.shieldingLayers}
               min={0}
               max={3}
-              onChange={(layers) =>
-                dispatch({
-                  type: 'SET_SHIELDING',
-                  layers: layers as 0 | 1 | 2 | 3,
-                })
-              }
+              canIncrement={fits('shield_layer')}
+              onChange={(v) => dispatch({ type: 'SET_SHIELDING', layers: v as 0 | 1 | 2 | 3 })}
             />
-          </div>
+          </section>
 
-          <div className="panel-card">
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '4px' }}>
-              {copy.design.sparesSectionTitle}
-            </h3>
-            <p
-              style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginBottom: '12px' }}
-            >
-              {copy.design.sparesHelp}
+          <section className="panel-card">
+            <h3 className="card-title">{d.sparesSectionTitle}</h3>
+            <p className="muted small" style={{ marginBottom: 8 }}>
+              {d.sparesHelp(m('spare'))}
             </p>
-
-            <NumberStepper
-              label={copy.design.co2ScrubberSpares}
-              value={design.spares.co2_scrubber}
-              min={0}
-              max={2}
-              onChange={(count) =>
-                dispatch({
-                  type: 'SET_SPARE',
-                  component: 'co2_scrubber',
-                  count: count as 0 | 1 | 2,
-                })
-              }
-            />
-
-            <NumberStepper
-              label={copy.design.o2GenSpares}
-              value={design.spares.o2_generator}
-              min={0}
-              max={2}
-              onChange={(count) =>
-                dispatch({
-                  type: 'SET_SPARE',
-                  component: 'o2_generator',
-                  count: count as 0 | 1 | 2,
-                })
-              }
-            />
-
-            <NumberStepper
-              label={copy.design.waterProcSpares}
-              value={design.spares.water_processor}
-              min={0}
-              max={2}
-              onChange={(count) =>
-                dispatch({
-                  type: 'SET_SPARE',
-                  component: 'water_processor',
-                  count: count as 0 | 1 | 2,
-                })
-              }
-            />
-
-            <NumberStepper
-              label={copy.design.powerArraySpares}
-              value={design.spares.power_array}
-              min={0}
-              max={2}
-              onChange={(count) =>
-                dispatch({
-                  type: 'SET_SPARE',
-                  component: 'power_array',
-                  count: count as 0 | 1 | 2,
-                })
-              }
-            />
-          </div>
+            {SPARES.map(([id, label]) => (
+              <NumberStepper
+                key={id}
+                label={label}
+                value={design.spares[id]}
+                min={0}
+                max={2}
+                canIncrement={fits('spare')}
+                onChange={(count) =>
+                  dispatch({ type: 'SET_SPARE', component: id, count: count as 0 | 1 | 2 })
+                }
+              />
+            ))}
+          </section>
         </div>
       </div>
 
-      {/* Navigation footer */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          marginTop: '24px',
-        }}
-      >
+      <div className="row" style={{ justifyContent: 'flex-end', marginTop: 8 }}>
+        <span className="sr-only">{muText('budget')}</span>
         <button
           type="button"
+          className="btn-primary"
           onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rules' })}
           disabled={!isWithinBudget}
-          style={{
-            backgroundColor: isWithinBudget
-              ? 'var(--color-primary)'
-              : 'var(--color-bg-surface-elevated)',
-            color: isWithinBudget ? '#fff' : 'var(--color-text-faint)',
-            padding: '12px 24px',
-            fontWeight: 600,
-            fontSize: '1rem',
-          }}
+          style={{ padding: '12px 24px' }}
         >
-          {copy.design.nextButton}
+          {d.nextButton}
         </button>
       </div>
     </div>

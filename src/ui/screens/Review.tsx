@@ -1,313 +1,180 @@
-// Review screen displaying campaign results, Wilson intervals, margins, and charts
-// Spec B1, B5.7, B5.8, B5.9, Part C (L7 AC2, AC3, AC4, AC5, AC6)
+// Review: survival and success with Wilson ranges, margins, causes, real Sun, replay, cause chain
+// Spec B5.7, B5.9, B8; L7 AC2-AC6
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
+import { getSimConstants } from '../../engine/constants.ts';
+import { loadParams } from '../../engine/params.ts';
 import { Interval } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { ConceptHintBox } from '../components/ConceptHintBox.tsx';
 import { MassVsRiskChart } from '../components/MassVsRiskChart.tsx';
 import { ReplayTimeline } from '../components/ReplayTimeline.tsx';
 import { RiskBarChart } from '../components/RiskBarChart.tsx';
+import { eraName } from '../components/SpaceWeatherPanel.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
+
+const params = loadParams();
+const k = getSimConstants(params);
+const budget = params.getNumber('mass.budget');
+const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
+const range = (ci: Interval) => `${pct(ci.low)} – ${pct(ci.high)}`;
 
 export const ReviewScreen: React.FC = () => {
   const { state, dispatch } = useAppStore();
-  const { campaignResult, worstMissionResult, massUsed } = state;
+  const { campaignResult: c, worstMissionResult: worst, isResultStale, history } = state;
+  const t = copy.review;
 
-  if (!campaignResult || !worstMissionResult) {
+  if (!c || !worst) {
     return (
-      <div className="panel-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
-        <h3 style={{ fontSize: '1.25rem', marginBottom: '12px' }}>No Campaign Results Yet</h3>
-        <p style={{ color: 'var(--color-text-muted)', marginBottom: '24px' }}>
-          Please execute a 300-run mission rehearsal first to generate statistical margins.
+      <section className="panel-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+        <h2 className="screen-title">{t.noResultsTitle}</h2>
+        <p className="muted" style={{ margin: '8px 0 20px' }}>
+          {t.noResultsBody}
         </p>
         <button
           type="button"
+          className="btn-primary"
           onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rehearse' })}
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            color: '#fff',
-            padding: '10px 24px',
-            fontWeight: 600,
-          }}
         >
-          Go to Rehearsal →
+          {t.goTest}
         </button>
-      </div>
+      </section>
     );
   }
 
-  const isFlightReady = campaignResult.rating === 'flight_ready';
-  const formatCi = (ci: Interval) =>
-    `[${(ci.low * 100).toFixed(1)}%, ${(ci.high * 100).toFixed(1)}%]`;
-
-  const survivalPct = (campaignResult.survivalRate * 100).toFixed(1);
-  const successPct = (campaignResult.successRate * 100).toFixed(1);
-  const riskPct = (1 - campaignResult.survivalRate) * 100;
+  const isReady = c.rating === 'flight_ready';
+  const survTarget = Math.round(k.flightReadySurvival * 100);
+  const succTarget = Math.round(k.flightReadySuccess * 100);
 
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '4px' }}>
-          {copy.review.heading}
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-          {copy.review.subheading}
-        </p>
-      </div>
+      <h2 className="screen-title">{t.heading}</h2>
+      <p className="muted" style={{ marginBottom: 16 }}>
+        {t.subheading}
+      </p>
 
-      {/* Flight Ready / Needs Revision Rating Banner (AC2) */}
-      <div
+      {isResultStale ? (
+        <p className="notice" role="status" style={{ marginBottom: 16 }}>
+          {t.staleNotice}
+        </p>
+      ) : null}
+
+      <section
         className="panel-card"
+        role="status"
         style={{
-          borderLeft: `6px solid ${isFlightReady ? 'var(--color-success)' : 'var(--color-warning)'}`,
-          backgroundColor: isFlightReady ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-          padding: '20px 24px',
-          marginBottom: '24px',
+          borderLeft: `6px solid ${isReady ? 'var(--color-success)' : 'var(--color-warning)'}`,
+          background: isReady ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
         }}
-        role="alert"
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-          <span style={{ fontSize: '1.5rem' }}>{isFlightReady ? '🚀' : '⚠️'}</span>
-          <h3
-            style={{
-              fontSize: '1.35rem',
-              fontWeight: 800,
-              color: isFlightReady ? 'var(--color-success)' : 'var(--color-warning)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            {isFlightReady ? copy.review.flightReadyTitle : copy.review.needsWorkTitle}
-          </h3>
-        </div>
-        <p style={{ fontSize: '0.95rem', color: 'var(--color-text-main)', lineHeight: 1.5 }}>
-          {isFlightReady ? copy.review.flightReadyDesc : copy.review.needsWorkDesc}
+        <h3
+          style={{
+            fontSize: '1.3rem',
+            fontWeight: 800,
+            color: isReady ? 'var(--color-success)' : 'var(--color-warning)',
+          }}
+        >
+          {isReady ? `🚀 ${t.flightReadyTitle}` : `⚠️ ${t.needsWorkTitle}`}
+          <WhyThisNumber paramId="rating.flight_ready_survival" />
+        </h3>
+        <p>
+          {isReady
+            ? t.flightReadyDesc(survTarget, succTarget)
+            : t.needsWorkDesc(survTarget, succTarget)}
         </p>
-      </div>
+      </section>
 
-      {/* Primary Metrics Grid (AC3) */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px',
-          marginBottom: '24px',
-        }}
-      >
-        {/* Survival Rate Card */}
-        <div className="panel-card" style={{ marginBottom: 0 }}>
-          <div
-            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}
-          >
-            {copy.review.survivalRateTitle}
-            <WhyThisNumber paramId="rating.flight_ready_survival" />
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-family-mono)',
-              fontSize: '1.8rem',
-              fontWeight: 800,
-              color: 'var(--color-text-main)',
-            }}
-          >
-            {survivalPct}%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-            {copy.review.confidenceIntervalLabel}:{' '}
-            <strong style={{ color: 'var(--color-text-main)' }}>
-              {formatCi(campaignResult.survivalCi)}
-            </strong>
+      <div className="tiles" style={{ marginBottom: 24 }}>
+        <div className="tile">
+          <div className="tile-label">{t.survivalRateTitle}</div>
+          <div className="tile-value">{pct(c.survivalRate)}</div>
+          <div className="small muted" title={t.confidenceHelp}>
+            {t.confidenceIntervalLabel}: {range(c.survivalCi)}
           </div>
         </div>
-
-        {/* Success Rate Card */}
-        <div className="panel-card" style={{ marginBottom: 0 }}>
-          <div
-            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}
-          >
-            {copy.review.successRateTitle}
-            <WhyThisNumber paramId="rating.flight_ready_success" />
+        <div className="tile">
+          <div className="tile-label">
+            {t.successRateTitle}
+            <WhyThisNumber paramId="science.target_hours" />
           </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-family-mono)',
-              fontSize: '1.8rem',
-              fontWeight: 800,
-              color: 'var(--color-text-main)',
-            }}
-          >
-            {successPct}%
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-            {copy.review.confidenceIntervalLabel}:{' '}
-            <strong style={{ color: 'var(--color-text-main)' }}>
-              {formatCi(campaignResult.successCi)}
-            </strong>
+          <div className="tile-value">{pct(c.successRate)}</div>
+          <div className="small muted" title={t.confidenceHelp}>
+            {t.confidenceIntervalLabel}: {range(c.successCi)}
           </div>
         </div>
-
-        {/* Mass Card */}
-        <div className="panel-card" style={{ marginBottom: 0 }}>
-          <div
-            style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '4px' }}
-          >
-            {copy.review.massUsedTitle}
+        <div className="tile">
+          <div className="tile-label">
+            {t.massUsedTitle}
             <WhyThisNumber paramId="mass.budget" />
           </div>
-          <div
-            style={{
-              fontFamily: 'var(--font-family-mono)',
-              fontSize: '1.8rem',
-              fontWeight: 800,
-              color: 'var(--color-text-main)',
-            }}
-          >
-            {massUsed} / 120 mu
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-            Payload Budget Utilized: {Math.round((massUsed / 120) * 100)}%
-          </div>
+          <div className="tile-value">{t.massOf(c.massUsed, budget)}</div>
         </div>
       </div>
+      <p className="muted small" style={{ marginTop: -16, marginBottom: 24 }}>
+        {t.confidenceHelp}
+      </p>
 
-      {/* Subsystem Margins Card */}
-      <div className="panel-card" style={{ marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '12px' }}>
-          {copy.review.marginsTitle}
+      <section className="panel-card" aria-labelledby="margins-title">
+        <h3 id="margins-title" className="card-title">
+          {t.marginsTitle}
         </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '16px',
-            fontSize: '0.9rem',
-          }}
-        >
-          <div
-            style={{
-              padding: '12px',
-              backgroundColor: 'var(--color-bg-base)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <div
-              style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}
-            >
-              {copy.review.batteryP5Label}
+        <div className="tiles">
+          <div className="tile">
+            <div className="tile-label">
+              {t.batteryP5Label}
               <WhyThisNumber paramId="power.battery_kwh_per_unit" />
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-family-mono)',
-                fontWeight: 700,
-                fontSize: '1.25rem',
-                color:
-                  campaignResult.minBatteryPctP5 > 10
-                    ? 'var(--color-success)'
-                    : 'var(--color-danger)',
-              }}
-            >
-              {campaignResult.minBatteryPctP5.toFixed(1)}%
+            <div className="tile-value">{c.minBatteryPctP5.toFixed(0)}%</div>
+          </div>
+          <div className="tile">
+            <div className="tile-label">
+              {t.o2P5Label}
+              <WhyThisNumber paramId="start.o2_tank_kg" />
+            </div>
+            <div className="tile-value">
+              {c.minO2DaysP5.toFixed(1)} {t.days}
             </div>
           </div>
-
-          <div
-            style={{
-              padding: '12px',
-              backgroundColor: 'var(--color-bg-base)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <div
-              style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}
-            >
-              {copy.review.o2P5Label}
-              <WhyThisNumber paramId="loss.o2_deficit_hours" />
-            </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-family-mono)',
-                fontWeight: 700,
-                fontSize: '1.25rem',
-                color:
-                  campaignResult.minO2DaysP5 > 5 ? 'var(--color-success)' : 'var(--color-danger)',
-              }}
-            >
-              {campaignResult.minO2DaysP5.toFixed(1)} days
-            </div>
-          </div>
-
-          <div
-            style={{
-              padding: '12px',
-              backgroundColor: 'var(--color-bg-base)',
-              borderRadius: 'var(--radius-md)',
-              border: '1px solid var(--color-border)',
-            }}
-          >
-            <div
-              style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem', marginBottom: '2px' }}
-            >
-              {copy.review.doseP95Label}
+          <div className="tile">
+            <div className="tile-label">
+              {t.doseP95Label}
               <WhyThisNumber paramId="radiation.dose_limit_usv_mission" />
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--font-family-mono)',
-                fontWeight: 700,
-                fontSize: '1.25rem',
-                color:
-                  campaignResult.doseUsvP95 < 60000
-                    ? 'var(--color-success)'
-                    : 'var(--color-danger)',
-              }}
-            >
-              {Math.round(campaignResult.doseUsvP95).toLocaleString()} µSv
-            </div>
+            <div className="tile-value">{Math.round(c.doseUsvP95).toLocaleString()} µSv</div>
+            <div className="small muted">{t.doseLimit(k.doseLimitUsv.toLocaleString())}</div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* SVG Charts Row */}
+      <section className="panel-card" aria-labelledby="sun-title">
+        <h3 id="sun-title" className="card-title">
+          {t.sunTitle}
+        </h3>
+        <p>{t.sunSummary(eraName(c.sunEra), c.stormsPerRunMean.toFixed(1), c.stormsMaxInRun)}</p>
+        <p className={c.warningsMissed > 0 ? 'notice' : 'muted'} style={{ marginTop: 8 }}>
+          {t.warningsMissed(c.warningsMissed)}
+        </p>
+      </section>
+
       <div className="grid-2col">
-        <RiskBarChart causeCounts={campaignResult.causeCounts} totalRuns={campaignResult.runs} />
-        <MassVsRiskChart currentMass={massUsed} currentRiskPct={riskPct} />
+        <RiskBarChart causeCounts={c.causeCounts} totalRuns={c.runs} />
+        <MassVsRiskChart history={history} />
       </div>
 
-      {/* Replay Timeline and Cause Chain */}
-      <ReplayTimeline worstResult={worstMissionResult} />
-      <ConceptHintBox worstResult={worstMissionResult} />
+      <ReplayTimeline key={`${worst.seed}-${history.length}`} worstResult={worst} />
+      <ConceptHintBox worstResult={worst} />
 
-      {/* Action Footer */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginTop: '32px',
-        }}
-      >
+      <div className="row-between" style={{ marginTop: 24 }}>
         <button
           type="button"
+          className="btn-primary"
           onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'design' })}
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            color: '#fff',
-            padding: '10px 24px',
-            fontWeight: 600,
-          }}
         >
-          {copy.review.redesignButton}
+          {t.redesignButton}
         </button>
-
-        <button
-          type="button"
-          onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rehearse' })}
-          style={{ padding: '10px 20px' }}
-        >
-          ↻ Re-run Simulation
+        <button type="button" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rehearse' })}>
+          ↻ {t.rerunButton}
         </button>
       </div>
     </div>

@@ -26,7 +26,7 @@ export const LearnScreen: React.FC = () => {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
   // Scenario code import/export state
-  const currentScenarioCode = encodeScenarioCode(state.design, state.rules);
+  const currentScenarioCode = encodeScenarioCode(state.design, state.rules, state.sunEra);
   const [importCodeInput, setImportCodeInput] = useState('');
   const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(
     null,
@@ -34,11 +34,7 @@ export const LearnScreen: React.FC = () => {
   const [copiedCode, setCopiedCode] = useState(false);
 
   const loadGuidedMission = (mission: GuidedMission) => {
-    dispatch({
-      type: 'LOAD_SCENARIO',
-      design: mission.design,
-      rules: mission.rules,
-    });
+    dispatch({ type: 'LOAD_MISSION', mission });
     dispatch({ type: 'SET_SCREEN', screen: 'design' });
   };
 
@@ -72,6 +68,7 @@ export const LearnScreen: React.FC = () => {
         type: 'LOAD_SCENARIO',
         design: decoded.design,
         rules: decoded.rules,
+        sunEra: decoded.sunEra,
       });
       setImportStatus({
         success: true,

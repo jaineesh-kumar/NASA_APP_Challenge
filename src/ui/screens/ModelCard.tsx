@@ -2,45 +2,18 @@
 // Spec B1, B8, B9, Part C (L8 AC3)
 
 import React, { useMemo, useState } from 'react';
+import { copy } from '../../content/copy.ts';
 import { loadParams } from '../../engine/params.ts';
+import { getSpaceWeather } from '../../engine/spaceWeather.ts';
 import { ParamEntry } from '../../engine/types.ts';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const paramsInstance = loadParams();
 const allParamEntries = paramsInstance.allEntries();
 
-const SIMPLIFICATIONS = [
-  {
-    topic: 'Discrete Hourly Time Ticks',
-    detail:
-      'The simulation advances in 1-hour discrete steps rather than continuous real-time differential equations. Power flows and crew hours are averaged across each 60-minute interval.',
-  },
-  {
-    topic: 'Crew Homogeneity & Environmental Exposure',
-    detail:
-      'All 4 crew members consume identical standard NASA BVAD nutritional (2500 kcal/day) and metabolic (0.84 kg O2, 1.0 kg CO2) rates. Crew fatigue, psychology, and sleep schedules are excluded.',
-  },
-  {
-    topic: 'Surface-Level Radiation vs. EVA Spacewalks',
-    detail:
-      'Radiation exposure models surface-level dose equivalent based on Chang’e-4 lunar measurements (S02) plus SPE spikes. Spacewalk-specific EVA dose accumulation is out of scope for v0.1.',
-  },
-  {
-    topic: 'Habitat Thermal Regulation',
-    detail:
-      'Thermal loads are modeled as a baseline demand (4 kW) with a 1.5x power multiplier during dark windows to account for extreme lunar nighttime chilling without continuous solar radiant heating.',
-  },
-  {
-    topic: 'Single-Site Geography',
-    detail:
-      'Dark window durations and lighting fractions are calibrated for Malapert Ridge and Shackleton Crater rim, simplifying complex topography-induced rolling horizons into scheduled windows with uniform jitter.',
-  },
-  {
-    topic: 'No Runtime Telemetry or Backend',
-    detail:
-      'All calculations, Monte Carlo campaigns, and state persist strictly inside client-side browser memory with zero network trackers, servers, or external AI APIs (Spec A4 F10).',
-  },
-];
+const SIMPLIFICATIONS = copy.modelCard.simplifications;
+const sw = getSpaceWeather();
+const mc = copy.modelCard;
 
 export const ModelCardScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -76,28 +49,52 @@ export const ModelCardScreen: React.FC = () => {
 
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      {/* Title */}
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '4px' }}>
-          Scientific Model Card & Parameter Registry
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-          Full scientific transparency for Moonbase Margin v{paramsInstance.version}. Inspect all{' '}
-          {allParamEntries.length} baseline parameters, source citations (S01–S11), confidence
-          levels, and documented modeling simplifications.
-        </p>
-      </div>
+      <h2 className="screen-title">{mc.heading}</h2>
+      <p className="muted" style={{ marginBottom: 24 }}>
+        {mc.intro(paramsInstance.version, allParamEntries.length)}
+      </p>
 
-      {/* Simplifications Section (AC3) */}
-      <div className="panel-card" style={{ marginBottom: '28px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '8px' }}>
-          Documented Modeling Simplifications (Spec B1)
+      <section className="panel-card" aria-labelledby="data-title">
+        <h3 id="data-title" className="card-title">
+          ☀ {mc.dataTitle}
         </h3>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '16px' }}>
-          To ensure accessible real-time browser performance for learners aged 10–16, the following
-          deliberate engineering abstractions were implemented:
+        <p className="muted small" style={{ marginBottom: 12 }}>
+          {mc.dataIntro}
         </p>
+        <dl className="tiles">
+          {mc.dataRows.map((row) => (
+            <div key={row.name} className="tile">
+              <dt style={{ fontWeight: 700 }}>{row.name}</dt>
+              <dd className="small">{row.use}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="small" style={{ marginTop: 12 }}>
+          {mc.stormStats(
+            sw.storms.length,
+            sw.rawEntries,
+            sw.coverageStart,
+            sw.coverageEnd,
+            sw.fetchedAt,
+          )}
+        </p>
+      </section>
 
+      <section className="panel-card" aria-labelledby="comms-title">
+        <h3 id="comms-title" className="card-title">
+          📡 {mc.commsTitle}
+          <WhyThisNumber paramId="comms.earth_moon_light_delay_s" />
+        </h3>
+        <p className="small">
+          {mc.commsBody(
+            paramsInstance.getNumber('comms.earth_moon_light_delay_s'),
+            paramsInstance.getNumberArray('comms.earth_mars_light_delay_min'),
+          )}
+        </p>
+      </section>
+
+      <div className="panel-card" style={{ marginBottom: '28px' }}>
+        <h3 className="card-title">{mc.simplificationsTitle}</h3>
         <div
           style={{
             display: 'grid',

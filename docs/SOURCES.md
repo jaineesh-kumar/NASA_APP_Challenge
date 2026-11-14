@@ -2,6 +2,7 @@
 
 This document lists authoritative reference sources and IDs used throughout Moonbase Margin.
 Per AGENTS.md rule A4 (F9) and rule B7, agents may not add rows to this table.
+S12 was added on 2026-11-14 at the explicit request of the team lead (see ADR-005).
 
 | Id         | Source                                                                                                                                                                                          |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -16,5 +17,6 @@ Per AGENTS.md rule A4 (F9) and rule B7, agents may not add rows to this table.
 | S09        | Wood, C. (2017). Peaks of "Eternal" Light. Sky & Telescope, June 2017.                                                                                                                          |
 | S10        | ECLSS sizing reference (secondary source that cites NASA-STD-3001 and BVAD). https://skills.cat/skills/luncosim/space-engineering-skills/eclss-assessment. Use only until verified against S01. |
 | S11        | NASA-STD-3001 (crew health standards). **Not yet read; any value attributed to it must be verified by a human.**                                                                                |
+| S12        | NASA Community Coordinated Modeling Center (CCMC). Space Weather Database Of Notifications, Knowledge, Information (DONKI), SEP endpoint, via https://api.nasa.gov/DONKI/SEP. Archived snapshot in data/spaceWeather.json (fetch date inside the file). |
 | ASSUMPTION | A value chosen by the team for the game. Must be labeled "illustrative" on screen.                                                                                                              |
 | DERIVED    | Derived from basic physics or chemistry stated in the param note.                                                                                                                               |

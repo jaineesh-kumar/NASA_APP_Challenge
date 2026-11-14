@@ -1,8 +1,9 @@
-// Educational engineering concepts and definitions for Moonbase Margin
-// Spec B5.9, B8, B9, Part C (L8 AC6: agent-drafted content has needsReview: true)
+// Big ideas shown as hints (Spec B5.9, B8, B9). Agent-drafted: needsReview until a human clears it.
+
+import { ConceptId } from '../engine/review.ts';
 
 export interface ConceptDefinition {
-  id: string;
+  id: ConceptId;
   title: string;
   subtitle: string;
   summary: string;
@@ -11,59 +12,65 @@ export interface ConceptDefinition {
   needsReview: true;
 }
 
-export const concepts: Record<string, ConceptDefinition> = {
+export const concepts: Record<ConceptId, ConceptDefinition> = {
   redundancy: {
     id: 'redundancy',
-    title: 'Redundancy & Spare Capacity',
-    subtitle: 'Backups prevent single points of failure',
+    title: 'Redundancy',
+    subtitle: 'Have a backup',
     summary:
-      'In space systems, equipment will break down. Redundancy means having backup components or carry-along maintenance spares so a single broken machine does not end the mission.',
-    takeaway:
-      'Pack at least 1 spare part for high-stress life support units, or establish dual operating pathways.',
+      'Machines break, even in space. A backup machine or a spare part means one breakdown does not end the mission.',
+    takeaway: 'Pack spares for the machines your crew cannot live without.',
     sourceRef: 'S06',
     needsReview: true,
   },
   margin: {
     id: 'margin',
-    title: 'Engineering Safety Margin',
-    subtitle: 'The buffer between expected demand and total capacity',
+    title: 'Margin',
+    subtitle: 'Keep extra, just in case',
     summary:
-      'Margin is the extra buffer designed into critical subsystems. On the Moon, solar eclipses and dust storms cut energy generation. Having battery reserves above normal usage is your energy margin.',
-    takeaway:
-      'Ensure the 5th percentile battery level never hits zero during multi-day dark periods.',
+      'Margin is the extra you keep for bad days. On the Moon, darkness and dust cut your power. Extra battery is your power margin.',
+    takeaway: 'Make sure the battery never hits zero, even in the hardest tests.',
     sourceRef: 'S03',
     needsReview: true,
   },
   loop_closure: {
     id: 'loop_closure',
-    title: 'Closed Loop Life Support',
-    subtitle: 'Recycling waste products to reduce resupply mass',
+    title: 'Recycling loops',
+    subtitle: 'Use it again',
     summary:
-      'Sending water and oxygen from Earth is expensive. Closed-loop ECLSS equipment recycles exhaled carbon dioxide and wastewater into breathable oxygen and drinkable water.',
-    takeaway:
-      'Upgrading to a 98% brine processor or Sabatier reactor drastically cuts launch mass needs.',
+      'Water is heavy to carry from Earth. Recyclers clean used water and air so the crew can use them again.',
+    takeaway: 'A better recycler costs weight now but saves water every day.',
     sourceRef: 'S04',
     needsReview: true,
   },
   trade_offs: {
     id: 'trade_offs',
-    title: 'Engineering Trade-Offs',
-    subtitle: 'Every advantage costs mass and power',
+    title: 'Trade-offs',
+    subtitle: 'Nothing is free',
     summary:
-      'With a strict 120 mass unit launch limit, you cannot buy everything. Adding heavier radiation shielding means less mass for hydroponics or spare parts. Engineers must balance competing risks.',
-    takeaway: 'Analyze failure cause bars to invest mass only where outpost margins are weakest.',
-    sourceRef: 'S01',
+      'Your rocket has a weight limit. More shielding means fewer batteries or spares. Hiding from a storm keeps the crew safe but stops their work.',
+    takeaway: 'Look at what failed, then spend weight where your base is weakest.',
+    sourceRef: 'S06',
     needsReview: true,
   },
   single_point_of_failure: {
     id: 'single_point_of_failure',
-    title: 'Single Point of Failure (SPOF)',
-    subtitle: 'A single component whose failure halts the whole system',
+    title: 'Single point of failure',
+    subtitle: 'One part that can stop everything',
     summary:
-      'If an outpost relies on one oxygen generator with zero spares, any breakdown directly imperils crew life. Eliminating single points of failure is the core rule of astronaut safety.',
-    takeaway:
-      'Carry spare parts or secondary survival tanks for every unbacked life-support system.',
+      'If your base has one air cleaner and no spare, one breakdown puts the whole crew in danger. Engineers hunt for these weak spots.',
+    takeaway: 'Find the parts with no backup and add a spare.',
     sourceRef: 'S06',
+    needsReview: true,
+  },
+  communication: {
+    id: 'communication',
+    title: 'Staying in touch',
+    subtitle: 'Warnings only help if they arrive',
+    summary:
+      'Forecasters on Earth watch the Sun. In this game their storm warnings reach the base by radio. Switch the radio off to save power, and the warning is lost.',
+    takeaway: 'Keep the radio on during risky times, or plan for storms with no warning.',
+    sourceRef: 'S12',
     needsReview: true,
   },
 };

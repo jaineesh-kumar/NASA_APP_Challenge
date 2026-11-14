@@ -1,143 +1,86 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialEventsState, stepEvents } from '../../src/engine/events.ts';
-import { loadParams } from '../../src/engine/params.ts';
 import { mulberry32 } from '../../src/engine/rng.ts';
+import { runMission } from '../../src/engine/sim.ts';
 import { Design } from '../../src/engine/types.ts';
+import { goldenDesign, goldenRules, k, params } from './fixtures.ts';
 
-describe('events, failures, and SPE progression (Spec B5.3, B5.5, AC6, AC7, AC8, AC10)', () => {
-  const params = loadParams();
-
-  const standardDesign: Design = {
-    site: 'ridge',
-    panels: 4,
-    mastLevel: 1,
-    batteries: 4,
-    waterLoopTier: 0,
-    o2LoopTier: 0,
-    greenhouseModules: 0,
-    shieldingLayers: 0,
-    spares: {
-      co2_scrubber: 1,
-      o2_generator: 0,
-      water_processor: 0,
-      power_array: 0,
-    },
-  };
-
-  it('SPE warning appears spe_warning_lead_h ahead of event start (AC6)', () => {
-    let state = createInitialEventsState(standardDesign);
-    const speLeadH = params.getNumber('radiation.spe_warning_lead_h'); // 2 hours
-    expect(speLeadH).toBe(2);
-    const speDurationH = params.getNumber('radiation.spe_duration_h'); // 12 hours
-
-    // Deterministic mock RNG that triggers SPE on tick 10:
-    // uSpe, uDust, uCo2, uO2, uWater, uArray
-    const mockRng = (trigger: boolean) => {
-      let callCount = 0;
-      return () => {
-        callCount++;
-        // First draw in tick is uSpe
-        if (callCount % 6 === 1 && trigger) {
-          return 0.00001; // well below spe_per_month / 720
-        }
-        return 0.999;
-      };
+describe('events and failures (L4 AC6-AC8)', () => {
+  it('AC7: each tick draws exactly 5 numbers in fixed order (uDust, then 4 components)', () => {
+    const src = mulberry32(1);
+    const drawn: number[] = [];
+    const recorder = () => {
+      const v = src();
+      drawn.push(v);
+      return v;
     };
+    let s = createInitialEventsState(goldenDesign);
+    for (let t = 0; t < 10; t++) s = stepEvents(s, recorder, k).state;
+    expect(drawn).toHaveLength(50);
+    const ref = mulberry32(1);
+    expect(drawn).toEqual(Array.from({ length: 50 }, () => ref()));
+    expect(drawn.slice(0, 5).map((v) => v.toFixed(6))).toMatchInlineSnapshot(`
+      [
+        "0.627074",
+        "0.002736",
+        "0.527447",
+        "0.981051",
+        "0.968378",
+      ]
+    `);
+  });
 
-    // Hour 10: SPE drawn
-    const step10 = stepEvents(10, state, mockRng(true), params);
-    expect(step10.isSpeWarningActive).toBe(true);
-    expect(step10.isSpeActive).toBe(false);
-    expect(step10.logs.some((l) => l.type === 'spe_warning')).toBe(true);
-    state = step10.state;
+  it('a draw below the failure chance breaks a component; a spare sets finite repair time', () => {
+    const forced = () => 0; // every draw triggers
+    const withSpare = stepEvents(createInitialEventsState(goldenDesign), forced, k);
+    expect(withSpare.failed).toEqual([
+      'co2_scrubber',
+      'o2_generator',
+      'water_processor',
+      'power_array',
+    ]);
+    expect(withSpare.state.repairsLeftH.co2_scrubber).toBe(k.repairHours.co2_scrubber);
+    expect(withSpare.state.repairsLeftH.water_processor).toBe(Infinity); // golden has 0 spares
+    expect(Object.values(withSpare.state.isOk)).toEqual([false, false, false, false]);
+    expect(withSpare.state.sparesLeft.co2_scrubber).toBe(goldenDesign.spares.co2_scrubber - 1);
+    expect(withSpare.isDustStarted).toBe(true);
+  });
 
-    // Hour 11: 1 hour into lead
-    const step11 = stepEvents(11, state, mockRng(false), params);
-    expect(step11.isSpeWarningActive).toBe(true);
-    expect(step11.isSpeActive).toBe(false);
-    state = step11.state;
-
-    // Hour 12: Lead expired -> SPE starts! Exactly spe_warning_lead_h after warning
-    const step12 = stepEvents(12, state, mockRng(false), params);
-    expect(step12.isSpeWarningActive).toBe(false);
-    expect(step12.isSpeActive).toBe(true);
-    expect(step12.logs.some((l) => l.type === 'spe_start')).toBe(true);
-    state = step12.state;
-
-    // Run for duration
-    for (let h = 13; h < 12 + speDurationH; h++) {
-      const stepH = stepEvents(h, state, mockRng(false), params);
-      expect(stepH.isSpeActive).toBe(true);
-      state = stepH.state;
+  it('AC6: a spare never reduces repair success versus no spare (same seed)', () => {
+    const noSpares: Design = {
+      ...goldenDesign,
+      spares: { co2_scrubber: 0, o2_generator: 0, water_processor: 0, power_array: 0 },
+    };
+    const allSpares: Design = {
+      ...goldenDesign,
+      spares: { co2_scrubber: 2, o2_generator: 2, water_processor: 2, power_array: 2 },
+    };
+    for (let seed = 1; seed <= 40; seed++) {
+      const a = runMission(noSpares, goldenRules, seed, params);
+      const b = runMission(allSpares, goldenRules, seed, params);
+      const rep = (r: typeof a) => r.log.filter((e) => e.type === 'component_repaired').length;
+      expect(rep(a)).toBe(0);
+      // Same seed -> the first failure happens at the same hour in both runs.
+      const fa = a.log.find((e) => e.type === 'component_failed');
+      const fb = b.log.find((e) => e.type === 'component_failed');
+      if (fa && fb) expect(fb.t).toBe(fa.t);
+      expect(rep(b)).toBeGreaterThanOrEqual(rep(a));
     }
-
-    // At end of duration: spe_end logged
-    const stepEnd = stepEvents(12 + speDurationH, state, mockRng(false), params);
-    expect(stepEnd.isSpeActive).toBe(false);
-    expect(stepEnd.logs.some((l) => l.type === 'spe_end')).toBe(true);
   });
 
-  it('MTBF check fails component when draw < 1 / mtbf_h and consumes spare (AC7)', () => {
-    const state = createInitialEventsState(standardDesign);
-    expect(state.componentsOk.co2_scrubber).toBe(true);
-    expect(state.sparesRemaining.co2_scrubber).toBe(1);
-
-    // Mock RNG: uSpe=0.9, uDust=0.9, uCo2=0.0001 (triggers failure), rest=0.9
-    const draws = [0.9, 0.9, 0.0001, 0.9, 0.9, 0.9];
-    let idx = 0;
-    const mockRng = () => draws[idx++ % draws.length]!;
-
-    const step = stepEvents(1, state, mockRng, params);
-
-    expect(step.state.componentsOk.co2_scrubber).toBe(false);
-    expect(step.logs.some((l) => l.type === 'component_failed')).toBe(true);
-    // Spare was consumed
-    expect(step.state.sparesRemaining.co2_scrubber).toBe(0);
-    // Active repair initiated with repair hours needed
-    expect(step.state.activeRepairs.co2_scrubber).toBe(
-      params.getNumber('repair.hours.co2_scrubber'),
-    );
-  });
-
-  it('component with 0 spares stays failed without repair (AC8)', () => {
-    const state = createInitialEventsState(standardDesign);
-    // o2_generator has 0 spares in standardDesign
-    expect(state.componentsOk.o2_generator).toBe(true);
-    expect(state.sparesRemaining.o2_generator).toBe(0);
-
-    // Mock RNG: uSpe=0.9, uDust=0.9, uCo2=0.9, uO2=0.0001 (triggers failure), rest=0.9
-    const draws = [0.9, 0.9, 0.9, 0.0001, 0.9, 0.9];
-    let idx = 0;
-    const mockRng = () => draws[idx++ % draws.length]!;
-
-    const step = stepEvents(1, state, mockRng, params);
-
-    expect(step.state.componentsOk.o2_generator).toBe(false);
-    expect(step.state.sparesRemaining.o2_generator).toBe(0);
-    // No repair started because 0 spares
-    expect(step.state.activeRepairs.o2_generator).toBeUndefined();
-  });
-
-  it('seeded run reproduces every event tick-for-tick (AC10)', () => {
-    const simulateEvents = (seed: number) => {
-      const rng = mulberry32(seed);
-      let state = createInitialEventsState(standardDesign);
-      const logHistory: string[] = [];
-
-      for (let t = 0; t < 720; t++) {
-        const step = stepEvents(t, state, rng, params);
-        for (const log of step.logs) {
-          logHistory.push(`${log.t}:${log.type}`);
-        }
-        state = step.state;
+  it('AC8: with comms on, a storm warning arrives exactly leadH hours before onset', () => {
+    let checked = 0;
+    for (let seed = 1; seed <= 60 && checked < 10; seed++) {
+      const r = runMission(goldenDesign, goldenRules, seed, params, { sunEra: 'stormy' });
+      for (const s of r.sun.storms) {
+        if (s.leadH === 0 || s.onsetH - s.leadH < 1) continue;
+        if (r.failureHour !== null && r.failureHour < s.onsetH) continue;
+        const commsWasOn = !r.log.some((e) => e.type === 'load_off' && e.detail === 'comms');
+        if (!commsWasOn) continue;
+        expect(s.warningReceivedH).toBe(s.onsetH - s.leadH);
+        checked++;
       }
-      return logHistory;
-    };
-
-    const runA = simulateEvents(42);
-    const runB = simulateEvents(42);
-
-    expect(runA).toEqual(runB);
-    expect(runA.length).toBeGreaterThan(0); // confirms events occurred and match exactly
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 });

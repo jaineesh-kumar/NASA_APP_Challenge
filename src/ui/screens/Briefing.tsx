@@ -1,5 +1,4 @@
-// Briefing screen explaining the mission context and loop
-// Spec B1, B4.10, Part C (L6)
+// Briefing: the mission in one paragraph, how to play, real data note, glossary (Spec B8)
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
@@ -7,131 +6,62 @@ import { useAppStore } from '../../state/store.tsx';
 
 export const BriefingScreen: React.FC = () => {
   const { dispatch } = useAppStore();
+  const b = copy.briefing;
+  const steps: Array<[string, string]> = [
+    [b.step1Title, b.step1Desc],
+    [b.step2Title, b.step2Desc],
+    [b.step3Title, b.step3Desc],
+    [b.step4Title, b.step4Desc],
+  ];
 
   return (
-    <div className="panel-card" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h2
-        style={{
-          fontSize: '1.75rem',
-          fontWeight: 700,
-          marginBottom: '12px',
-          color: 'var(--color-text-main)',
-        }}
-      >
-        {copy.briefing.heading}
-      </h2>
-      <p
-        style={{
-          fontSize: '1.05rem',
-          lineHeight: 1.6,
-          color: 'var(--color-text-muted)',
-          marginBottom: '28px',
-        }}
-      >
-        {copy.briefing.summary}
-      </p>
+    <div style={{ maxWidth: 820, margin: '0 auto' }}>
+      <section className="panel-card">
+        <h2 className="screen-title" style={{ fontSize: '1.75rem' }}>
+          {b.heading}
+        </h2>
+        <p style={{ fontSize: '1.1rem', lineHeight: 1.6, margin: '8px 0 24px' }}>{b.summary}</p>
 
-      <h3
-        style={{
-          fontSize: '1.2rem',
-          fontWeight: 600,
-          marginBottom: '16px',
-          borderBottom: '1px solid var(--color-border)',
-          paddingBottom: '8px',
-        }}
-      >
-        {copy.briefing.taskTitle}
-      </h3>
+        <h3 className="card-title">{b.taskTitle}</h3>
+        <ol className="tiles" style={{ listStyle: 'none', marginBottom: 24 }}>
+          {steps.map(([title, desc]) => (
+            <li key={title} className="tile">
+              <p style={{ fontWeight: 700, marginBottom: 4 }}>{title}</p>
+              <p className="muted small">{desc}</p>
+            </li>
+          ))}
+        </ol>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '16px',
-          marginBottom: '32px',
-        }}
-      >
-        <div
-          style={{
-            padding: '16px',
-            backgroundColor: 'var(--color-bg-surface-elevated)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '6px' }}>
-            {copy.briefing.step1Title}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-            {copy.briefing.step1Desc}
-          </div>
+        <div className="tile" style={{ borderLeft: '4px solid var(--viz-calm)', marginBottom: 24 }}>
+          <p style={{ fontWeight: 700 }}>☀ {b.realDataTitle}</p>
+          <p className="small">{b.realDataBody}</p>
         </div>
 
-        <div
-          style={{
-            padding: '16px',
-            backgroundColor: 'var(--color-bg-surface-elevated)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '6px' }}>
-            {copy.briefing.step2Title}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-            {copy.briefing.step2Desc}
-          </div>
+        <div style={{ textAlign: 'center' }}>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'design' })}
+            style={{ fontSize: '1.1rem', padding: '12px 28px' }}
+          >
+            {b.startButton}
+          </button>
         </div>
+      </section>
 
-        <div
-          style={{
-            padding: '16px',
-            backgroundColor: 'var(--color-bg-surface-elevated)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '6px' }}>
-            {copy.briefing.step3Title}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-            {copy.briefing.step3Desc}
-          </div>
-        </div>
-
-        <div
-          style={{
-            padding: '16px',
-            backgroundColor: 'var(--color-bg-surface-elevated)',
-            borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--color-border)',
-          }}
-        >
-          <div style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '6px' }}>
-            {copy.briefing.step4Title}
-          </div>
-          <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>
-            {copy.briefing.step4Desc}
-          </div>
-        </div>
-      </div>
-
-      <div style={{ textAlign: 'center' }}>
-        <button
-          type="button"
-          onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'design' })}
-          style={{
-            backgroundColor: 'var(--color-primary)',
-            color: '#fff',
-            fontSize: '1.1rem',
-            padding: '12px 28px',
-            fontWeight: 600,
-            border: 'none',
-          }}
-        >
-          {copy.briefing.startButton}
-        </button>
-      </div>
+      <section className="panel-card" aria-labelledby="glossary-title">
+        <h3 id="glossary-title" className="card-title">
+          {copy.glossary.title}
+        </h3>
+        <dl className="tiles">
+          {copy.glossary.terms.map((g) => (
+            <div key={g.term} className="tile">
+              <dt style={{ fontWeight: 700 }}>{g.term}</dt>
+              <dd className="muted small">{g.meaning}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
     </div>
   );
 };

@@ -24,7 +24,7 @@ export const Nav: React.FC = () => {
   const { state, dispatch } = useAppStore();
 
   return (
-    <nav aria-label="Main Navigation" style={{ marginBottom: '24px' }}>
+    <nav aria-label={copy.nav.label} style={{ marginBottom: '24px' }}>
       <ul
         style={{
           display: 'flex',

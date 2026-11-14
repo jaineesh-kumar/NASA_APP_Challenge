@@ -1,59 +1,35 @@
-// Food stores, greenhouse yield, and caloric balance
-// Spec B5.4 (Step 7), B5.5
+// Stored food and greenhouse
+// Spec B5.4 step 7
 
-import { LoadedParams } from './params.ts';
+import { SimConstants } from './constants.ts';
 
-export interface FoodStepResult {
-  nextFoodKcal: number;
-  foodDemandKcal: number;
-  ghYieldKcal: number;
-  foodDeficit: boolean;
+export interface FoodInputs {
+  modules: number;
+  isGreenhousePowered: boolean;
+  ghLow: boolean;
+  allocatedH: number;
+  neededH: number;
+  waterKg: number;
 }
 
-/**
- * Calculates hourly food decrement, greenhouse production, and deficit status.
- * Spec B5.4 Step 7:
- * foodDemand = crew.size * crew.food_kcal_per_day / 24
- * ghYield = greenhouse_powered ? modules * (greenhouse.kcal_per_module_per_day / 24) * (ghLow ? greenhouse.low_power_factor : 1) : 0
- * foodKcal -= (foodDemand - ghYield)
- * If foodKcal < 0: clamp foodKcal = 0, flag food deficit.
- */
-export function stepFood(
-  currentFoodKcal: number,
-  greenhouseModules: number,
-  isGreenhousePowered: boolean,
-  isGhLowPower: boolean,
-  laborFraction: number,
-  params: LoadedParams,
-): FoodStepResult {
-  const crewSize = params.getNumber('crew.size');
-  const foodKcalPerDay = params.getNumber('crew.food_kcal_per_day');
-  const ghKcalPerModulePerDay = params.getNumber('greenhouse.kcal_per_module_per_day');
-  const ghLowPowerFactor = params.getNumber('greenhouse.low_power_factor');
+export interface FoodStep {
+  foodKcal: number;
+  ghKcal: number;
+  ghWaterKg: number;
+  isShortfall: boolean;
+}
 
-  const foodDemandKcal = (crewSize * foodKcalPerDay) / 24;
-
-  let ghYieldKcal = 0;
-  if (isGreenhousePowered && greenhouseModules > 0) {
-    const baseHourlyYield = greenhouseModules * (ghKcalPerModulePerDay / 24);
-    const powerMultiplier = isGhLowPower ? ghLowPowerFactor : 1;
-    // Scale by power mode and labor availability fraction
-    ghYieldKcal = baseHourlyYield * powerMultiplier * Math.max(0, Math.min(1, laborFraction));
+export function stepFood(foodKcal: number, input: FoodInputs, k: SimConstants): FoodStep {
+  const on = input.isGreenhousePowered && input.modules > 0;
+  let ghKcal = 0;
+  if (on && input.waterKg > 0) {
+    const powerFactor = input.ghLow ? k.greenhouseLowPowerFactor : 1;
+    const crewFactor = input.neededH > 0 ? Math.min(1, input.allocatedH / input.neededH) : 1;
+    ghKcal = input.modules * k.greenhouseKcalPerModulePerH * powerFactor * crewFactor;
   }
-
-  const netDecrement = foodDemandKcal - ghYieldKcal;
-  let nextFoodKcal = currentFoodKcal - netDecrement;
-  let foodDeficit = false;
-
-  if (nextFoodKcal <= 0) {
-    nextFoodKcal = 0;
-    foodDeficit = true;
-  }
-
-  return {
-    nextFoodKcal,
-    foodDemandKcal,
-    ghYieldKcal,
-    foodDeficit,
-  };
+  const ghWaterKg = on ? input.modules * k.greenhouseWaterKgPerModulePerH : 0;
+  let next = foodKcal + ghKcal - k.foodNeedKcalPerH;
+  const isShortfall = next < 0;
+  if (isShortfall) next = 0;
+  return { foodKcal: next, ghKcal, ghWaterKg, isShortfall };
 }

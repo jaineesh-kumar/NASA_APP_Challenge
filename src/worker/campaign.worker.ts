@@ -1,52 +1,48 @@
-// Web worker for running Monte Carlo campaign off the main thread
+// Runs runCampaign off the main thread so the UI stays responsive.
 // Spec B3, B5.7
 
 import { runCampaign } from '../engine/montecarlo.ts';
-import { CampaignResult, Design, Rules } from '../engine/types.ts';
+import { CampaignResult, Design, Rules, SunEra } from '../engine/types.ts';
 
 export interface WorkerIncomingMessage {
   type: 'RUN_CAMPAIGN';
-  id?: string;
+  id: number;
   design: Design;
   rules: Rules;
+  sunEra: SunEra;
   runs?: number;
 }
 
 export type WorkerOutgoingMessage =
-  | { type: 'PROGRESS'; id?: string; progress: number }
-  | { type: 'RESULT'; id?: string; result: CampaignResult }
-  | { type: 'ERROR'; id?: string; error: string };
+  | { type: 'PROGRESS'; id: number; progress: number }
+  | { type: 'RESULT'; id: number; result: CampaignResult }
+  | { type: 'ERROR'; id: number; error: string };
 
-self.onmessage = (event: MessageEvent<WorkerIncomingMessage>) => {
-  const data = event.data;
-
-  if (data && data.type === 'RUN_CAMPAIGN') {
-    try {
-      const result = runCampaign(
-        data.design,
-        data.rules,
-        data.runs ?? 300,
-        undefined,
-        (progress: number) => {
-          self.postMessage({
-            type: 'PROGRESS',
-            id: data.id,
-            progress,
-          } satisfies WorkerOutgoingMessage);
-        },
-      );
-
-      self.postMessage({
-        type: 'RESULT',
-        id: data.id,
-        result,
-      } satisfies WorkerOutgoingMessage);
-    } catch (err) {
-      self.postMessage({
-        type: 'ERROR',
-        id: data.id,
-        error: err instanceof Error ? err.message : String(err),
-      } satisfies WorkerOutgoingMessage);
-    }
+/** Pure handler so tests can drive the worker protocol without a real Worker. */
+export function handleWorkerMessage(
+  data: WorkerIncomingMessage,
+  post: (msg: WorkerOutgoingMessage) => void,
+): void {
+  try {
+    const result = runCampaign(
+      data.design,
+      data.rules,
+      data.runs,
+      undefined,
+      (progress) => post({ type: 'PROGRESS', id: data.id, progress }),
+      { sunEra: data.sunEra },
+    );
+    post({ type: 'RESULT', id: data.id, result });
+  } catch (err) {
+    post({ type: 'ERROR', id: data.id, error: err instanceof Error ? err.message : String(err) });
   }
-};
+}
+
+// Guard so importing this module in tests (jsdom window) does not hijack onmessage.
+if (typeof window === 'undefined' && typeof self !== 'undefined') {
+  self.onmessage = (event: MessageEvent<WorkerIncomingMessage>) => {
+    if (event.data?.type === 'RUN_CAMPAIGN') {
+      handleWorkerMessage(event.data, (msg) => self.postMessage(msg));
+    }
+  };
+}

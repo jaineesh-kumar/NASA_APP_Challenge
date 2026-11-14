@@ -1,266 +1,123 @@
-// Hand-written SVG scatter plot of Launch Mass vs Risk (1 - Survival)
-// Spec B2, B4.9, B5.8
+// Mass vs. risk for every design tested this session (Spec B8, L7 AC3). Hand-written SVG.
+// Uses stored campaign results only; it never runs simulations on the main thread.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { copy } from '../../content/copy.ts';
-import { missionPresets } from '../../content/missions.ts';
-import { massUsed } from '../../engine/mass.ts';
-import { runCampaign } from '../../engine/montecarlo.ts';
 import { loadParams } from '../../engine/params.ts';
+import { TriedDesign } from '../../state/store.tsx';
+import { eraName } from './SpaceWeatherPanel.tsx';
 
-interface MassVsRiskChartProps {
-  currentMass: number;
-  currentRiskPct: number; // (1 - survivalRate) * 100
-}
+const budget = loadParams().getNumber('mass.budget');
 
-interface DataPoint {
-  id: string;
-  name: string;
-  mass: number;
-  riskPct: number;
-  isCurrent: boolean;
-}
-
-const params = loadParams();
-
-export const MassVsRiskChart: React.FC<MassVsRiskChartProps> = ({
-  currentMass,
-  currentRiskPct,
-}) => {
-  // Pre-calculate preset data points (using small 20-run samples for stable reference positions)
-  const presetPoints: DataPoint[] = React.useMemo(() => {
-    return missionPresets.map((p) => {
-      const mass = massUsed(p.design, params);
-      const res = runCampaign(p.design, p.rules, 20, params);
-      const riskPct = Math.round((1 - res.survivalRate) * 100);
-      return {
-        id: p.id,
-        name: p.name,
-        mass,
-        riskPct,
-        isCurrent: false,
-      };
-    });
-  }, []);
-
-  const allPoints: DataPoint[] = [
-    ...presetPoints,
-    {
-      id: 'current',
-      name: 'Your Current Design',
-      mass: currentMass,
-      riskPct: Math.round(currentRiskPct),
-      isCurrent: true,
-    },
-  ];
-
-  const svgWidth = 460;
-  const svgHeight = 260;
-  const paddingLeft = 50;
-  const paddingRight = 30;
-  const paddingTop = 25;
-  const paddingBottom = 45;
-
-  const plotWidth = svgWidth - paddingLeft - paddingRight;
-  const plotHeight = svgHeight - paddingTop - paddingBottom;
-
-  const toX = (mass: number) => paddingLeft + (mass / 120) * plotWidth;
-  const toY = (risk: number) => paddingTop + (1 - risk / 100) * plotHeight;
+export const MassVsRiskChart: React.FC<{ history: readonly TriedDesign[] }> = ({ history }) => {
+  const [hover, setHover] = useState<number | null>(null);
+  const W = 460;
+  const H = 240;
+  const L = 44;
+  const R = 16;
+  const T = 12;
+  const B = 36;
+  const x = (m: number) => L + (m / budget) * (W - L - R);
+  const y = (r: number) => T + (1 - r / 100) * (H - T - B);
+  const latest = history.at(-1);
+  const shown = history.find((p) => p.n === hover) ?? latest;
+  const describe = (p: TriedDesign) =>
+    `${copy.charts.tried(p.n)}: ${p.massUsed} mu, ${p.riskPct.toFixed(1)}% · ${eraName(p.sunEra)}`;
 
   return (
-    <div className="panel-card" style={{ marginBottom: '24px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '4px' }}>
+    <section className="panel-card" aria-labelledby="mvr-title">
+      <h3 id="mvr-title" className="card-title">
         {copy.review.massRiskChartTitle}
       </h3>
-      <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-        Trade-off curve comparing payload launch mass (0–120 mu) against mission failure risk.
-      </p>
-
-      <div style={{ overflowX: 'auto' }}>
-        <svg
-          width="100%"
-          height={svgHeight}
-          viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-          role="img"
-          aria-label="Scatter plot showing launch mass versus failure risk percentage"
-          style={{ display: 'block', maxWidth: '100%' }}
-        >
-          <title>Launch Mass vs. Failure Risk</title>
-          <desc>
-            Scatter plot comparing current design mass and risk against documented mission presets.
-          </desc>
-
-          {/* Y Axis Gridlines (0%, 25%, 50%, 75%, 100%) */}
-          {[0, 25, 50, 75, 100].map((risk) => {
-            const y = toY(risk);
-            return (
-              <g key={risk}>
-                <line
-                  x1={paddingLeft}
-                  y1={y}
-                  x2={svgWidth - paddingRight}
-                  y2={y}
-                  stroke="var(--color-border)"
-                  strokeDasharray="4 4"
-                  strokeWidth="1"
-                />
-                <text
-                  x={paddingLeft - 8}
-                  y={y + 4}
-                  fill="var(--color-text-muted)"
-                  fontSize="11"
-                  fontFamily="var(--font-family-mono)"
-                  textAnchor="end"
-                >
-                  {risk}%
-                </text>
-              </g>
-            );
-          })}
-
-          {/* X Axis Ticks (0, 30, 60, 90, 120 mu) */}
-          {[0, 30, 60, 90, 120].map((mass) => {
-            const x = toX(mass);
-            return (
-              <g key={mass}>
-                <line
-                  x1={x}
-                  y1={paddingTop}
-                  x2={x}
-                  y2={paddingTop + plotHeight}
-                  stroke="var(--color-border)"
-                  strokeDasharray="2 4"
-                  strokeWidth="0.5"
-                />
-                <text
-                  x={x}
-                  y={paddingTop + plotHeight + 16}
-                  fill="var(--color-text-muted)"
-                  fontSize="11"
-                  fontFamily="var(--font-family-mono)"
-                  textAnchor="middle"
-                >
-                  {mass}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Axis Labels */}
+      {history.length < 2 ? <p className="muted small">{copy.review.massRiskEmpty}</p> : null}
+      <div className="chart">
+        <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={copy.review.massRiskChartTitle}>
+          {[0, 25, 50, 75, 100].map((r) => (
+            <g key={r}>
+              <line x1={L} x2={W - R} y1={y(r)} y2={y(r)} stroke="var(--viz-grid)" />
+              <text
+                x={L - 6}
+                y={y(r) + 4}
+                fontSize={10}
+                textAnchor="end"
+                fill="var(--color-text-muted)"
+              >
+                {r}%
+              </text>
+            </g>
+          ))}
+          {[0, 0.25, 0.5, 0.75, 1].map((f) => (
+            <text
+              key={f}
+              x={x(f * budget)}
+              y={H - B + 16}
+              fontSize={10}
+              textAnchor="middle"
+              fill="var(--color-text-muted)"
+            >
+              {Math.round(f * budget)}
+            </text>
+          ))}
           <text
-            x={svgWidth / 2}
-            y={svgHeight - 10}
-            fill="var(--color-text-muted)"
-            fontSize="12"
+            x={(L + W - R) / 2}
+            y={H - 4}
+            fontSize={11}
             textAnchor="middle"
-            fontWeight="500"
+            fill="var(--color-text-muted)"
           >
             {copy.charts.massLabel}
           </text>
           <text
-            x={16}
-            y={svgHeight / 2}
-            fill="var(--color-text-muted)"
-            fontSize="12"
+            x={12}
+            y={(T + H - B) / 2}
+            fontSize={11}
             textAnchor="middle"
-            fontWeight="500"
-            transform={`rotate(-90, 16, ${svgHeight / 2})`}
+            fill="var(--color-text-muted)"
+            transform={`rotate(-90 12 ${(T + H - B) / 2})`}
           >
             {copy.charts.riskLabel}
           </text>
-
-          {/* Data Points */}
-          {allPoints.map((pt) => {
-            const cx = toX(pt.mass);
-            const cy = toY(pt.riskPct);
-
-            if (pt.isCurrent) {
-              return (
-                <g key={pt.id}>
-                  <circle
-                    cx={cx}
-                    cy={cy}
-                    r="8"
-                    fill="var(--color-danger)"
-                    stroke="#ffffff"
-                    strokeWidth="2.5"
-                  />
-                  <text
-                    x={cx}
-                    y={cy - 12}
-                    fill="#ffffff"
-                    fontSize="11"
-                    fontWeight="700"
-                    textAnchor="middle"
-                  >
-                    You ({pt.mass}mu, {pt.riskPct}%)
-                  </text>
-                </g>
-              );
-            }
-
+          {history.map((p) => {
+            const isLatest = p === latest;
             return (
-              <g key={pt.id}>
+              <g key={p.n} onMouseEnter={() => setHover(p.n)} onMouseLeave={() => setHover(null)}>
+                <circle cx={x(p.massUsed)} cy={y(p.riskPct)} r={12} fill="transparent" />
                 <circle
-                  cx={cx}
-                  cy={cy}
-                  r="6"
-                  fill="var(--color-primary)"
-                  stroke="var(--color-border)"
-                  strokeWidth="1.5"
+                  cx={x(p.massUsed)}
+                  cy={y(p.riskPct)}
+                  r={isLatest ? 7 : 5}
+                  fill={isLatest ? 'var(--viz-line)' : 'var(--viz-neutral)'}
+                  stroke="var(--color-bg-surface)"
+                  strokeWidth={2}
                 />
-                <text
-                  x={cx}
-                  y={cy - 10}
-                  fill="var(--color-text-muted)"
-                  fontSize="10"
-                  textAnchor="middle"
-                >
-                  {pt.name.split(' ')[0]}
-                </text>
+                {isLatest ? (
+                  <text
+                    x={x(p.massUsed) + 10}
+                    y={y(p.riskPct) - 8}
+                    fontSize={10}
+                    fill="var(--color-text-main)"
+                  >
+                    {copy.charts.current}
+                  </text>
+                ) : null}
               </g>
             );
           })}
         </svg>
       </div>
-
-      {/* Accessible Table Fallback */}
-      <details style={{ marginTop: '12px', fontSize: '0.85rem' }}>
-        <summary style={{ cursor: 'pointer', color: 'var(--color-text-muted)' }}>
-          View Mass vs Risk Comparison Table
-        </summary>
-        <table
-          style={{
-            width: '100%',
-            marginTop: '8px',
-            borderCollapse: 'collapse',
-            fontFamily: 'var(--font-family-mono)',
-          }}
-        >
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--color-border)', textAlign: 'left' }}>
-              <th style={{ padding: '6px' }}>Design</th>
-              <th style={{ padding: '6px' }}>Mass (mu)</th>
-              <th style={{ padding: '6px' }}>Failure Risk</th>
+      <p className="chart-tooltip" aria-live="polite">
+        {shown ? describe(shown) : ' '}
+      </p>
+      <table className="sr-only">
+        <caption>{copy.review.massRiskChartTitle}</caption>
+        <tbody>
+          {history.map((p) => (
+            <tr key={p.n}>
+              <td>{describe(p)}</td>
             </tr>
-          </thead>
-          <tbody>
-            {allPoints.map((p) => (
-              <tr
-                key={p.id}
-                style={{
-                  borderBottom: '1px solid var(--color-border)',
-                  fontWeight: p.isCurrent ? 700 : 400,
-                }}
-              >
-                <td style={{ padding: '6px' }}>{p.name}</td>
-                <td style={{ padding: '6px' }}>{p.mass} mu</td>
-                <td style={{ padding: '6px' }}>{p.riskPct}%</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </details>
-    </div>
+          ))}
+        </tbody>
+      </table>
+    </section>
   );
 };

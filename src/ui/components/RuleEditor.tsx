@@ -3,6 +3,7 @@
 
 import React, { useState } from 'react';
 import { copy } from '../../content/copy.ts';
+import { MAX_RULES } from '../../engine/rules.ts';
 import { Action, Condition, IfThenRule, LoadId } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
 
@@ -16,7 +17,7 @@ export const RuleEditor: React.FC = () => {
   const [actLoad, setActLoad] = useState<LoadId>('science');
 
   const handleAddRule = () => {
-    if (ifThen.length >= 5) return;
+    if (ifThen.length >= MAX_RULES) return;
 
     let condition: Condition;
     if (condKind === 'battery_below_pct') {
@@ -77,10 +78,10 @@ export const RuleEditor: React.FC = () => {
   return (
     <div className="panel-card">
       <h2 style={{ fontSize: '1.15rem', fontWeight: 600, marginBottom: '6px' }}>
-        {copy.rules.ifThenTitle} ({ifThen.length} / 5)
+        {copy.rules.ifThenTitle} ({ifThen.length} / {MAX_RULES})
       </h2>
       <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-        {copy.rules.ifThenHelp}
+        {copy.rules.ifThenHelp(MAX_RULES)}
       </p>
 
       {/* Rules list */}
@@ -177,7 +178,7 @@ export const RuleEditor: React.FC = () => {
       )}
 
       {/* Rule Creator */}
-      {ifThen.length < 5 ? (
+      {ifThen.length < MAX_RULES ? (
         <div
           style={{
             padding: '16px',

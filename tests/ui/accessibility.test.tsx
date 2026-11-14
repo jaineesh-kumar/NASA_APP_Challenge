@@ -5,6 +5,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import App from '../../src/App.tsx';
+import { copy } from '../../src/content/copy.ts';
 import { ErrorBoundary } from '../../src/ui/components/ErrorBoundary.tsx';
 
 describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 AC1-AC3)', () => {
@@ -12,18 +13,18 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
     render(<App />);
 
     // Navigation bar should have accessible roles
-    const nav = screen.getByRole('navigation', { name: /Main Navigation/i });
+    const nav = screen.getByRole('navigation', { name: copy.nav.label });
     expect(nav).toBeDefined();
 
     // Verify all 7 screen buttons exist and are keyboard focusable
     const screenButtons = [
-      'Briefing',
-      '1. Design',
-      '2. Rules',
-      '3. Rehearse',
-      '4. Review',
-      'Learn',
-      'Model Card',
+      copy.nav.briefing,
+      copy.nav.design,
+      copy.nav.rules,
+      copy.nav.rehearse,
+      copy.nav.review,
+      copy.nav.learn,
+      copy.nav.modelCard,
     ];
 
     screenButtons.forEach((btnName) => {
@@ -92,7 +93,7 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
     render(<App />);
 
     // Navigate to Learn screen
-    const learnBtn = screen.getByRole('button', { name: 'Learn' });
+    const learnBtn = screen.getByRole('button', { name: copy.nav.learn });
     fireEvent.click(learnBtn);
 
     // Click on Share tab

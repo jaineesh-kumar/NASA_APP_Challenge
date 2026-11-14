@@ -16,6 +16,7 @@ const VALID_SOURCES: ReadonlySet<string> = new Set([
   'S09',
   'S10',
   'S11',
+  'S12',
   'ASSUMPTION',
   'DERIVED',
 ]);
@@ -57,8 +58,6 @@ export const REQUIRED_PARAM_IDS: readonly string[] = [
   'radiation.shelter_factor',
   'radiation.spe_multiplier',
   'radiation.spe_duration_h',
-  'radiation.spe_warning_lead_h',
-  'radiation.spe_per_month',
   'radiation.dose_limit_usv_mission',
   'power.panel_kw',
   'power.battery_kwh_per_unit',
@@ -110,6 +109,8 @@ export const REQUIRED_PARAM_IDS: readonly string[] = [
   'mass.spare',
   'rating.flight_ready_survival',
   'rating.flight_ready_success',
+  'comms.earth_moon_light_delay_s',
+  'comms.earth_mars_light_delay_min',
 ];
 
 export class LoadedParams {
@@ -172,9 +173,18 @@ export class LoadedParams {
  * Validates missing ids, unknown fields, wrong types, unknown source, and unknown confidence.
  * Throws EngineError if validation fails.
  */
-export function loadParams(rawInput?: unknown): LoadedParams {
-  const data = rawInput !== undefined ? rawInput : defaultParamsJson;
+let defaultParamsCache: LoadedParams | null = null;
 
+export function loadParams(rawInput?: unknown): LoadedParams {
+  // The bundled file never changes at runtime, so validate it once and share the instance.
+  if (rawInput === undefined) {
+    defaultParamsCache ??= validateParams(defaultParamsJson);
+    return defaultParamsCache;
+  }
+  return validateParams(rawInput);
+}
+
+function validateParams(data: unknown): LoadedParams {
   if (typeof data !== 'object' || data === null || Array.isArray(data)) {
     throw new EngineError('INVALID_PARAMS_ROOT', 'Params root must be a JSON object.');
   }
@@ -247,7 +257,7 @@ export function loadParams(rawInput?: unknown): LoadedParams {
     if (typeof source !== 'string' || !VALID_SOURCES.has(source)) {
       throw new EngineError(
         'INVALID_PARAM_SOURCE',
-        `Invalid source '${String(source)}' for '${id}'. Must be one of S01..S11, ASSUMPTION, DERIVED.`,
+        `Invalid source '${String(source)}' for '${id}'. Must be one of S01..S12, ASSUMPTION, DERIVED.`,
       );
     }
 

@@ -1,129 +1,115 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
+import { missionPresets } from '../../src/content/missions.ts';
+import { runMission } from '../../src/engine/sim.ts';
 import { CampaignResult, MissionResult } from '../../src/engine/types.ts';
-import { AppStoreProvider, useAppStore } from '../../src/state/store.tsx';
+import { AppStoreProvider, initialAppState } from '../../src/state/store.tsx';
 import { ReviewScreen } from '../../src/ui/screens/Review.tsx';
 
-describe('ReviewScreen Component (Spec Part C L7 AC2, AC3, AC5, AC6, AC8)', () => {
-  const mockCampaign: CampaignResult = {
-    runs: 300,
-    survivalRate: 0.96,
-    successRate: 0.85,
-    survivalCi: { low: 0.932, high: 0.978 },
-    successCi: { low: 0.805, high: 0.887 },
-    minBatteryPctP5: 22.5,
-    minO2DaysP5: 12.0,
-    doseUsvP95: 32000,
-    causeCounts: {
-      oxygen: 4,
-      co2: 2,
-      water: 3,
-      food: 1,
-      dose: 2,
-      science_missed: 15,
-    },
-    massUsed: 102,
-    worstSeed: 42,
-    rating: 'flight_ready',
-  };
+// Fixture CampaignResult (L7 AC7); the worst run is a real engine run so the replay has a trace.
+const fixture: CampaignResult = {
+  runs: 300,
+  survivalRate: 0.9,
+  successRate: 0.85,
+  survivalCi: { low: 0.861, high: 0.929 },
+  successCi: { low: 0.805, high: 0.887 },
+  minBatteryPctP5: 22.5,
+  minO2DaysP5: 12,
+  doseUsvP95: 32000,
+  causeCounts: { oxygen: 4, co2: 12, water: 3, food: 0, dose: 11, science_missed: 15 },
+  massUsed: 98,
+  worstSeed: 3,
+  rating: 'needs_work',
+  sunEra: 'stormy',
+  stormsPerRunMean: 1.7,
+  stormsMaxInRun: 4,
+  warningsMissed: 6,
+};
 
-  const mockWorstMission: MissionResult = {
-    seed: 42,
-    survived: false,
-    failureCause: 'oxygen',
-    failureHour: 229,
-    scienceMet: false,
-    minBatteryPct: 0,
-    minO2Days: 0,
-    peakDoseUsv: 25000,
-    log: [
-      { t: 100, type: 'dark_window_start', detail: 'Outpost entered dark window' },
-      { t: 150, type: 'battery_empty', detail: 'Outpost energy storage fully exhausted' },
-      { t: 151, type: 'load_off', detail: 'Load shed: life_support' },
-      {
-        t: 229,
-        type: 'failure',
-        detail: 'Mission lost: critical deficit threshold breached for oxygen',
-      },
-    ],
-  };
+function findFailedRun(): MissionResult {
+  const preset = missionPresets.find((p) => p.id === 'storm_bunker') ?? missionPresets[0]!;
+  for (let seed = 1; seed < 200; seed++) {
+    const r = runMission(preset.design, preset.rules, seed, undefined, {
+      trace: true,
+      sunEra: 'stormy',
+    });
+    if (!r.survived && r.sun.storms.length > 0) return r;
+  }
+  throw new Error('no failed run found for fixture');
+}
+const worst = findFailedRun();
 
-  const PopulatedReview: React.FC = () => {
-    const { dispatch } = useAppStore();
-    React.useEffect(() => {
-      dispatch({
-        type: 'SET_CAMPAIGN_RESULT',
-        result: mockCampaign,
-        worstRun: mockWorstMission,
-      });
-    }, [dispatch]);
-    return <ReviewScreen />;
-  };
+const renderReview = () =>
+  render(
+    <AppStoreProvider
+      initialState={{
+        ...initialAppState,
+        campaignResult: fixture,
+        worstMissionResult: worst,
+        history: [
+          { n: 1, massUsed: 80, riskPct: 40, sunEra: 'all' },
+          { n: 2, massUsed: 98, riskPct: 10, sunEra: 'stormy' },
+        ],
+      }}
+    >
+      <ReviewScreen />
+    </AppStoreProvider>,
+  );
 
-  it('renders rating banner, survival rates, and Wilson intervals (AC2, AC3)', () => {
-    render(
-      <AppStoreProvider>
-        <PopulatedReview />
-      </AppStoreProvider>,
-    );
-
-    expect(screen.getByText(copy.review.heading)).toBeDefined();
-    expect(screen.getByText(copy.review.flightReadyTitle)).toBeDefined();
-    expect(screen.getByText('96.0%')).toBeDefined();
-    expect(screen.getByText('[93.2%, 97.8%]')).toBeDefined();
-    expect(screen.getByText('[80.5%, 88.7%]')).toBeDefined();
+describe('ReviewScreen (L7 AC2-AC7)', () => {
+  it('AC2: survival and success with ranges, margins, rating, cause bars', () => {
+    renderReview();
+    expect(screen.getByText(new RegExp(copy.review.needsWorkTitle))).toBeDefined();
+    expect(screen.getByText('90.0%')).toBeDefined();
+    expect(screen.getByText(/86\.1% – 92\.9%/)).toBeDefined();
+    expect(screen.getByText(copy.review.batteryP5Label)).toBeDefined();
+    expect(screen.getByText(copy.review.warningsMissed(6))).toBeDefined();
   });
 
-  it('scrubs timeline through worst seed mission ticks (AC5, AC8)', () => {
-    render(
-      <AppStoreProvider>
-        <PopulatedReview />
-      </AppStoreProvider>,
-    );
-
-    const scrubber = screen.getByLabelText('Mission hour replay scrubber') as HTMLInputElement;
-    expect(scrubber).toBeDefined();
-
-    fireEvent.change(scrubber, { target: { value: '150' } });
-    expect(scrubber.value).toBe('150');
-    expect(screen.getAllByText(/Hour 150/).length).toBeGreaterThanOrEqual(1);
+  it('AC3: the mass-vs-risk chart lists every tested design', () => {
+    renderReview();
+    const chart = screen.getByRole('img', { name: copy.review.massRiskChartTitle });
+    expect(chart.querySelectorAll('circle').length).toBeGreaterThanOrEqual(4); // 2 points + 2 hit targets
   });
 
-  it('displays cause chain and concept hint (AC5)', () => {
-    render(
-      <AppStoreProvider>
-        <PopulatedReview />
-      </AppStoreProvider>,
+  it('AC4: the replay has play/pause and a scrubber, and shows the real storms', () => {
+    renderReview();
+    const slider = screen.getByRole('slider', {
+      name: copy.replay.scrubberLabel,
+    }) as HTMLInputElement;
+    fireEvent.change(slider, { target: { value: '10' } });
+    expect(screen.getByText(copy.replay.hourNow(10, 720))).toBeDefined();
+    const play = screen.getByRole('button', { name: new RegExp(copy.replay.play) });
+    fireEvent.click(play);
+    expect(screen.getByRole('button', { name: new RegExp(copy.replay.pause) })).toBeDefined();
+    expect(screen.getByText(copy.replay.sunWindow(worst.sun.startDate))).toBeDefined();
+    expect(screen.getAllByRole('link', { name: copy.replay.donkiLink }).length).toBe(
+      worst.sun.storms.length,
     );
-
-    expect(screen.getByText(copy.review.causeChainTitle)).toBeDefined();
-    expect(screen.getByText(copy.review.conceptHintTitle)).toBeDefined();
   });
 
-  it('renders working Why this number controls displaying provenance (AC6)', () => {
-    render(
-      <AppStoreProvider>
-        <PopulatedReview />
-      </AppStoreProvider>,
-    );
+  it('AC5: the cause chain comes from the log and a hint is shown', () => {
+    renderReview();
+    const section = screen.getByRole('region', { name: copy.causeChain.title });
+    expect(within(section).getByText(copy.causeChain.hintTitle)).toBeDefined();
+  });
 
-    const whyBtn = screen.getByLabelText('Why this number for rating.flight_ready_survival');
-    expect(whyBtn).toBeDefined();
-
-    // Open provenance modal
-    fireEvent.click(whyBtn);
-
-    // Dialog should be present with scientific provenance
+  it('AC6: "Why this number?" opens the param entry', () => {
+    renderReview();
+    const why = screen.getAllByRole('button', { name: /Why this number/i });
+    expect(why.length).toBeGreaterThan(3);
+    fireEvent.click(why[0]!);
     expect(screen.getByRole('dialog')).toBeDefined();
-    expect(screen.getByText('Scientific Provenance')).toBeDefined();
-    expect(screen.getByText('rating.flight_ready_survival')).toBeDefined();
-    expect(screen.getByText(/Illustrative/)).toBeDefined();
+  });
 
-    // Close dialog
-    const closeBtn = screen.getByRole('button', { name: 'Close' });
-    fireEvent.click(closeBtn);
-    expect(screen.queryByRole('dialog')).toBeNull();
+  it('shows the empty state without results', () => {
+    render(
+      <AppStoreProvider>
+        <ReviewScreen />
+      </AppStoreProvider>,
+    );
+    expect(screen.getByText(copy.review.noResultsTitle)).toBeDefined();
   });
 });

@@ -11,6 +11,8 @@ interface NumberStepperProps {
   max: number;
   step?: number;
   unitLabel?: string;
+  /** False when one more would break the mass budget (Spec B8: "+" disabled over budget). */
+  canIncrement?: boolean;
   onChange: (val: number) => void;
 }
 
@@ -22,6 +24,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
   max,
   step = 1,
   unitLabel,
+  canIncrement = true,
   onChange,
 }) => {
   const handleDecrement = () => {
@@ -29,7 +32,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
   };
 
   const handleIncrement = () => {
-    if (value < max) onChange(value + step);
+    if (value < max && canIncrement) onChange(value + step);
   };
 
   return (
@@ -89,7 +92,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
         <button
           type="button"
           onClick={handleIncrement}
-          disabled={value >= max}
+          disabled={value >= max || !canIncrement}
           aria-label={`Increase ${label}`}
           style={{
             width: '32px',

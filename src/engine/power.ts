@@ -1,214 +1,116 @@
-// Power generation, dust factors, allocation ladder, and battery dynamics
-// Spec B5.4 (Steps 3 and 4), B5.5
+// Generation, demands, priority-ladder allocation and battery
+// Spec B5.4 steps 3-4
 
-import { LoadedParams } from './params.ts';
-import { Design, LoadId, Rules } from './types.ts';
+import { SimConstants } from './constants.ts';
+import { Design, LoadId } from './types.ts';
 
-export interface PowerDemands {
-  life_support: number;
-  thermal: number;
-  comms: number;
-  greenhouse: number;
-  science: number;
-  construction: number;
+export type LoadFlags = Record<LoadId, boolean>;
+
+export interface DemandInputs {
+  inDarkWindow: boolean;
+  ghLow: boolean;
+  pauseScience: boolean;
+  isSheltering: boolean;
+  allShieldsBuilt: boolean;
+  forcedOff: ReadonlySet<LoadId>;
 }
 
-export interface PowerAllocationResult {
-  poweredLoads: Set<LoadId>;
-  demands: PowerDemands;
+export interface AllocationResult {
+  /** Load is running this tick. Forced-off loads are never running. */
+  powered: LoadFlags;
+  /** Load wanted power (> 0 kW, not forced off) but the ladder ran out. */
+  starved: LoadFlags;
   suppliedKw: number;
-  unmetLoads: Set<LoadId>;
 }
 
-export interface PowerStepResult {
-  genKw: number;
-  availableKw: number;
-  suppliedKw: number;
-  nextBatteryKwh: number;
-  batteryCapacityKwh: number;
-  poweredLoads: Set<LoadId>;
-  unmetLoads: Set<LoadId>;
-  demands: PowerDemands;
-}
-
-/**
- * Calculates instantaneous solar array generation in kW.
- * Spec B5.4 Step 3:
- * genKw = panels * power.panel_kw * sun * dustFactor * arrayFactor
- */
+// Spec B5.4 step 3
 export function computeGeneration(
   panels: number,
   inDarkWindow: boolean,
   isDustActive: boolean,
   isArrayFailed: boolean,
-  params: LoadedParams,
+  k: SimConstants,
 ): number {
-  const panelKw = params.getNumber('power.panel_kw');
-  const dustFactorValue = params.getNumber('power.dust_factor');
-  const arrayFailureFactor = params.getNumber('power.array_failure_factor');
-
-  const sun = inDarkWindow ? 0 : 1;
-  const dustFactor = isDustActive ? dustFactorValue : 1;
-  const arrayFactor = isArrayFailed ? arrayFailureFactor : 1;
-
-  return panels * panelKw * sun * dustFactor * arrayFactor;
+  if (inDarkWindow) return 0;
+  return (
+    panels *
+    k.panelKw *
+    (isDustActive ? k.dustFactor : 1) *
+    (isArrayFailed ? k.arrayFailureFactor : 1)
+  );
 }
 
-/**
- * Computes individual load power demands in kW.
- * Spec B5.4 Step 4 Demands.
- */
+// Spec B5.4 step 4 (demands)
 export function computeDemands(
   design: Design,
-  inDarkWindow: boolean,
-  ghLow: boolean,
-  pauseScience: boolean,
-  isSheltering: boolean,
-  allDesignedShieldsBuilt: boolean,
-  forcedOff: ReadonlySet<LoadId>,
-  params: LoadedParams,
-): PowerDemands {
-  const lifeSupportKw = params.getNumber('load.life_support_kw');
-  const thermalKw = params.getNumber('load.thermal_kw');
-  const thermalDarkMultiplier = params.getNumber('power.thermal_dark_multiplier');
-  const commsKw = params.getNumber('load.comms_kw');
-  const greenhouseKwPerModule = params.getNumber('load.greenhouse_kw_per_module');
-  const greenhouseLowPowerFactor = params.getNumber('greenhouse.low_power_factor');
-  const scienceKw = params.getNumber('load.science_kw');
-  const constructionKw = params.getNumber('load.construction_kw');
-
-  const thermalDemand = thermalKw * (inDarkWindow ? thermalDarkMultiplier : 1);
-  const ghFactor = ghLow ? greenhouseLowPowerFactor : 1;
-  const greenhouseDemand = design.greenhouseModules * greenhouseKwPerModule * ghFactor;
-  const scienceDemand = pauseScience || isSheltering ? 0 : scienceKw;
-  const constructionDemand = allDesignedShieldsBuilt || isSheltering ? 0 : constructionKw;
-
+  input: DemandInputs,
+  k: SimConstants,
+): Record<LoadId, number> {
+  const off = input.forcedOff;
+  const shelter = input.isSheltering;
   return {
-    life_support: forcedOff.has('life_support') ? 0 : lifeSupportKw,
-    thermal: forcedOff.has('thermal') ? 0 : thermalDemand,
-    comms: forcedOff.has('comms') ? 0 : commsKw,
-    greenhouse: forcedOff.has('greenhouse') ? 0 : greenhouseDemand,
-    science: forcedOff.has('science') ? 0 : scienceDemand,
-    construction: forcedOff.has('construction') ? 0 : constructionDemand,
+    life_support: off.has('life_support') ? 0 : k.loadKw.life_support,
+    thermal: off.has('thermal')
+      ? 0
+      : k.loadKw.thermal * (input.inDarkWindow ? k.thermalDarkMultiplier : 1),
+    comms: off.has('comms') ? 0 : k.loadKw.comms,
+    greenhouse: off.has('greenhouse')
+      ? 0
+      : design.greenhouseModules *
+        k.greenhouseKwPerModule *
+        (input.ghLow ? k.greenhouseLowPowerFactor : 1),
+    science: off.has('science') || input.pauseScience || shelter ? 0 : k.loadKw.science,
+    construction:
+      off.has('construction') || input.allShieldsBuilt || shelter ? 0 : k.loadKw.construction,
   };
 }
 
 /**
- * Allocates available power across loads using the priority ladder (all-or-nothing).
- * Spec B5.4 Step 4:
- * Walk rules.priority from index 0 to 5.
- * A load is powered if its demand is at most remaining power, otherwise off.
+ * Spec B5.4 step 4: walk the ladder from index 0; a load runs if its demand fits in what is
+ * left (all or nothing).
  */
 export function allocatePower(
   availableKw: number,
   priority: readonly LoadId[],
-  demands: PowerDemands,
-): PowerAllocationResult {
-  let remainingKw = availableKw;
-  const poweredLoads = new Set<LoadId>();
-  const unmetLoads = new Set<LoadId>();
+  demands: Readonly<Record<LoadId, number>>,
+  forcedOff: ReadonlySet<LoadId>,
+): AllocationResult {
+  const powered: LoadFlags = {
+    life_support: false,
+    thermal: false,
+    comms: false,
+    greenhouse: false,
+    science: false,
+    construction: false,
+  };
+  const starved: LoadFlags = { ...powered };
+  let remaining = availableKw;
   let suppliedKw = 0;
-
-  for (let i = 0; i < priority.length; i++) {
-    const loadId = priority[i];
-    if (!loadId) continue;
-
-    const demand = demands[loadId];
-    if (demand <= remainingKw) {
-      poweredLoads.add(loadId);
-      suppliedKw += demand;
-      remainingKw -= demand;
+  for (const load of priority) {
+    if (forcedOff.has(load)) continue;
+    const d = demands[load];
+    if (d <= remaining) {
+      powered[load] = true;
+      remaining -= d;
+      suppliedKw += d;
     } else {
-      unmetLoads.add(loadId);
+      starved[load] = true;
     }
   }
-
-  return {
-    poweredLoads,
-    demands,
-    suppliedKw,
-    unmetLoads,
-  };
+  return { powered, starved, suppliedKw };
 }
 
-/**
- * Computes battery state of charge for the next tick.
- * Spec B5.4 Step 4:
- * If genKw >= supplied: batteryKwh = min(capacity, batteryKwh + (genKw - supplied) * power.charge_efficiency)
- * else batteryKwh -= (supplied - genKw)
- */
+// Spec B5.4 step 4 (battery)
 export function updateBattery(
-  currentBatteryKwh: number,
+  batteryKwh: number,
   capacityKwh: number,
   genKw: number,
   suppliedKw: number,
-  params: LoadedParams,
+  k: SimConstants,
 ): number {
-  const chargeEfficiency = params.getNumber('power.charge_efficiency');
-
   if (genKw >= suppliedKw) {
-    const surplus = genKw - suppliedKw;
-    const addedEnergy = surplus * chargeEfficiency;
-    return Math.min(capacityKwh, currentBatteryKwh + addedEnergy);
-  } else {
-    const deficit = suppliedKw - genKw;
-    return Math.max(0, currentBatteryKwh - deficit);
+    return Math.min(capacityKwh, batteryKwh + (genKw - suppliedKw) * k.chargeEfficiency);
   }
-}
-
-/**
- * Executes full per-tick power step (generation, demand calculation, priority allocation, battery update).
- */
-export function stepPower(
-  design: Design,
-  rules: Rules,
-  currentBatteryKwh: number,
-  inDarkWindow: boolean,
-  isDustActive: boolean,
-  isArrayFailed: boolean,
-  ghLow: boolean,
-  pauseScience: boolean,
-  isSheltering: boolean,
-  allDesignedShieldsBuilt: boolean,
-  forcedOff: ReadonlySet<LoadId>,
-  params: LoadedParams,
-): PowerStepResult {
-  const batteryKwhPerUnit = params.getNumber('power.battery_kwh_per_unit');
-  const batteryCapacityKwh = design.batteries * batteryKwhPerUnit;
-
-  const genKw = computeGeneration(design.panels, inDarkWindow, isDustActive, isArrayFailed, params);
-
-  const availableKw = genKw + currentBatteryKwh;
-
-  const demands = computeDemands(
-    design,
-    inDarkWindow,
-    ghLow,
-    pauseScience,
-    isSheltering,
-    allDesignedShieldsBuilt,
-    forcedOff,
-    params,
-  );
-
-  const allocation = allocatePower(availableKw, rules.priority, demands);
-
-  const nextBatteryKwh = updateBattery(
-    currentBatteryKwh,
-    batteryCapacityKwh,
-    genKw,
-    allocation.suppliedKw,
-    params,
-  );
-
-  return {
-    genKw,
-    availableKw,
-    suppliedKw: allocation.suppliedKw,
-    nextBatteryKwh,
-    batteryCapacityKwh,
-    poweredLoads: allocation.poweredLoads,
-    unmetLoads: allocation.unmetLoads,
-    demands,
-  };
+  // supplied <= gen + battery by construction; max() only guards float rounding.
+  return Math.max(0, batteryKwh - (suppliedKw - genKw));
 }

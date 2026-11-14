@@ -1,119 +1,63 @@
-// Causal failure chain display and educational concept hint box
-// Spec B1, B5.9, Part C (L7 AC6)
+// Cause chain + concept hint, built only by buildCauseChain (L7 AC5, Spec B5.9)
 
 import React from 'react';
+import { concepts } from '../../content/concepts.ts';
 import { copy } from '../../content/copy.ts';
 import { buildCauseChain } from '../../engine/review.ts';
 import { MissionResult } from '../../engine/types.ts';
+import { describeLog } from './ReplayTimeline.tsx';
 
-interface ConceptHintBoxProps {
-  worstResult: MissionResult;
-}
-
-export const ConceptHintBox: React.FC<ConceptHintBoxProps> = ({ worstResult }) => {
-  const { chain, conceptHint } = buildCauseChain(worstResult);
+export const ConceptHintBox: React.FC<{ worstResult: MissionResult }> = ({ worstResult }) => {
+  const { failure, chain, concept } = buildCauseChain(worstResult);
+  const c = copy.causeChain;
+  const hint = concept ? concepts[concept] : null;
 
   return (
-    <div className="panel-card" style={{ marginBottom: '24px' }}>
-      <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '4px' }}>
-        {copy.review.causeChainTitle}
+    <section className="panel-card" aria-labelledby="chain-title">
+      <h3 id="chain-title" className="card-title">
+        {c.title}
       </h3>
-      <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-        Root cause analysis traced backward from the failure event.
+      <p className="muted small" style={{ marginBottom: 12 }}>
+        {c.intro}
       </p>
-
-      {chain.length === 0 ? (
-        <div
-          style={{
-            padding: '16px',
-            backgroundColor: 'var(--color-bg-base)',
-            borderRadius: 'var(--radius-md)',
-            color: 'var(--color-text-muted)',
-            fontSize: '0.9rem',
-            marginBottom: '16px',
-          }}
-        >
-          No failure cascade occurred in this mission.
-        </div>
+      {!failure ? (
+        <p className="tile muted">{c.none}</p>
       ) : (
-        <div style={{ marginBottom: '20px' }}>
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '8px',
-            }}
+        <ol style={{ listStyle: 'none' }} className="stack">
+          <li
+            className="tile notice-danger"
+            style={{ borderLeft: '4px solid var(--color-danger)' }}
           >
-            {chain.map((link, idx) => (
-              <div
-                key={idx}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '10px 14px',
-                  backgroundColor: 'var(--color-bg-surface-elevated)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--color-border)',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-family-mono)',
-                    fontWeight: 700,
-                    fontSize: '0.8rem',
-                    color: 'var(--color-danger)',
-                    minWidth: '24px',
-                  }}
-                >
-                  #{idx + 1}
-                </span>
-                <span
-                  style={{ fontWeight: 600, fontSize: '0.9rem', color: 'var(--color-text-main)' }}
-                >
-                  {link.effect}
-                </span>
-                <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
-                  ← triggered by
-                </span>
-                <span
-                  style={{ color: 'var(--color-warning)', fontWeight: 500, fontSize: '0.9rem' }}
-                >
-                  {link.causes.join(', ')}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+            <span className="muted small">h{failure.t}</span>{' '}
+            <strong>{describeLog(failure)}</strong>
+          </li>
+          {chain.map((link, i) => (
+            <li key={i} className="tile">
+              <span className="muted small">
+                ↑ {c.because} · h{link.cause.t}
+              </span>
+              <div>{describeLog(link.cause)}</div>
+            </li>
+          ))}
+        </ol>
       )}
-
-      {/* Educational Concept Hint Banner */}
-      <div
-        style={{
-          padding: '16px 20px',
-          backgroundColor: 'rgba(37, 99, 235, 0.12)',
-          borderLeft: '4px solid var(--color-primary)',
-          borderRadius: 'var(--radius-md)',
-        }}
-      >
+      {hint ? (
         <div
-          style={{
-            fontWeight: 700,
-            fontSize: '0.95rem',
-            color: 'var(--color-primary-text)',
-            marginBottom: '4px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-          }}
+          className="tile"
+          style={{ marginTop: 16, borderLeft: '4px solid var(--color-primary)' }}
         >
-          <span>💡</span>
-          <span>{copy.review.conceptHintTitle}</span>
+          <p className="muted small">{c.hintTitle}</p>
+          <p style={{ fontWeight: 700 }}>
+            {hint.title}: {hint.subtitle}
+          </p>
+          <p className="small" style={{ marginTop: 4 }}>
+            {hint.summary}
+          </p>
+          <p className="small" style={{ marginTop: 4, fontWeight: 600 }}>
+            {hint.takeaway}
+          </p>
         </div>
-        <p style={{ fontSize: '0.9rem', color: 'var(--color-text-main)', lineHeight: 1.5 }}>
-          {conceptHint}
-        </p>
-      </div>
-    </div>
+      ) : null}
+    </section>
   );
 };

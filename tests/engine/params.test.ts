@@ -6,7 +6,7 @@ import { EngineError } from '../../src/engine/types.ts';
 describe('loadParams and params validation (Spec B6, AC2)', () => {
   it('loads default params.json successfully with all required IDs', () => {
     const params = loadParams();
-    expect(params.version).toBe('0.1.0');
+    expect(params.version).toBe(defaultParamsJson.version);
 
     for (const id of REQUIRED_PARAM_IDS) {
       const entry = params.get(id);

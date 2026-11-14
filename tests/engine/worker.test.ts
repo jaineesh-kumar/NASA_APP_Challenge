@@ -1,46 +1,40 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { runCampaign } from '../../src/engine/montecarlo.ts';
-import { WorkerOutgoingMessage } from '../../src/worker/campaign.worker.ts';
-import { goldenDesign, goldenRules } from './sim.test.ts';
+import { handleWorkerMessage, WorkerOutgoingMessage } from '../../src/worker/campaign.worker.ts';
+import { goldenDesign, goldenRules } from './fixtures.ts';
 
-describe('campaign web worker protocol (Spec B5.7, AC7)', () => {
-  it('posts progress messages and returns valid CampaignResult (AC7)', () => {
-    const postedMessages: WorkerOutgoingMessage[] = [];
-    const mockPostMessage = vi.fn((msg: WorkerOutgoingMessage) => {
-      postedMessages.push(msg);
-    });
-
-    // Simulate worker logic
-    const design = goldenDesign;
-    const rules = goldenRules;
-    const runs = 20;
-
-    const result = runCampaign(design, rules, runs, undefined, (progress) => {
-      mockPostMessage({
-        type: 'PROGRESS',
-        id: 'test-123',
-        progress,
-      });
-    });
-
-    mockPostMessage({
-      type: 'RESULT',
-      id: 'test-123',
-      result,
-    });
-
-    expect(postedMessages.length).toBeGreaterThan(1);
-    const progressMessages = postedMessages.filter(
-      (m): m is Extract<WorkerOutgoingMessage, { type: 'PROGRESS' }> => m.type === 'PROGRESS',
+describe('campaign worker (L5 AC9)', () => {
+  it('AC9: the worker result equals calling runCampaign directly', () => {
+    const msgs: WorkerOutgoingMessage[] = [];
+    handleWorkerMessage(
+      {
+        type: 'RUN_CAMPAIGN',
+        id: 7,
+        design: goldenDesign,
+        rules: goldenRules,
+        sunEra: 'quiet',
+        runs: 25,
+      },
+      (m) => msgs.push(m),
     );
-    expect(progressMessages.length).toBeGreaterThan(0);
-
-    const finalMsg = postedMessages[postedMessages.length - 1];
-    expect(finalMsg?.type).toBe('RESULT');
-    if (finalMsg && finalMsg.type === 'RESULT') {
-      expect(finalMsg.result.runs).toBe(runs);
-      expect(finalMsg.result.survivalRate).toBeGreaterThanOrEqual(0);
-      expect(finalMsg.result.rating).toBeDefined();
+    const last = msgs.at(-1);
+    expect(last?.type).toBe('RESULT');
+    expect(msgs.some((m) => m.type === 'PROGRESS')).toBe(true);
+    if (last?.type === 'RESULT') {
+      expect(last.id).toBe(7);
+      expect(last.result).toEqual(
+        runCampaign(goldenDesign, goldenRules, 25, undefined, undefined, { sunEra: 'quiet' }),
+      );
     }
+  });
+
+  it('reports engine errors instead of crashing', () => {
+    const msgs: WorkerOutgoingMessage[] = [];
+    const bad = { ...goldenRules, priority: goldenRules.priority.slice(1) };
+    handleWorkerMessage(
+      { type: 'RUN_CAMPAIGN', id: 1, design: goldenDesign, rules: bad, sunEra: 'all', runs: 2 },
+      (m) => msgs.push(m),
+    );
+    expect(msgs.at(-1)?.type).toBe('ERROR');
   });
 });

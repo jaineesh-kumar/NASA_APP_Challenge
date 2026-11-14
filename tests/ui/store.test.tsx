@@ -1,88 +1,89 @@
 import { describe, expect, it } from 'vitest';
-import { missionPresets } from '../../src/content/missions.ts';
+import { guidedMissions, missionPresets } from '../../src/content/missions.ts';
+import { isWithinBudget } from '../../src/engine/mass.ts';
+import { loadParams } from '../../src/engine/params.ts';
+import { CampaignResult, MissionResult } from '../../src/engine/types.ts';
 import { AppState, appReducer, initialAppState } from '../../src/state/store.tsx';
 
-describe('appReducer state management (Spec B5.2, Part C L6 AC1, AC6)', () => {
-  it('updates state on hardware controls and recalculates mass (AC1)', () => {
-    let state = initialAppState;
-    expect(state.design.panels).toBe(4);
+const params = loadParams();
 
-    // Increase panels
-    state = appReducer(state, { type: 'SET_PANELS', panels: 6 });
-    expect(state.design.panels).toBe(6);
-    expect(state.massUsed).toBeGreaterThan(initialAppState.massUsed);
-
-    // Increase batteries
-    const massBeforeBatteries = state.massUsed;
-    state = appReducer(state, { type: 'SET_BATTERIES', batteries: 8 });
-    expect(state.design.batteries).toBe(8);
-    expect(state.massUsed).toBe(massBeforeBatteries + 3 * 5); // 3 more batteries * 5 mu
-
-    // Change site
-    state = appReducer(state, { type: 'SET_SITE', site: 'crater_edge' });
-    expect(state.design.site).toBe('crater_edge');
-
-    // Change water tier
-    state = appReducer(state, { type: 'SET_WATER_TIER', tier: 0 });
-    expect(state.design.waterLoopTier).toBe(0);
-
-    // Change O2 tier
-    state = appReducer(state, { type: 'SET_O2_TIER', tier: 1 });
-    expect(state.design.o2LoopTier).toBe(1);
-
-    // Change spares
-    state = appReducer(state, { type: 'SET_SPARE', component: 'power_array', count: 2 });
-    expect(state.design.spares.power_array).toBe(2);
+describe('appReducer (L6 AC1-AC4)', () => {
+  it('AC1: hardware actions update the design and the mass', () => {
+    let s = appReducer(initialAppState, {
+      type: 'SET_PANELS',
+      panels: initialAppState.design.panels - 1,
+    });
+    expect(s.design.panels).toBe(initialAppState.design.panels - 1);
+    expect(s.massUsed).toBe(initialAppState.massUsed - params.getNumber('mass.panel'));
+    s = appReducer(s, { type: 'SET_SITE', site: 'crater_edge' });
+    expect(s.design.site).toBe('crater_edge');
+    s = appReducer(s, { type: 'SET_WATER_TIER', tier: 0 });
+    expect(s.design.waterLoopTier).toBe(0);
+    s = appReducer(s, { type: 'SET_SPARE', component: 'power_array', count: 1 });
+    expect(s.design.spares.power_array).toBe(1);
   });
 
-  it('loads documented presets accurately (AC6)', () => {
-    let state = initialAppState;
-    const powerPreset = missionPresets.find((p) => p.id === 'power_heavy')!;
-
-    state = appReducer(state, { type: 'SET_PRESET', preset: powerPreset });
-    expect(state.design.site).toBe('crater_edge');
-    expect(state.design.panels).toBe(6);
-    expect(state.design.batteries).toBe(8);
-    expect(state.isWithinBudget).toBe(true);
+  it('AC2: the mass cap cannot be exceeded by adding items', () => {
+    let s = initialAppState;
+    for (let i = 0; i < 20; i++)
+      s = appReducer(s, { type: 'SET_BATTERIES', batteries: s.design.batteries + 1 });
+    expect(s.isWithinBudget).toBe(true);
+    expect(isWithinBudget(s.design, params)).toBe(true);
   });
 
-  it('reorders priority ladder via MOVE_PRIORITY (AC4)', () => {
-    let state = initialAppState;
-    const originalTop = state.rules.priority[0];
-    const originalSecond = state.rules.priority[1];
-
-    // Move second item up to first
-    state = appReducer(state, { type: 'MOVE_PRIORITY', index: 1, direction: 'up' });
-    expect(state.rules.priority[0]).toBe(originalSecond);
-    expect(state.rules.priority[1]).toBe(originalTop);
+  it('every example base and guided mission fits the budget', () => {
+    for (const p of missionPresets) expect(isWithinBudget(p.design, params), p.id).toBe(true);
+    for (const m of guidedMissions) expect(isWithinBudget(m.design, params), m.id).toBe(true);
   });
 
-  it('adds and removes rules up to maximum of 5 (AC5)', () => {
-    let state: AppState = {
-      ...initialAppState,
-      rules: { ...initialAppState.rules, ifThen: [] },
-    };
+  it('AC3: the ladder stays a valid permutation', () => {
+    const moved = appReducer(initialAppState, { type: 'MOVE_PRIORITY', index: 1, direction: 'up' });
+    expect(moved.rules.priority[0]).toBe(initialAppState.rules.priority[1]);
+    expect(new Set(moved.rules.priority).size).toBe(6);
+    expect(appReducer(initialAppState, { type: 'MOVE_PRIORITY', index: 0, direction: 'up' })).toBe(
+      initialAppState,
+    );
+    const bad = appReducer(initialAppState, {
+      type: 'SET_PRIORITY',
+      priority: ['comms', 'comms', 'thermal', 'science', 'greenhouse', 'construction'],
+    });
+    expect(bad).toBe(initialAppState);
+  });
 
-    for (let i = 0; i < 5; i++) {
-      state = appReducer(state, {
+  it('AC4: at most 5 IF-THEN rules', () => {
+    let s: AppState = { ...initialAppState, rules: { ...initialAppState.rules, ifThen: [] } };
+    for (let i = 0; i < 7; i++) {
+      s = appReducer(s, {
         type: 'ADD_RULE',
-        rule: {
-          condition: { kind: 'battery_below_pct', value: 10 + i },
-          action: { kind: 'shelter' },
-        },
+        rule: { condition: { kind: 'spe_warning' }, action: { kind: 'shelter' } },
       });
     }
-    expect(state.rules.ifThen.length).toBe(5);
+    expect(s.rules.ifThen).toHaveLength(5);
+    s = appReducer(s, { type: 'REMOVE_RULE', index: 0 });
+    expect(s.rules.ifThen).toHaveLength(4);
+  });
 
-    // 6th rule must be rejected per 5-rule limit
-    state = appReducer(state, {
-      type: 'ADD_RULE',
-      rule: { condition: { kind: 'spe_warning' }, action: { kind: 'shelter' } },
+  it('guided missions set the sun era; results go into the history and become stale on edits', () => {
+    const m3 = guidedMissions.find((m) => m.id === 'M3');
+    let s = appReducer(initialAppState, {
+      type: 'LOAD_MISSION',
+      mission: m3 ?? guidedMissions[0]!,
     });
-    expect(state.rules.ifThen.length).toBe(5);
+    expect(s.sunEra).toBe('stormy');
+    const result = { massUsed: 90, survivalRate: 0.8, sunEra: 'stormy' } as CampaignResult;
+    s = appReducer(s, { type: 'SET_CAMPAIGN_RESULT', result, worstRun: {} as MissionResult });
+    expect(s.history).toEqual([
+      { n: 1, massUsed: 90, riskPct: expect.closeTo(20, 9), sunEra: 'stormy' },
+    ]);
+    expect(s.isResultStale).toBe(false);
+    s = appReducer(s, { type: 'SET_SUN_ERA', sunEra: 'quiet' });
+    expect(s.isResultStale).toBe(true);
+  });
 
-    // Remove first rule
-    state = appReducer(state, { type: 'REMOVE_RULE', index: 0 });
-    expect(state.rules.ifThen.length).toBe(4);
+  it('a failed campaign stores the error and stops running', () => {
+    let s = appReducer(initialAppState, { type: 'START_CAMPAIGN' });
+    s = appReducer(s, { type: 'CAMPAIGN_FAILED', message: 'boom' });
+    expect(s.isRunningCampaign).toBe(false);
+    expect(s.campaignError).toBe('boom');
   });
 });

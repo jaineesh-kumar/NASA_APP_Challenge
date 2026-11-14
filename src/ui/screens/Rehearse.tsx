@@ -1,286 +1,154 @@
-// Rehearse screen executing 300-run Monte Carlo campaign
-// Spec B1, B5.7, Part C (L7 AC1)
+// Test (rehearse) screen: pick the real Sun, run the campaign in a worker (Spec B8, L7 AC1)
 
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { copy } from '../../content/copy.ts';
-import { runCampaign } from '../../engine/montecarlo.ts';
+import { getSimConstants } from '../../engine/constants.ts';
 import { loadParams } from '../../engine/params.ts';
-import { runMission } from '../../engine/sim.ts';
 import { useAppStore } from '../../state/store.tsx';
-import { WorkerIncomingMessage, WorkerOutgoingMessage } from '../../worker/campaign.worker.ts';
+import { CAMPAIGN_RUNS, useCampaign } from '../../state/useCampaign.ts';
+import { SpaceWeatherPanel } from '../components/SpaceWeatherPanel.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
-const params = loadParams();
+const k = getSimConstants(loadParams());
 
 export const RehearseScreen: React.FC = () => {
   const { state, dispatch } = useAppStore();
-  const { design, rules, isRunningCampaign, campaignProgress, campaignResult } = state;
+  const {
+    design,
+    rules,
+    sunEra,
+    isRunningCampaign,
+    campaignProgress,
+    campaignResult,
+    campaignError,
+    isResultStale,
+  } = state;
+  const { start } = useCampaign();
+  const t = copy.rehearse;
+  const pct = Math.round(campaignProgress * 100);
+  const hasFreshResult = campaignResult !== null && !isResultStale;
 
-  const [statusMessage, setStatusMessage] = useState<string>('');
-  const workerRef = useRef<Worker | null>(null);
-
-  const startRehearsal = () => {
-    dispatch({ type: 'START_CAMPAIGN' });
-    setStatusMessage('Spawning campaign worker...');
-
-    try {
-      if (typeof window !== 'undefined' && window.Worker) {
-        // Instantiate campaign worker
-        const worker = new Worker(new URL('../../worker/campaign.worker.ts', import.meta.url), {
-          type: 'module',
-        });
-        workerRef.current = worker;
-
-        worker.onmessage = (event: MessageEvent<WorkerOutgoingMessage>) => {
-          const msg = event.data;
-          if (msg.type === 'PROGRESS') {
-            dispatch({ type: 'SET_CAMPAIGN_PROGRESS', progress: msg.progress });
-            setStatusMessage(`Simulated ${Math.round(msg.progress * 300)} of 300 missions...`);
-          } else if (msg.type === 'RESULT') {
-            const worstRun = runMission(design, rules, msg.result.worstSeed, params);
-            dispatch({
-              type: 'SET_CAMPAIGN_RESULT',
-              result: msg.result,
-              worstRun,
-            });
-            setStatusMessage(copy.rehearse.completedNotice);
-            worker.terminate();
-            workerRef.current = null;
-          } else if (msg.type === 'ERROR') {
-            runFallbackSynchronously();
-          }
-        };
-
-        worker.onerror = () => {
-          runFallbackSynchronously();
-        };
-
-        const payload: WorkerIncomingMessage = {
-          type: 'RUN_CAMPAIGN',
-          design,
-          rules,
-          runs: 300,
-        };
-        worker.postMessage(payload);
-      } else {
-        runFallbackSynchronously();
-      }
-    } catch {
-      runFallbackSynchronously();
-    }
-  };
-
-  const runFallbackSynchronously = () => {
-    setStatusMessage('Executing simulation campaign...');
-    // Small timeout to allow UI render
-    setTimeout(() => {
-      const result = runCampaign(design, rules, 300, params, (progress) => {
-        dispatch({ type: 'SET_CAMPAIGN_PROGRESS', progress });
-      });
-      const worstRun = runMission(design, rules, result.worstSeed, params);
-      dispatch({
-        type: 'SET_CAMPAIGN_RESULT',
-        result,
-        worstRun,
-      });
-      setStatusMessage(copy.rehearse.completedNotice);
-    }, 50);
-  };
-
-  const progressPct = Math.round(campaignProgress * 100);
+  const rows: Array<[string, string, string?]> = [
+    [t.site, design.site === 'ridge' ? copy.design.ridgeName : copy.design.craterName],
+    [t.panels, `${design.panels} × ${k.panelKw} kW`, 'power.panel_kw'],
+    [t.batteries, `${design.batteries} × ${k.batteryKwhPerUnit} kWh`, 'power.battery_kwh_per_unit'],
+    [t.mast, String(design.mastLevel), 'power.mast_dark_reduction_per_level'],
+    [t.water, design.waterLoopTier === 1 ? t.upgraded : t.basic, 'water.recovery_upgraded'],
+    [t.o2, design.o2LoopTier === 1 ? 'Sabatier' : t.basic, 'o2.sabatier_recovery'],
+    [t.shielding, String(design.shieldingLayers), 'radiation.shield_factor_by_layers'],
+    [t.rulesCount, String(rules.ifThen.length)],
+  ];
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '4px' }}>
-          {copy.rehearse.heading}
-        </h2>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
-          {copy.rehearse.subheading}
-        </p>
-      </div>
+    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+      <h2 className="screen-title">{t.heading}</h2>
+      <p className="muted" style={{ marginBottom: 20 }}>
+        {t.subheading}
+      </p>
 
-      {/* Outpost Summary Card */}
-      <div className="panel-card" style={{ marginBottom: '24px' }}>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '12px' }}>
-          {copy.rehearse.summaryTitle}
+      <section className="panel-card" aria-labelledby="base-summary">
+        <h3 id="base-summary" className="card-title">
+          {t.summaryTitle}
         </h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '12px',
-            fontSize: '0.9rem',
-          }}
+        <dl
+          className="tiles"
+          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}
         >
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Site: </span>
-            <span style={{ fontWeight: 600 }}>
-              {design.site === 'ridge' ? 'Malapert Ridge' : 'Shackleton Edge'}
-            </span>
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Solar Panels: </span>
-            <span style={{ fontWeight: 600 }}>
-              {design.panels} ({design.panels * 10} kW)
-            </span>
-            <WhyThisNumber paramId="power.panel_kw" />
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Batteries: </span>
-            <span style={{ fontWeight: 600 }}>
-              {design.batteries} ({design.batteries * 100} kWh)
-            </span>
-            <WhyThisNumber paramId="power.battery_kwh_per_unit" />
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Mast Level: </span>
-            <span style={{ fontWeight: 600 }}>{design.mastLevel}</span>
-            <WhyThisNumber paramId="power.mast_dark_reduction_per_level" />
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Water Loop: </span>
-            <span style={{ fontWeight: 600 }}>
-              {design.waterLoopTier === 1 ? '98% (Brine)' : '90% (Base)'}
-            </span>
-            <WhyThisNumber paramId="water.recovery_upgraded" />
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>O2 Loop: </span>
-            <span style={{ fontWeight: 600 }}>
-              {design.o2LoopTier === 1 ? 'Sabatier Reactor' : 'Stored Tanks'}
-            </span>
-            <WhyThisNumber paramId="o2.sabatier_recovery" />
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Shielding Layers: </span>
-            <span style={{ fontWeight: 600 }}>{design.shieldingLayers}</span>
-            <WhyThisNumber paramId="radiation.shield_factor_by_layers" />
-          </div>
-          <div>
-            <span style={{ color: 'var(--color-text-muted)' }}>Automated Rules: </span>
-            <span style={{ fontWeight: 600 }}>{rules.ifThen.length}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Campaign Launcher and Progress */}
-      <div
-        className="panel-card"
-        style={{ textAlign: 'center', padding: '36px 20px', marginBottom: '24px' }}
-      >
-        {!isRunningCampaign && !campaignResult && (
-          <button
-            type="button"
-            onClick={startRehearsal}
-            style={{
-              backgroundColor: 'var(--color-primary)',
-              color: '#fff',
-              fontSize: '1.15rem',
-              fontWeight: 700,
-              padding: '14px 32px',
-              border: 'none',
-              boxShadow: 'var(--shadow-md)',
-            }}
-          >
-            ▶ {copy.rehearse.runButton}
-          </button>
-        )}
-
-        {isRunningCampaign && (
-          <div>
-            <div style={{ fontWeight: 600, fontSize: '1.1rem', marginBottom: '12px' }}>
-              {copy.rehearse.runningButton}
+          {rows.map(([label, value, paramId]) => (
+            <div key={label}>
+              <dt className="muted small">{label}</dt>
+              <dd style={{ fontWeight: 600 }}>
+                {value}
+                {paramId ? <WhyThisNumber paramId={paramId} /> : null}
+              </dd>
             </div>
+          ))}
+        </dl>
+      </section>
 
+      <SpaceWeatherPanel
+        value={sunEra}
+        onChange={(era) => dispatch({ type: 'SET_SUN_ERA', sunEra: era })}
+        disabled={isRunningCampaign}
+      />
+
+      <section
+        className="panel-card"
+        style={{ textAlign: 'center', padding: '32px 20px' }}
+        aria-live="polite"
+      >
+        {campaignError && !isRunningCampaign ? (
+          <div
+            className="notice notice-danger"
+            role="alert"
+            style={{ textAlign: 'left', marginBottom: 16 }}
+          >
+            <strong>{t.errorTitle}</strong>
+            <p>{t.errorBody(campaignError)}</p>
+          </div>
+        ) : null}
+
+        {isRunningCampaign ? (
+          <div>
+            <p style={{ fontWeight: 600, marginBottom: 12 }}>{t.runningButton}</p>
             <div
               role="progressbar"
-              aria-valuenow={progressPct}
+              aria-valuenow={pct}
               aria-valuemin={0}
               aria-valuemax={100}
-              aria-label={copy.rehearse.progressLabel}
+              aria-label={t.progressLabel}
               style={{
-                width: '100%',
-                maxWidth: '500px',
-                height: '14px',
-                backgroundColor: 'var(--color-bg-base)',
+                maxWidth: 500,
+                height: 14,
+                margin: '0 auto 10px',
+                background: 'var(--color-bg-base)',
+                border: '1px solid var(--color-border)',
                 borderRadius: 'var(--radius-sm)',
                 overflow: 'hidden',
-                margin: '0 auto 12px auto',
-                border: '1px solid var(--color-border)',
               }}
             >
               <div
-                style={{
-                  width: `${progressPct}%`,
-                  height: '100%',
-                  backgroundColor: 'var(--color-primary)',
-                  transition: 'width 0.15s ease',
-                }}
+                style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)' }}
               />
             </div>
-
-            <div
-              style={{
-                fontFamily: 'var(--font-family-mono)',
-                color: 'var(--color-text-muted)',
-                fontSize: '0.9rem',
-              }}
-            >
-              {statusMessage || `${progressPct}%`}
-            </div>
+            <p className="muted small">
+              {t.progressText(Math.round(campaignProgress * CAMPAIGN_RUNS), CAMPAIGN_RUNS)}
+            </p>
           </div>
-        )}
-
-        {campaignResult && !isRunningCampaign && (
+        ) : hasFreshResult ? (
           <div>
-            <div
-              style={{
-                fontSize: '1.1rem',
-                fontWeight: 600,
-                color: 'var(--color-success)',
-                marginBottom: '16px',
-              }}
-            >
-              ✓ {copy.rehearse.completedNotice}
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
-              <button
-                type="button"
-                onClick={startRehearsal}
-                style={{ padding: '10px 20px', fontSize: '0.95rem' }}
-              >
-                ↻ Re-run Campaign
+            <p style={{ fontWeight: 600, color: 'var(--color-success)', marginBottom: 16 }}>
+              ✓ {t.completedNotice}
+            </p>
+            <div className="row" style={{ justifyContent: 'center' }}>
+              <button type="button" onClick={start}>
+                ↻ {t.rerunButton}
               </button>
-
               <button
                 type="button"
+                className="btn-primary"
                 onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'review' })}
-                style={{
-                  backgroundColor: 'var(--color-primary)',
-                  color: '#fff',
-                  padding: '10px 24px',
-                  fontWeight: 600,
-                  fontSize: '0.95rem',
-                }}
               >
-                {copy.rehearse.proceedToReview}
+                {t.proceedToReview}
               </button>
             </div>
           </div>
+        ) : (
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={start}
+            disabled={!state.isWithinBudget}
+            style={{ fontSize: '1.15rem', padding: '14px 32px' }}
+          >
+            ▶ {t.runButton(CAMPAIGN_RUNS)}
+          </button>
         )}
-      </div>
+      </section>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <button
-          type="button"
-          onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rules' })}
-          style={{ padding: '8px 16px', fontSize: '0.9rem' }}
-        >
-          {copy.rehearse.backToRules}
-        </button>
-      </div>
+      <button type="button" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rules' })}>
+        {t.backToRules}
+      </button>
     </div>
   );
 };
