@@ -18,6 +18,20 @@ The game is one step at a time, like a ticket wallet with one coupon per step:
 4. **Test**: pick random storms or replay a real NASA storm, then fly 300 missions.
 5. **Review**: the boarding pass ("94 out of every 100 crews came home"), a grid of 100 crews, the main trouble, a replay with three big meters (Power, Life support, Shield), the cause chain, and a real astronaut finding.
 
+### Pages
+
+| Page | Address | What it is |
+|---|---|---|
+| Home | `#/` | The mission story, a Play button and the real-NASA-data badge |
+| How to play | `#/how-to-play` | Three picture cards and a guided first mission with coach tips |
+| Missions | `#/missions` | Five guided missions (M1 to M5), each ending with a three-question debrief |
+| Training Bay | `#/training` | Practice games: Power Juggle (share the battery through the dark) and Storm Shelter (a real archived storm) |
+| Free build | `#/free-build` | The five steps above with your own base |
+| Logbook | `#/logbook` | Badges, mission results and training scores, saved only in this browser |
+| Space words | `#/words` | Every science word in plain language |
+| For teachers | `#/teachers` | A lesson plan, the big ideas, the pre/post quiz and scenario codes |
+| Data and science | `#/data` | Every archived storm, the OSDR findings, what is real and what we simplified, and every number with its source |
+
 **Junior Mode** (default) keeps it simple. **Planner Mode** (header toggle) shows every control, the if-then rule editor, likely ranges and all charts. **Learn** has guided missions, a quiz and scenario codes; **How it works** lists every number with its source.
 
 ## The trade-offs it teaches

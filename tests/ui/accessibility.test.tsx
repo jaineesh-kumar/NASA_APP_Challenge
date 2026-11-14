@@ -79,6 +79,13 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
       ['warning text on warning bg', '#5c3c00', '#fff1cc'],
       ['danger text on danger bg', '#7d1710', '#ffe3e0'],
       ['success text on white', '#127a3e', '#ffffff'],
+      // Site pages (src/ui/styles/pages.css)
+      ['success text on success bg (goal, right answer)', '#127a3e', '#ddf5e6'],
+      ['carbon on carbon wash (earned badge, mission banner)', '#5b3fd9', '#eee9ff'],
+      ['rocket-deep tag on carbon wash (needed all night)', '#a9211a', '#eee9ff'],
+      ['danger text on elevated (urgent radio line)', '#b4231a', '#f2f6ff'],
+      ['muted on highlight (site menu hover)', '#45557f', '#e4ecff'],
+      ['white on navy (current menu page)', '#ffffff', '#14245c'],
     ];
     for (const [name, fg, bg] of pairs) {
       const ratio = getContrast(hex(fg), hex(bg));
