@@ -12,12 +12,19 @@ export interface ConceptCheck {
   explanation: string;
 }
 
+export type MissionId = 'M1' | 'M2' | 'M3' | 'M4' | 'M5';
+
+/** Mission steps a coach tip can appear on (the Free build flow, after Briefing). */
+export type CoachStep = 'design' | 'rules' | 'rehearse' | 'review';
+
 export interface GuidedMission {
-  id: 'M1' | 'M2' | 'M3';
+  id: MissionId;
   title: string;
   subtitle: string;
   objective: string;
   conceptTarget: string;
+  /** Short tips shown on each step while this mission is being played. */
+  coach: Partial<Record<CoachStep, string>>;
   design: Design;
   rules: Rules;
   stormMode: StormMode;
@@ -55,15 +62,18 @@ const saveScience = (pct: number): IfThenRule => ({
   action: { kind: 'shed', load: 'science' },
 });
 
-/** The archived DONKI storm with the biggest linked flare (X > M > C, then by number). */
-function strongestArchivedStorm(): StormMode {
+/**
+ * An archived DONKI storm by size of its linked flare (X > M > C, then by number):
+ * place 0 is the biggest, place 1 the second biggest.
+ */
+function archivedStormByRank(place: number): StormMode {
   const rank = (cls: string) =>
     'CMX'.indexOf(cls.charAt(0)) * 1000 + Number.parseFloat(cls.slice(1));
   const events = [...getDonkiArchive().events].sort(
     (a, b) => rank(b.flareClass) - rank(a.flareClass),
   );
-  const top = events[0];
-  return top ? { kind: 'replay', eventId: top.id } : { kind: 'random' };
+  const pick = events[place] ?? events[0];
+  return pick ? { kind: 'replay', eventId: pick.id } : { kind: 'random' };
 }
 
 // B10.7 starter kits. Measured with 300-run campaigns (ADR-013): Light 58 mu, 75 of 100
@@ -147,6 +157,16 @@ export const guidedMissions: GuidedMission[] = [
     objective:
       'This crater base runs out of battery in the long dark hours. Add batteries or a taller mast until the crew stays safe in almost every test.',
     conceptTarget: 'margin',
+    coach: {
+      design:
+        'Coach tip: this base sits at the Crater Edge, where the dark lasts a long time. Add more batteries. Then open “More options” and raise the mast. Small changes are not enough here!',
+      rules:
+        'Coach tip: these rules are ready. Life support is at the top of the ladder, so it keeps power longest. Press Next.',
+      rehearse:
+        'Coach tip: press the big button. The computer flies your base many times, with different dust, dark hours and breakdowns each time.',
+      review:
+        'Coach tip: look at the big number. Not enough crews home yet? Go back to Build, add more, and test again.',
+    },
     design: {
       site: 'crater_edge',
       panels: 5,
@@ -181,6 +201,12 @@ export const guidedMissions: GuidedMission[] = [
     objective:
       'This base has no spare for its water recycler. When it breaks, water drains away. Find the weak spot and fix it, by adding a spare or a better recycler.',
     conceptTarget: 'single_point_of_failure',
+    coach: {
+      design:
+        'Coach tip: open “More options” and look at the spare parts. Which machine has no spare?',
+      review:
+        'Coach tip: read “Why did it happen?” to follow the clues back to the broken machine.',
+    },
     design: {
       site: 'ridge',
       panels: 4,
@@ -214,6 +240,12 @@ export const guidedMissions: GuidedMission[] = [
     objective:
       'This base faces the strongest real solar storm in our NASA archive. Its rules switch the radio off to save power, and nobody hides when a storm comes. Fix the rules: add a shelter rule and keep the radio on.',
     conceptTarget: 'communication',
+    coach: {
+      rules:
+        'Coach tip: one rule switches the radio off when the battery is below a number. Remove it. Then turn on “Storm warning: crew goes to the shelter”.',
+      rehearse:
+        'Coach tip: this test replays a real solar storm from NASA’s archive. It is a saved copy, not live.',
+    },
     design: {
       site: 'ridge',
       panels: 4,
@@ -235,7 +267,7 @@ export const guidedMissions: GuidedMission[] = [
         fixFirst,
       ],
     },
-    stormMode: strongestArchivedStorm(),
+    stormMode: archivedStormByRank(0),
     conceptCheck: {
       prompt: 'Why did switching off the radio make storms more dangerous?',
       options: [
@@ -247,6 +279,88 @@ export const guidedMissions: GuidedMission[] = [
       correctIndex: 1,
       explanation:
         'A warning is only useful if it arrives. Saving a little power on the radio can cost you the time to get to the shelter.',
+    },
+    needsReview: true,
+  },
+  {
+    id: 'M4',
+    title: 'Mission 4: Grow your own food',
+    subtitle: 'The food boxes run out before the mission ends',
+    objective:
+      'This base packed food boxes but no greenhouse. The boxes run out before day 30. Add a greenhouse so the crew can grow food. Watch what it costs: power, water and crew time.',
+    conceptTarget: 'trade_offs',
+    coach: {
+      design:
+        'Coach tip: find “Greenhouse modules” and add one. Check the rocket weight bar. Is there still room?',
+      review:
+        'Coach tip: did food stop being the main trouble? A greenhouse costs weight and power, but it keeps feeding the crew.',
+    },
+    design: {
+      site: 'ridge',
+      panels: 4,
+      mastLevel: 1,
+      batteries: 6,
+      waterLoopTier: 1,
+      o2LoopTier: 0,
+      greenhouseModules: 0,
+      shieldingLayers: 1,
+      spares: { co2_scrubber: 2, o2_generator: 1, water_processor: 1, power_array: 0 },
+    },
+    rules: { priority: LADDER, ifThen: [saveScience(30), shelterOnWarning, fixFirst] },
+    stormMode: { kind: 'random' },
+    conceptCheck: {
+      prompt: 'What does a greenhouse cost your base?',
+      options: [
+        'Nothing at all.',
+        'Rocket weight, power, water and crew time.',
+        'Only oxygen.',
+        'It makes the batteries smaller.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Every choice has a cost. A greenhouse feeds the crew, but it needs weight, power, water and work.',
+    },
+    needsReview: true,
+  },
+  {
+    id: 'M5',
+    title: 'Mission 5: Shield or shelter?',
+    subtitle: 'A real giant solar storm is coming',
+    objective:
+      'This base faces one of the biggest real solar storms in our NASA archive. It has no shield and no shelter rule. Protect the crew: build shield layers, or turn on the shelter rule, or both. Each way costs something different.',
+    conceptTarget: 'trade_offs',
+    coach: {
+      design:
+        'Coach tip: shield layers block radiation all the time, but they are heavy and the crew must build them.',
+      rules:
+        'Coach tip: the shelter rule is free to pack, but the crew stops working while it hides.',
+      rehearse:
+        'Coach tip: this test replays a real solar storm from NASA’s archive. It is a saved copy, not live.',
+    },
+    design: {
+      site: 'ridge',
+      panels: 4,
+      mastLevel: 1,
+      batteries: 6,
+      waterLoopTier: 1,
+      o2LoopTier: 0,
+      greenhouseModules: 1,
+      shieldingLayers: 0,
+      spares: { co2_scrubber: 2, o2_generator: 1, water_processor: 1, power_array: 0 },
+    },
+    rules: { priority: LADDER, ifThen: [saveScience(30), fixFirst] },
+    stormMode: archivedStormByRank(1),
+    conceptCheck: {
+      prompt: 'Why might an engineer pick the shelter rule instead of more shield layers?',
+      options: [
+        'The shelter rule adds no rocket weight, but the crew stops working while it hides.',
+        'The shelter makes storms smaller.',
+        'Shields do nothing.',
+        'The shelter makes extra oxygen.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Both protect the crew. Shields cost weight and building time. The shelter costs work time during storms.',
     },
     needsReview: true,
   },

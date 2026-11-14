@@ -356,3 +356,116 @@ a.real-data-badge {
     padding: var(--space-4);
   }
 }
+
+/* ---------- How to play ---------- */
+
+.picture-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.picture-card {
+  background: var(--coupon);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.picture-card svg {
+  width: 100%;
+  height: auto;
+  margin-bottom: var(--space-3);
+}
+
+.picture-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin-bottom: var(--space-1);
+}
+
+.first-mission h3 {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  margin-bottom: var(--space-2);
+}
+
+.first-mission .button-row {
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 720px) {
+  .picture-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Mission banner (inside Free build) ---------- */
+
+.mission-banner {
+  background: var(--carbon-wash);
+  border: 2px solid var(--carbon);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.mission-banner .page-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mission-banner-title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: var(--space-2);
+}
+
+.mission-objective summary {
+  cursor: pointer;
+  font-weight: 700;
+  min-height: var(--tap);
+  display: flex;
+  align-items: center;
+}
+
+.mission-objective p {
+  margin-bottom: var(--space-2);
+}
+
+.mission-goal {
+  font-weight: 700;
+  margin-bottom: var(--space-2);
+}
+
+.coach-tip {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  background: var(--coupon);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.coach-tip .icon {
+  flex: none;
+  color: var(--carbon);
+  margin-top: 2px;
+}
+
+.mission-status {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.mission-status.is-met {
+  color: var(--color-success);
+  font-weight: 700;
+}

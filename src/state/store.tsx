@@ -1,7 +1,7 @@
 // App state: useReducer + Context (Spec B2; L6, L7)
 
 import React, { createContext, useContext, useReducer } from 'react';
-import { GuidedMission, missionPresets, MissionPreset } from '../content/missions.ts';
+import { GuidedMission, MissionId, missionPresets, MissionPreset } from '../content/missions.ts';
 import { isWithinBudget, massUsed } from '../engine/mass.ts';
 import { loadParams } from '../engine/params.ts';
 import { MAX_RULES } from '../engine/rules.ts';
@@ -33,6 +33,15 @@ export interface TriedDesign {
 
 const MAX_HISTORY = 30;
 
+/** The guided mission being played, if any (Missions page and How to play). */
+export interface ActiveMission {
+  id: MissionId;
+  /** A fresh test has run since the mission was loaded. */
+  hasTested: boolean;
+  /** Crews home out of every 100 in the latest test of this mission. */
+  lastHome: number | null;
+}
+
 export interface AppState {
   currentScreen: ScreenId;
   design: Design;
@@ -51,6 +60,7 @@ export interface AppState {
   mode: PlayMode;
   /** Index of the furthest mission step reached (for the Done stamps). */
   furthestStep: number;
+  mission: ActiveMission | null;
 }
 
 export type Action =
@@ -70,6 +80,7 @@ export type Action =
   | { type: 'REMOVE_RULE'; index: number }
   | { type: 'SET_PRESET'; preset: MissionPreset }
   | { type: 'LOAD_MISSION'; mission: GuidedMission }
+  | { type: 'END_MISSION' }
   | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules; stormMode?: StormMode }
   | { type: 'SET_STORM_MODE'; stormMode: StormMode }
   | { type: 'SET_MODE'; mode: PlayMode }
@@ -98,6 +109,7 @@ export const initialAppState: AppState = {
   history: [],
   mode: 'junior',
   furthestStep: 0,
+  mission: null,
 };
 
 const FLOW_STEPS: readonly ScreenId[] = ['briefing', 'design', 'rules', 'rehearse', 'review'];
@@ -167,6 +179,13 @@ export function appReducer(state: AppState, action: Action): AppState {
         worstMissionResult: action.worstRun,
         isResultStale: false,
         history: [...state.history, entry].slice(-MAX_HISTORY),
+        mission: state.mission
+          ? {
+              ...state.mission,
+              hasTested: true,
+              lastHome: Math.round(action.result.survivalRate * 100),
+            }
+          : null,
       };
     }
     case 'SET_SITE':
@@ -221,12 +240,12 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'SET_PRESET':
       return withConfig(state, action.preset.design, action.preset.rules);
     case 'LOAD_MISSION':
-      return withConfig(
-        state,
-        action.mission.design,
-        action.mission.rules,
-        action.mission.stormMode,
-      );
+      return {
+        ...withConfig(state, action.mission.design, action.mission.rules, action.mission.stormMode),
+        mission: { id: action.mission.id, hasTested: false, lastHome: null },
+      };
+    case 'END_MISSION':
+      return { ...state, mission: null };
     case 'LOAD_SCENARIO':
       return withConfig(state, action.design, action.rules, action.stormMode ?? state.stormMode);
     case 'SET_MODE':

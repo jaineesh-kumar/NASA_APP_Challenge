@@ -595,6 +595,13 @@
       "source": "DERIVED",
       "confidence": "low",
       "note": "Earth-Moon distance divided by the speed of light (B5.10); display only"
+    },
+    "missions.goal_home_per_100": {
+      "value": 90,
+      "unit": "crews of 100",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "game goal for guided missions M1 to M5: crews home out of every 100 tests; UI only, not used by the engine; illustrative; TODO(human): confirm"
     }
   }
 }

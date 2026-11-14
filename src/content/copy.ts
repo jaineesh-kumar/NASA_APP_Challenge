@@ -101,6 +101,47 @@ export const copy = {
       'free-build': (runs: number) => `Design your own base and test it ${runs} times.`,
     },
   },
+  howTo: {
+    title: 'How to play',
+    lead: 'You plan a Moon base, then test your plan many times. Three steps, then try again.',
+    cardsLabel: 'The three steps',
+    cards: [
+      {
+        title: '1. Build',
+        body: 'Pack your rocket. Solar panels, batteries, shields, a greenhouse and spare parts all weigh something. The rocket has a weight limit.',
+        picture: 'A rocket with boxes beside it and a weight bar that is almost full.',
+      },
+      {
+        title: '2. Set the rules',
+        body: 'Choose which machines keep power longest when energy runs low. Switch on safety rules, like hiding from solar storms.',
+        picture: 'A ladder of machines, with life support at the top.',
+      },
+      {
+        title: '3. Test and review',
+        body: 'The computer flies your plan hundreds of times. See how many crews out of every 100 came home, and why some ran into trouble.',
+        picture: 'A grid of crew circles: most are filled in, a few are empty.',
+      },
+    ],
+    firstTitle: 'Your first mission',
+    firstBody: 'A coach will guide you through every step. You can leave the mission at any time.',
+    startGuided: 'Start the guided mission',
+    pickMission: 'Or pick any mission',
+    wordsTip: 'New space words? Look them up in',
+  },
+  mission: {
+    bannerLabel: 'Mission in progress',
+    goal: (n: number) =>
+      `Goal: at least ${n} out of every 100 crews come home. (An illustrative game goal.)`,
+    goalMet: (n: number) => `Goal reached! ${n} out of every 100 crews came home.`,
+    goalNotYet: (n: number, goal: number) =>
+      `${n} out of every 100 crews came home. The goal is ${goal}. What would you change?`,
+    stale: 'You changed your base after the last test. Test again to check the goal.',
+    notTested: 'Change the base, then test it to see if you reach the goal.',
+    debrief: 'Go to the debrief',
+    debriefAnyway: 'Go to the debrief now',
+    leave: 'Leave this mission',
+    showObjective: 'What do I need to do?',
+  },
   words: {
     title: 'Space words',
     lead: 'Words astronauts and engineers use, in plain language.',

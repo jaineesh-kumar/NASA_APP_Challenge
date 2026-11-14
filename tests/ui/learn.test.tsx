@@ -11,10 +11,10 @@ import { AppStoreProvider } from '../../src/state/store.tsx';
 import { LearnScreen } from '../../src/ui/screens/Learn.tsx';
 
 describe('LearnScreen Component (Spec Part C L8 AC1, AC2, AC6)', () => {
-  it('contains M1, M2, and M3 guided missions with one concept check each (AC1)', () => {
-    expect(guidedMissions.length).toBe(3);
+  it('contains guided missions M1 to M5 with one concept check each (AC1)', () => {
+    expect(guidedMissions.length).toBe(5);
     const ids = guidedMissions.map((m) => m.id);
-    expect(ids).toEqual(['M1', 'M2', 'M3']);
+    expect(ids).toEqual(['M1', 'M2', 'M3', 'M4', 'M5']);
 
     guidedMissions.forEach((m) => {
       expect(m.design).toBeDefined();

@@ -4,6 +4,7 @@
 import React, { useEffect, useRef } from 'react';
 import { copy } from '../../content/copy.ts';
 import { useAppStore } from '../../state/store.tsx';
+import { MissionBanner } from '../components/MissionBanner.tsx';
 import { StepFooter } from '../components/StepFooter.tsx';
 import { StepTrack } from '../components/StepTrack.tsx';
 import { isStep, stepIndex, STEPS, StepId } from '../flow.ts';
@@ -41,6 +42,7 @@ export const FreeBuildScreen: React.FC = () => {
   return (
     <>
       <StepTrack current={step} furthest={furthest} />
+      <MissionBanner step={step} />
       <article className="coupon" aria-label={copy.nav[step]}>
         <div className="coupon-strip">
           <span className="coupon-strip-step">{copy.flow.stepOf(idx + 1, STEPS.length)}</span>

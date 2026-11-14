@@ -13,6 +13,7 @@ import {
 } from '../../state/scenarioCode.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { Icon } from '../components/Icon.tsx';
+import { startMission } from '../missionFlow.ts';
 import { OsdrCards } from '../components/OsdrCards.tsx';
 
 type LearnTab = 'missions' | 'concepts' | 'quiz' | 'share';
@@ -40,10 +41,7 @@ export const LearnScreen: React.FC = () => {
   );
   const [copiedCode, setCopiedCode] = useState(false);
 
-  const loadGuidedMission = (mission: GuidedMission) => {
-    dispatch({ type: 'LOAD_MISSION', mission });
-    dispatch({ type: 'SET_SCREEN', screen: 'design' });
-  };
+  const loadGuidedMission = (mission: GuidedMission) => startMission(dispatch, mission);
 
   const handleConceptCheckSubmit = (missionId: string) => {
     setMissionChecked((prev) => ({ ...prev, [missionId]: true }));
