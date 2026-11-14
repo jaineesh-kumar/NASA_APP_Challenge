@@ -1,5 +1,5 @@
 // One seeded 30-day mission: runMission(design, rules, seed)
-// Spec B5.4 (order of operations), B5.5, B5.6, B5.11 (Real Storm Replay)
+// Spec B5.4 (order of operations), B5.5, B5.6, B5.10 (comms link), B5.11 (Real Storm Replay)
 
 import { LOAD_IDS, getSimConstants, SimConstants } from './constants.ts';
 import { allocateCrewTime } from './crew.ts';
@@ -88,6 +88,9 @@ export function runMission(
   const darkWindows = computeDarkWindows(design.site, design.mastLevel, k, rng);
   const darkMask = buildDarkMask(darkWindows, H);
   const storms: StormInfo[] = [];
+  // Spec B5.10: the base starts the mission with its radio link up.
+  let groundLinkUp = true;
+  let isSpeWarned = false;
   const stormMode: StormMode = options.stormMode ?? { kind: 'random' };
   const isRandomStorms = stormMode.kind === 'random';
 
@@ -144,10 +147,12 @@ export function runMission(
     if (isDark !== wasDark) add(t, isDark ? 'dark_window_start' : 'dark_window_end', '');
     wasDark = isDark;
 
-    const evStep = stepEvents(ev, t, rng, k, isRandomStorms);
+    // Spec B5.10: repair help needs the link that was up at the end of the previous tick.
+    const repairFactor = groundLinkUp ? 1 - k.commsRepairAssistFraction : 1;
+    const evStep = stepEvents(ev, t, rng, k, isRandomStorms, repairFactor);
     ev = evStep.state;
     if (evStep.isSpeEnded) add(t, 'spe_end', '');
-    if (evStep.isSpeWarningStarted && ev.spe) add(t, 'spe_warning', String(ev.spe.onsetH - t));
+    if (evStep.isSpeWarningStarted) isSpeWarned = false; // a new event: nothing heard yet
     if (evStep.isDustStarted) add(t, 'dust_start', '');
     for (const id of evStep.failed) {
       add(
@@ -168,6 +173,7 @@ export function runMission(
     const isSheltering = flags.shelter;
     if (evStep.isSpeStarted) {
       storms.push({ onsetH: t, wasSheltered: isSheltering });
+      if (!isSpeWarned) add(t, 'warning_missed', 'comms_off');
       add(t, 'spe_start', isSheltering ? 'sheltered' : 'unsheltered');
     }
 
@@ -204,6 +210,12 @@ export function runMission(
       wasStarved[load] = starved;
     }
     const powered = alloc.powered;
+    // Spec B5.10: groundLinkUp for tick t is whether comms is powered in step 4 of tick t.
+    groundLinkUp = powered.comms;
+    if (ev.spe && evStep.isSpeWarning && groundLinkUp && !isSpeWarned) {
+      isSpeWarned = true;
+      add(t, 'spe_warning', String(Math.max(0, ev.spe.onsetH - t)));
+    }
 
     // 5. Life support
     const lsStep = stepLifeSupport(
@@ -311,8 +323,8 @@ export function runMission(
     prev = {
       batteryPct,
       o2Days,
-      // Spec B5.5: the warning is on from the draw until the event ends.
-      isRadiationAlert: evStep.isSpeWarning,
+      // Spec B5.10: speWarning = (an SPE is pending or active) AND groundLinkUp.
+      isRadiationAlert: evStep.isSpeWarning && groundLinkUp,
       hoursToNextDark: Infinity,
       isAnyComponentFailed: !(
         ev.isOk.co2_scrubber &&

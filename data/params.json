@@ -581,6 +581,20 @@
       "source": "DERIVED",
       "confidence": "high",
       "note": "closest (54.6 million km) and farthest (401 million km) Earth-Mars distance divided by the speed of light; display only"
+    },
+    "comms.repair_assist_fraction": {
+      "value": 0.25,
+      "unit": "fraction",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "repair hours saved while the radio link to Earth is up (B5.10); illustrative; TODO(human): confirm"
+    },
+    "comms.moon_one_way_delay_s": {
+      "value": 1.3,
+      "unit": "s",
+      "source": "DERIVED",
+      "confidence": "low",
+      "note": "Earth-Moon distance divided by the speed of light (B5.10); display only"
     }
   }
 }

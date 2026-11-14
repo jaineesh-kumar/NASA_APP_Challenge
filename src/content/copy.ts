@@ -152,7 +152,9 @@ export const copy = {
     priorityMoveUp: 'Move up',
     priorityMoveDown: 'Move down',
     commsNote:
-      'Tip: In this game, solar storm warnings from Earth arrive by radio. If the radio is switched off, the warning cannot reach your crew.',
+      'Tip: Solar storm warnings from Earth arrive by radio, and Earth helps your crew fix broken machines faster. Switch the radio off and you save a little power, but you lose both.',
+    delayNote: (moonS: number, marsMin: readonly number[]) =>
+      `A radio message reaches the Moon in about ${moonS} seconds, so Mission Control can help right away. At Mars it takes ${marsMin[0]} to ${marsMin[1]} minutes each way, so a Mars crew cannot wait for help.`,
     ifThenTitle: 'If-then rules',
     ifThenHelp: (max: number) => `Add up to ${max} rules. The crew checks them every hour.`,
     addRuleButton: '+ Add rule',

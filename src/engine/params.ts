@@ -126,6 +126,8 @@ export const REQUIRED_PARAM_IDS: readonly string[] = [
   'rating.flight_ready_success',
   'comms.earth_moon_light_delay_s',
   'comms.earth_mars_light_delay_min',
+  'comms.repair_assist_fraction',
+  'comms.moon_one_way_delay_s',
 ];
 
 export class LoadedParams {

@@ -57,6 +57,7 @@ export interface SimConstants {
   speChancePerTick: number; // Spec B5.5: spe_per_month / mission.hours
   speWarningLeadH: number;
   replayOnsetH: number;
+  commsRepairAssistFraction: number; // Spec B5.10
   speMultiplierByFlareClass: readonly number[]; // index 0 = C, 1 = M, 2 = X
   doseLimitUsv: number;
   // Power
@@ -149,6 +150,7 @@ export function getSimConstants(params: LoadedParams): SimConstants {
     speChancePerTick: n('radiation.spe_per_month') / missionHours,
     speWarningLeadH: n('radiation.spe_warning_lead_h'),
     replayOnsetH: n('radiation.replay_onset_h'),
+    commsRepairAssistFraction: n('comms.repair_assist_fraction'),
     speMultiplierByFlareClass: params.getNumberArray('radiation.spe_multiplier_by_flare_class'),
     doseLimitUsv: n('radiation.dose_limit_usv_mission'),
     panelKw: n('power.panel_kw'),

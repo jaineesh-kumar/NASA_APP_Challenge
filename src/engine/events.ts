@@ -60,6 +60,8 @@ export function stepEvents(
   rng: () => number,
   k: SimConstants,
   allowRandomSpe = true,
+  /** Spec B5.10: 1 - comms.repair_assist_fraction while the ground link is up, else 1. */
+  repairFactor = 1,
 ): EventsStep {
   const uSpe = rng();
   const uDust = rng();
@@ -104,7 +106,7 @@ export function stepEvents(
       isOk[id] = false;
       if (sparesLeft[id] > 0) {
         sparesLeft[id] -= 1;
-        repairsLeftH[id] = k.repairHours[id];
+        repairsLeftH[id] = k.repairHours[id] * repairFactor;
       } else {
         repairsLeftH[id] = Infinity;
       }

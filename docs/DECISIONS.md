@@ -116,3 +116,13 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 - **Decision:** The core loop is paged one step per coupon (Briefing, Build, Rules, Test, Review) with a route-arc step track and a sticky Back/Next pager whose Next is locked with a plain-words reason (over the weight limit; no test results). Learn and How it works sit outside the flow. Visual world: bright translation of the ticket wallet (sky ground, white coupons with perforation and notches, navy strips, rocket-red single primary action, carbon-violet numbers, yellow Done stamps). Display face is an installed condensed stack because remote fonts are banned (F10) and font licences are a human decision.
 - **Consequences:** Screens no longer carry their own Back/Next buttons. Emoji glyphs replaced by an authored SVG icon set. Review leads with a boarding pass. Open human decision: self-host an OFL condensed grotesk so iPads and Chromebooks get the same display face.
 
+
+---
+
+### ADR-012: Comms link (L12, Spec B5.10)
+
+- **Date:** 2026-11-14
+- **Status:** Accepted (autonomous P-PS sprint; B5.10 asks for an ADR and human approval, so the team lead should confirm the two new params)
+- **Context:** The comms load used power but had no effect, so switching it off was free (defect under B10.8).
+- **Decision:** `groundLinkUp` for tick t is whether comms is powered in step 4 of tick t; rules in tick t+1 read `speWarning = (SPE pending or active) AND groundLinkUp`. A storm that starts before any warning got through logs `warning_missed`. While the link is up, a failure's repair hours are cut by `comms.repair_assist_fraction` when the failure starts. The base starts with the link up. The cause chain gains `spe_start:unsheltered <- warning_missed <- load_off:comms | rule_fired:shed comms`, with concept "communication". New params (A3 additions): `comms.repair_assist_fraction` = 0.25 (ASSUMPTION, low, TODO human) and `comms.moon_one_way_delay_s` = 1.3 (DERIVED, display only). The earlier display params `comms.earth_moon_light_delay_s` and `comms.earth_mars_light_delay_min` stay (F1); the UI now reads the spec-named Moon param.
+- **Consequences:** Golden files regenerated (missions.json and replay.json). Measured on the Sunny Ridge starter, random storms, 300 runs: radio on 94.3% survival, dose P95 34,241 µSv, 0 dose losses; radio always off 93.0% survival, dose P95 55,051 µSv, 6 dose losses.

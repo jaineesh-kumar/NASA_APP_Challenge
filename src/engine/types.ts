@@ -67,6 +67,7 @@ export type LogType =
   | 'load_off'
   | 'shield_layer_built'
   | 'rule_fired'
+  | 'warning_missed'
   | 'failure';
 
 export interface LogEntry {

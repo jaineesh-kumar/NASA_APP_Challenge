@@ -7,7 +7,7 @@
    "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
-   "minO2Days": 37.89880952380958,
+   "minO2Days": 38.06547619047625,
    "peakDoseUsv": 24699.041666666417,
    "log": [
     {
@@ -36,6 +36,11 @@
      "detail": "shed science when battery_below_pct 20"
     },
     {
+     "t": 232,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
      "t": 234,
      "type": "battery_empty",
      "detail": ""
@@ -49,11 +54,6 @@
      "t": 234,
      "type": "load_off",
      "detail": "greenhouse"
-    },
-    {
-     "t": 234,
-     "type": "component_repaired",
-     "detail": "co2_scrubber"
     },
     {
      "t": 235,
@@ -76,7 +76,7 @@
      "detail": "o2_generator"
     },
     {
-     "t": 292,
+     "t": 288,
      "type": "component_repaired",
      "detail": "o2_generator"
     },
@@ -116,7 +116,7 @@
      "detail": "power_array"
     },
     {
-     "t": 550,
+     "t": 547,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -195,7 +195,7 @@
      "detail": "2"
     },
     {
-     "t": 164,
+     "t": 161,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -409,7 +409,7 @@
      "detail": "co2_scrubber"
     },
     {
-     "t": 440,
+     "t": 437,
      "type": "component_repaired",
      "detail": "co2_scrubber"
     },
@@ -471,7 +471,7 @@
    "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
-   "minO2Days": 37.89880952380958,
+   "minO2Days": 38.06547619047625,
    "peakDoseUsv": 24699.041666666417,
    "log": [
     {
@@ -500,6 +500,11 @@
      "detail": "shed science when battery_below_pct 20"
     },
     {
+     "t": 232,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
      "t": 234,
      "type": "battery_empty",
      "detail": ""
@@ -513,11 +518,6 @@
      "t": 234,
      "type": "load_off",
      "detail": "greenhouse"
-    },
-    {
-     "t": 234,
-     "type": "component_repaired",
-     "detail": "co2_scrubber"
     },
     {
      "t": 235,
@@ -540,7 +540,7 @@
      "detail": "o2_generator"
     },
     {
-     "t": 292,
+     "t": 288,
      "type": "component_repaired",
      "detail": "o2_generator"
     },
@@ -580,7 +580,7 @@
      "detail": "power_array"
     },
     {
-     "t": 550,
+     "t": 547,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -659,7 +659,7 @@
      "detail": "2"
     },
     {
-     "t": 164,
+     "t": 161,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -873,7 +873,7 @@
      "detail": "co2_scrubber"
     },
     {
-     "t": 440,
+     "t": 437,
      "type": "component_repaired",
      "detail": "co2_scrubber"
     },
@@ -935,7 +935,7 @@
    "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
-   "minO2Days": 37.89880952380958,
+   "minO2Days": 38.06547619047625,
    "peakDoseUsv": 26410.291666666322,
    "log": [
     {
@@ -964,6 +964,11 @@
      "detail": "shed science when battery_below_pct 20"
     },
     {
+     "t": 232,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
      "t": 234,
      "type": "battery_empty",
      "detail": ""
@@ -977,11 +982,6 @@
      "t": 234,
      "type": "load_off",
      "detail": "greenhouse"
-    },
-    {
-     "t": 234,
-     "type": "component_repaired",
-     "detail": "co2_scrubber"
     },
     {
      "t": 235,
@@ -1004,7 +1004,7 @@
      "detail": "o2_generator"
     },
     {
-     "t": 292,
+     "t": 288,
      "type": "component_repaired",
      "detail": "o2_generator"
     },
@@ -1044,7 +1044,7 @@
      "detail": "power_array"
     },
     {
-     "t": 550,
+     "t": 547,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -1123,7 +1123,7 @@
      "detail": "2"
     },
     {
-     "t": 164,
+     "t": 161,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -1337,7 +1337,7 @@
      "detail": "co2_scrubber"
     },
     {
-     "t": 440,
+     "t": 437,
      "type": "component_repaired",
      "detail": "co2_scrubber"
     },
@@ -1399,7 +1399,7 @@
    "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
-   "minO2Days": 37.89880952380958,
+   "minO2Days": 38.06547619047625,
    "peakDoseUsv": 24699.041666666417,
    "log": [
     {
@@ -1428,6 +1428,11 @@
      "detail": "shed science when battery_below_pct 20"
     },
     {
+     "t": 232,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
      "t": 234,
      "type": "battery_empty",
      "detail": ""
@@ -1441,11 +1446,6 @@
      "t": 234,
      "type": "load_off",
      "detail": "greenhouse"
-    },
-    {
-     "t": 234,
-     "type": "component_repaired",
-     "detail": "co2_scrubber"
     },
     {
      "t": 235,
@@ -1468,7 +1468,7 @@
      "detail": "o2_generator"
     },
     {
-     "t": 292,
+     "t": 288,
      "type": "component_repaired",
      "detail": "o2_generator"
     },
@@ -1508,7 +1508,7 @@
      "detail": "power_array"
     },
     {
-     "t": 550,
+     "t": 547,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -1587,7 +1587,7 @@
      "detail": "2"
     },
     {
-     "t": 164,
+     "t": 161,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -1801,7 +1801,7 @@
      "detail": "co2_scrubber"
     },
     {
-     "t": 440,
+     "t": 437,
      "type": "component_repaired",
      "detail": "co2_scrubber"
     },
@@ -1863,7 +1863,7 @@
    "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
-   "minO2Days": 37.89880952380958,
+   "minO2Days": 38.06547619047625,
    "peakDoseUsv": 26410.291666666322,
    "log": [
     {
@@ -1892,6 +1892,11 @@
      "detail": "shed science when battery_below_pct 20"
     },
     {
+     "t": 232,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
      "t": 234,
      "type": "battery_empty",
      "detail": ""
@@ -1905,11 +1910,6 @@
      "t": 234,
      "type": "load_off",
      "detail": "greenhouse"
-    },
-    {
-     "t": 234,
-     "type": "component_repaired",
-     "detail": "co2_scrubber"
     },
     {
      "t": 235,
@@ -1932,7 +1932,7 @@
      "detail": "o2_generator"
     },
     {
-     "t": 292,
+     "t": 288,
      "type": "component_repaired",
      "detail": "o2_generator"
     },
@@ -1972,7 +1972,7 @@
      "detail": "power_array"
     },
     {
-     "t": 550,
+     "t": 547,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -2051,7 +2051,7 @@
      "detail": "2"
     },
     {
-     "t": 164,
+     "t": 161,
      "type": "component_repaired",
      "detail": "power_array"
     },
@@ -2265,7 +2265,7 @@
      "detail": "co2_scrubber"
     },
     {
-     "t": 440,
+     "t": 437,
      "type": "component_repaired",
      "detail": "co2_scrubber"
     },

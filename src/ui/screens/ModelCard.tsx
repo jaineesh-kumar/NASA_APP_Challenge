@@ -64,11 +64,11 @@ export const ModelCardScreen: React.FC = () => {
       <section className="panel-card" aria-labelledby="comms-title">
         <h3 id="comms-title" className="card-title">
           <Icon name="antenna" size={22} /> {mc.commsTitle}
-          <WhyThisNumber paramId="comms.earth_moon_light_delay_s" />
+          <WhyThisNumber paramId="comms.moon_one_way_delay_s" />
         </h3>
         <p className="small">
           {mc.commsBody(
-            paramsInstance.getNumber('comms.earth_moon_light_delay_s'),
+            paramsInstance.getNumber('comms.moon_one_way_delay_s'),
             paramsInstance.getNumberArray('comms.earth_mars_light_delay_min'),
           )}
         </p>

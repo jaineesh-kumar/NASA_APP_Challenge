@@ -1,5 +1,5 @@
 // Cause chain and concept hint from a mission log
-// Spec B5.9
+// Spec B5.9 (table extended for the B5.10 comms link, ADR-012)
 
 import { FailureCause, LogEntry, MissionResult } from './types.ts';
 
@@ -38,7 +38,7 @@ function keyOf(e: LogEntry): string {
   return e.type;
 }
 
-// Spec B5.9 table, causes in priority order. "water at zero" and "too few shield layers" are
+// Spec B5.9 (table extended for the B5.10 comms link, ADR-012) table, causes in priority order. "water at zero" and "too few shield layers" are
 // not log events, so they are not linked (never invent a link).
 const CAUSES: Readonly<Record<string, readonly Pattern[]>> = {
   'failure:oxygen': [is('component_failed', 'o2_generator'), is('load_off', 'life_support')],
@@ -46,6 +46,9 @@ const CAUSES: Readonly<Record<string, readonly Pattern[]>> = {
   'failure:water': [is('component_failed', 'water_processor'), is('load_off', 'life_support')],
   'failure:food': [is('load_off', 'greenhouse'), is('component_failed', 'water_processor')],
   'failure:dose': [is('spe_start', 'unsheltered'), is('spe_start')],
+  'spe_start:unsheltered': [is('warning_missed')],
+  warning_missed: [is('load_off', 'comms'), is('rule_fired', 'shed comms')],
+  'load_off:comms': [is('battery_empty')],
   'load_off:life_support': [
     is('battery_empty'),
     is('rule_fired', 'shed life_support'),
@@ -97,9 +100,10 @@ export function buildCauseChain(input: MissionResult | readonly LogEntry[]): Cau
   return { failure, chain, concept: conceptFor(failure.detail as FailureCause, chain) };
 }
 
-// Spec B5.9 concept hint by effect.
+// Spec B5.9 (table extended for the B5.10 comms link, ADR-012) concept hint by effect.
 function conceptFor(cause: FailureCause, chain: readonly CauseChainLink[]): ConceptId {
   const types = new Set(chain.map((l) => l.cause.type));
+  if (types.has('warning_missed')) return 'communication';
   if (types.has('battery_empty')) return 'margin';
   switch (cause) {
     case 'water':
