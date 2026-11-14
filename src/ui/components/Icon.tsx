@@ -21,7 +21,14 @@ export type IconName =
   | 'play'
   | 'pause'
   | 'minus'
-  | 'plus';
+  | 'plus'
+  | 'menu'
+  | 'star'
+  | 'shield'
+  | 'bolt'
+  | 'flag'
+  | 'lock'
+  | 'plant';
 
 const PATHS: Record<IconName, React.ReactNode> = {
   rocket: (
@@ -79,6 +86,31 @@ const PATHS: Record<IconName, React.ReactNode> = {
   minus: <path d="M5.5 12h13" />,
   plus: <path d="M12 5.5v13M5.5 12h13" />,
   down: <path d="M5.5 9.5 12 16l6.5-6.5" />,
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  star: (
+    <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9L12 3.5Z" />
+  ),
+  shield: <path d="M12 3 5 5.8v5.4c0 4.4 3 8.2 7 9.8 4-1.6 7-5.4 7-9.8V5.8L12 3Z" />,
+  bolt: <path d="M13 2.5 5.5 13.5H12l-1 8 7.5-11H12l1-8Z" />,
+  flag: (
+    <>
+      <path d="M5.5 21V4" />
+      <path d="M5.5 4.5h11l-2.5 4 2.5 4h-11" />
+    </>
+  ),
+  lock: (
+    <>
+      <rect x="5" y="10.5" width="14" height="10" rx="2" />
+      <path d="M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3" />
+    </>
+  ),
+  plant: (
+    <>
+      <path d="M12 21v-9" />
+      <path d="M12 12c0-4 2.5-6.5 7-6.5 0 4.5-2.5 6.5-7 6.5ZM12 15c0-3-2-5-6-5 0 3.5 2 5 6 5Z" />
+      <path d="M7.5 21h9" />
+    </>
+  ),
   bulb: (
     <>
       <path d="M9 17.5h6M10 21h4" />

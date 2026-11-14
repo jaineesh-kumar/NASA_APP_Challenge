@@ -1,8 +1,9 @@
-// Header: brand, the two pages outside the step flow, and the real-data badge
+// Header: brand (links home), Junior/Planner toggle, the real-data badge and the site menu.
+// On phones the menu folds behind a "Menu" button; on wider screens it is always shown.
 
-import React from 'react';
+import React, { useState } from 'react';
 import { copy } from '../../content/copy.ts';
-import { useAppStore } from '../../state/store.tsx';
+import { hrefFor, Route, ROUTE_IDS, useRoute } from '../router.ts';
 import { Icon } from './Icon.tsx';
 import { ModeToggle } from './ModeToggle.tsx';
 
@@ -24,39 +25,53 @@ const BrandMark: React.FC = () => (
 );
 
 export const Header: React.FC = () => {
-  const { state, dispatch } = useAppStore();
-  const tab = (screen: 'learn' | 'model_card', label: string, icon: 'book' | 'bulb') => (
-    <button
-      type="button"
-      className="header-tab"
-      aria-label={label}
-      aria-current={state.currentScreen === screen ? 'page' : undefined}
-      onClick={() => dispatch({ type: 'SET_SCREEN', screen })}
-    >
-      <Icon name={icon} size={20} /> <span>{label}</span>
-    </button>
-  );
+  const route = useRoute();
+  // The phone menu remembers which page it was opened on, so a new page closes it.
+  const [openOn, setOpenOn] = useState<Route | null>(null);
+  const isMenuOpen = openOn === route;
 
   return (
     <header className="app-header">
-      <div className="brand">
-        <BrandMark />
-        <div>
-          <h1 className="brand-name">{copy.header.title}</h1>
-          <p className="brand-sub">{copy.header.subtitle}</p>
+      <div className="header-row">
+        <a className="brand" href={hrefFor('home')} aria-label={copy.site.homeLink}>
+          <BrandMark />
+          <div>
+            <h1 className="brand-name">{copy.header.title}</h1>
+            <p className="brand-sub">{copy.header.subtitle}</p>
+          </div>
+        </a>
+        <div className="header-tabs">
+          <ModeToggle />
+          <a className="real-data-badge hide-on-phone" href={hrefFor('data')}>
+            <Icon name="sun" size={16} /> <span>{copy.header.realDataBadge}</span>
+          </a>
+          <button
+            type="button"
+            className="menu-button"
+            aria-expanded={isMenuOpen}
+            aria-controls="site-menu"
+            onClick={() => setOpenOn(isMenuOpen ? null : route)}
+          >
+            <Icon name={isMenuOpen ? 'close' : 'menu'} size={20} />{' '}
+            {isMenuOpen ? copy.site.closeMenu : copy.site.menu}
+          </button>
         </div>
       </div>
-      <div className="header-tabs">
-        <ModeToggle />
-        {tab('learn', copy.nav.learn, 'book')}
-        {tab('model_card', copy.nav.modelCard, 'bulb')}
-        <span className="real-data-badge hide-on-phone">
-          <Icon name="sun" size={16} label={copy.header.realDataBadge} />{' '}
-          <span className="hide-sm" aria-hidden="true">
-            {copy.header.realDataBadge}
-          </span>
-        </span>
-      </div>
+      <nav
+        id="site-menu"
+        aria-label={copy.site.navLabel}
+        className={`site-nav${isMenuOpen ? ' is-open' : ''}`}
+      >
+        <ul>
+          {ROUTE_IDS.map((id) => (
+            <li key={id}>
+              <a href={hrefFor(id)} aria-current={route.id === id ? 'page' : undefined}>
+                {copy.site.pages[id]}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </header>
   );
 };

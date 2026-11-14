@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import App from '../../src/App.tsx';
 import { copy } from '../../src/content/copy.ts';
 import { loadParams } from '../../src/engine/params.ts';
@@ -10,6 +10,11 @@ import { StepFooter } from '../../src/ui/components/StepFooter.tsx';
 const budget = loadParams().getNumber('mass.budget');
 
 describe('step-by-step flow (pagination)', () => {
+  // The five-step flow lives on the Free build page (#/free-build).
+  beforeEach(() => {
+    window.location.hash = '#/free-build';
+  });
+
   it('starts on Briefing as step 1 of 5 and pages with Next and Back', () => {
     render(<App />);
     expect(screen.getByText(copy.flow.stepOf(1, 5))).toBeDefined();
@@ -74,11 +79,15 @@ describe('step-by-step flow (pagination)', () => {
     expect(screen.getByText(copy.flow.locked.noResult)).toBeDefined();
   });
 
-  it('Learn and How it works sit outside the flow, with a way back to the mission', () => {
+  it('other pages sit outside the flow, and the flow keeps its step when you come back', async () => {
     render(<App />);
-    fireEvent.click(screen.getByRole('button', { name: copy.nav.learn }));
-    expect(screen.queryByText(copy.flow.stepOf(1, 5))).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: new RegExp(copy.flow.backToMission) }));
-    expect(screen.getByText(copy.flow.stepOf(1, 5))).toBeDefined();
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(copy.flow.next.briefing) }));
+    expect(screen.getByText(copy.flow.stepOf(2, 5))).toBeDefined();
+    const menu = screen.getByRole('navigation', { name: copy.site.navLabel });
+    fireEvent.click(within(menu).getByRole('link', { name: copy.site.pages.words }));
+    expect(await screen.findByRole('heading', { name: copy.words.title })).toBeDefined();
+    expect(screen.queryByText(copy.flow.stepOf(2, 5))).toBeNull();
+    fireEvent.click(within(menu).getByRole('link', { name: copy.site.pages['free-build'] }));
+    expect(await screen.findByText(copy.flow.stepOf(2, 5))).toBeDefined();
   });
 });

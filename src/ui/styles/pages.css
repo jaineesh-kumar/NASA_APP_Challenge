@@ -1,0 +1,217 @@
+/* Site pages around the mission flow: menu, page intros, cards, landing, missions, training,
+   logbook, words. Uses the ticket-wallet tokens from tokens.css (DESIGN.md). Phone first:
+   everything works at 360 px, every control is at least 44 px tall. */
+
+/* ---------- Skip link ---------- */
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -100px;
+  z-index: 50;
+  background: var(--navy);
+  color: var(--coupon);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+/* ---------- Header and site menu ---------- */
+
+.app-header {
+  display: block;
+}
+
+.header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+a.brand {
+  color: inherit;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+a.real-data-badge {
+  text-decoration: none;
+  min-height: var(--tap);
+}
+
+.menu-button {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.site-nav ul {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+}
+
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap);
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  color: var(--navy);
+  font-weight: 700;
+  font-size: var(--text-small);
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  background: var(--color-bg-highlight);
+}
+
+.site-nav a[aria-current='page'] {
+  background: var(--navy);
+  color: var(--coupon);
+}
+
+@media (max-width: 720px) {
+  .menu-button {
+    display: inline-flex;
+  }
+  .site-nav {
+    display: none;
+  }
+  .site-nav.is-open {
+    display: block;
+  }
+  .site-nav ul {
+    flex-direction: column;
+    background: var(--coupon);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2);
+    box-shadow: var(--shadow-coupon);
+  }
+  .site-nav a {
+    display: flex;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ---------- Shared page pieces ---------- */
+
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.page-intro {
+  margin-bottom: var(--space-6);
+}
+
+.page-kicker {
+  font-size: var(--text-tiny);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--carbon);
+  margin-bottom: var(--space-1);
+}
+
+.page-lead {
+  font-size: 1.125rem;
+  max-width: 62ch;
+  color: var(--color-text-muted);
+}
+
+.page-section {
+  margin-top: var(--space-8);
+}
+
+.page-section > h3 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: var(--space-3);
+}
+
+.panel {
+  background: var(--coupon);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-coupon);
+  padding: var(--space-6);
+}
+
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap);
+  padding: 8px 18px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--navy);
+  background: var(--coupon);
+  color: var(--navy);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  background: var(--color-bg-highlight);
+}
+
+.btn-link.btn-primary {
+  border-color: var(--rocket);
+  color: var(--color-primary-text);
+}
+
+.btn-link.btn-primary:hover {
+  background: var(--rocket-deep);
+}
+
+.btn-big {
+  font-size: 1.2rem;
+  min-height: 56px;
+  padding: 10px 28px;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* ---------- Space words ---------- */
+
+.word-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.word-card {
+  background: var(--coupon);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.word-card dt {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: var(--space-1);
+}
+
+.word-card dd {
+  margin: 0;
+}

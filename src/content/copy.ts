@@ -9,8 +9,27 @@ export const copy = {
     missionDuration: (days: number, crew: number) => `${days}-day Moon mission • crew of ${crew}`,
     realDataBadge: 'Uses real NASA data',
   },
+  site: {
+    navLabel: 'Main menu',
+    menu: 'Menu',
+    closeMenu: 'Close menu',
+    skipLink: 'Skip to the main content',
+    homeLink: 'Moonbase Margin home page',
+    pages: {
+      home: 'Home',
+      'how-to-play': 'How to play',
+      missions: 'Missions',
+      training: 'Training Bay',
+      'free-build': 'Free build',
+      logbook: 'Logbook',
+      words: 'Space words',
+      teachers: 'For teachers',
+      data: 'Data and science',
+    },
+    docTitle: (page: string) => `${page} · Moonbase Margin`,
+  },
   nav: {
-    label: 'Main navigation',
+    label: 'Mission steps',
     briefing: 'Briefing',
     design: 'Build',
     rules: 'Rules',
@@ -62,6 +81,14 @@ export const copy = {
     realDataBody:
       'You can test your base against real solar storms. NASA recorded them in a space weather database called DONKI. The game uses a saved copy, so it is not live.',
     startButton: 'Start building',
+  },
+  landing: {
+    play: 'Play',
+  },
+  words: {
+    title: 'Space words',
+    lead: 'Words astronauts and engineers use, in plain language.',
+    soon: 'This part of the base is still being built.',
   },
   learnTabs: {
     missions: 'Guided missions',

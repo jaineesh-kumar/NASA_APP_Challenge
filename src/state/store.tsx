@@ -49,6 +49,8 @@ export interface AppState {
   campaignError: string | null;
   history: TriedDesign[];
   mode: PlayMode;
+  /** Index of the furthest mission step reached (for the Done stamps). */
+  furthestStep: number;
 }
 
 export type Action =
@@ -95,7 +97,10 @@ export const initialAppState: AppState = {
   campaignError: null,
   history: [],
   mode: 'junior',
+  furthestStep: 0,
 };
+
+const FLOW_STEPS: readonly ScreenId[] = ['briefing', 'design', 'rules', 'rehearse', 'review'];
 
 export function sameStormMode(a: StormMode, b: StormMode): boolean {
   return (
@@ -134,7 +139,11 @@ export function appReducer(state: AppState, action: Action): AppState {
   const d = state.design;
   switch (action.type) {
     case 'SET_SCREEN':
-      return { ...state, currentScreen: action.screen };
+      return {
+        ...state,
+        currentScreen: action.screen,
+        furthestStep: Math.max(state.furthestStep, FLOW_STEPS.indexOf(action.screen)),
+      };
     case 'START_CAMPAIGN':
       return { ...state, isRunningCampaign: true, campaignProgress: 0, campaignError: null };
     case 'SET_CAMPAIGN_PROGRESS':

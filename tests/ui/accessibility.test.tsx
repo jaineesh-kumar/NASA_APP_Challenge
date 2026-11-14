@@ -1,7 +1,7 @@
 // Accessibility, Contrast, and Resilience Tests
 // Spec Part C (L9 AC1, AC2, AC3)
 
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import App from '../../src/App.tsx';
@@ -10,27 +10,33 @@ import { ErrorBoundary } from '../../src/ui/components/ErrorBoundary.tsx';
 
 describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 AC1-AC3)', () => {
   it('allows keyboard-only navigation across all interactive screens (AC1)', () => {
+    window.location.hash = '#/free-build';
     render(<App />);
 
     // Navigation bar should have accessible roles
     const nav = screen.getByRole('navigation', { name: copy.nav.label });
     expect(nav).toBeDefined();
 
-    // Verify all 7 screen buttons exist and are keyboard focusable
+    // Verify all 5 mission step buttons exist and are keyboard focusable
     const screenButtons = [
       copy.nav.briefing,
       copy.nav.design,
       copy.nav.rules,
       copy.nav.rehearse,
       copy.nav.review,
-      copy.nav.learn,
-      copy.nav.modelCard,
     ];
 
     screenButtons.forEach((btnName) => {
       const btn = screen.getByRole('button', { name: btnName });
       expect(btn).toBeDefined();
       expect(btn.tabIndex).toBeGreaterThanOrEqual(0);
+    });
+
+    // Every page of the site is a real link in the main menu (keyboard reachable)
+    const menu = screen.getByRole('navigation', { name: copy.site.navLabel });
+    Object.values(copy.site.pages).forEach((page) => {
+      const link = within(menu).getByRole('link', { name: page });
+      expect(link.getAttribute('href')).toMatch(/^#\//);
     });
   });
 
@@ -98,11 +104,9 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
   });
 
   it('displays user-facing error alert when importing a corrupt scenario code (AC3)', () => {
+    // Scenario codes live on the For teachers page
+    window.location.hash = '#/teachers';
     render(<App />);
-
-    // Navigate to Learn screen
-    const learnBtn = screen.getByRole('button', { name: copy.nav.learn });
-    fireEvent.click(learnBtn);
 
     // Click on Share tab
     const shareTab = screen.getByRole('tab', { name: /Share Scenario Codes/i });
