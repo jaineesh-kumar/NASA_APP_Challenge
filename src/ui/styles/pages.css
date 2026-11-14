@@ -685,3 +685,182 @@ a.real-data-badge {
   fill: var(--sun);
   stroke: var(--navy);
 }
+
+/* ---------- Training Bay games ---------- */
+
+.tile-link-meta {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  font-size: var(--text-tiny);
+  font-weight: 700;
+  color: var(--carbon);
+}
+
+.game {
+  background: var(--coupon);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-coupon);
+  padding: var(--space-6);
+}
+
+.game-intro {
+  font-size: 1.1rem;
+  max-width: 65ch;
+  margin-bottom: var(--space-4);
+}
+
+.game-status {
+  background: var(--color-bg-surface-elevated);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.game-status p + p {
+  margin-top: var(--space-1);
+}
+
+.game-hour {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.game-meter {
+  height: 18px;
+  border-radius: 999px;
+  background: var(--coupon);
+  border: 2px solid var(--navy);
+  overflow: hidden;
+  margin: var(--space-2) 0;
+}
+
+.game-meter-fill {
+  display: block;
+  height: 100%;
+  background: var(--carbon);
+  transition: width 0.3s var(--ease-out);
+}
+
+.switch-list {
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+  min-width: 0;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  margin-bottom: var(--space-2);
+  border-color: var(--color-border);
+}
+
+.switch-row.is-on {
+  border-color: var(--navy);
+  background: var(--carbon-wash);
+}
+
+.switch-name {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.switch-tag {
+  font-size: var(--text-tiny);
+  font-weight: 700;
+  color: var(--rocket-deep);
+}
+
+.switch-kw {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.switch-state {
+  min-width: 3.2em;
+  text-align: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: var(--text-tiny);
+  font-weight: 800;
+  background: var(--color-bg-surface-elevated);
+  color: var(--color-text-muted);
+}
+
+.switch-row.is-on .switch-state {
+  background: var(--navy);
+  color: var(--coupon);
+}
+
+.game-alert {
+  background: var(--color-warning-bg);
+  color: #5c3c00;
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  font-weight: 700;
+}
+
+.game-result {
+  border-top: 2px dashed var(--color-border);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.game-result h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin-bottom: var(--space-2);
+}
+
+.game-result button {
+  margin-top: var(--space-3);
+}
+
+.storm-card {
+  border: 2px solid var(--viz-stormy);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.storm-card p + p {
+  margin-top: var(--space-1);
+}
+
+.archived-label {
+  display: inline-block;
+  font-size: var(--text-tiny);
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--sun);
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.radio-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.radio-line.is-urgent {
+  color: var(--color-danger);
+}
+
+@media (max-width: 560px) {
+  .game {
+    padding: var(--space-4);
+  }
+}

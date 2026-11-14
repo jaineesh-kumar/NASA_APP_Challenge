@@ -180,6 +180,76 @@ export const copy = {
     unknown: 'We could not find that mission.',
     tried: 'tried',
   },
+  training: {
+    title: 'Training Bay',
+    lead: 'Short practice games for new commanders. They use the same game model and numbers as the real missions.',
+    gamesLabel: 'Training games',
+    play: 'Play',
+    best: (n: number) => `Best score: ${n}`,
+    cleared: 'Cleared',
+    notPlayed: 'Not played yet',
+    back: 'All training games',
+    numbersNote: 'Many game numbers are illustrative. See them all on the Data and science page.',
+    juggle: {
+      name: 'Power Juggle',
+      short:
+        'The Sun has set behind the mountains. Share the battery so the base lasts until sunrise.',
+      intro: (hours: number, kwh: number) =>
+        `It will be dark for ${hours} hours. Your batteries hold ${kwh} kWh, and the solar panels make nothing in the dark. Keep life support and the heaters on all night. Use the spare power for the greenhouse, science and shield building.`,
+      machinesTitle: 'Machines',
+      kw: (kw: number) => `${kw} kW`,
+      on: 'On',
+      off: 'Off',
+      essential: 'Needed all night',
+      battery: 'Battery',
+      batteryText: (kwh: number, pct: number) => `${kwh} kWh left (${pct}%)`,
+      hourOf: (h: number, total: number) => `Dark hour ${h} of ${total}`,
+      hoursLeft: (h: number) =>
+        Number.isFinite(h)
+          ? `With these machines on, the battery lasts about ${h} more hours.`
+          : 'Nothing is switched on.',
+      run1: 'Run 1 hour',
+      run6: 'Run 6 hours',
+      again: 'Start over',
+      work: (n: number) => `Work done: ${n} job-hours`,
+      starved: (names: string) => `Not enough power for: ${names}.`,
+      sunrise: 'Sunrise! The crew made it through the dark.',
+      sunriseScore: (work: number, best: number) =>
+        `Work done: ${work} job-hours. Our best plan with the radio on finished ${best}.`,
+      trouble: (name: string) =>
+        `The battery ran too low, and this switched off: ${name}. Your crew ran into trouble. Try switching some jobs off earlier to save power.`,
+      radioOff: 'Your radio was off for a while, so storm warnings could not reach the base.',
+    },
+    shelter: {
+      name: 'Storm Shelter',
+      short: 'A real solar storm is on its way. Get jobs done outside, but hide in time!',
+      intro:
+        'Your crew works outside for one day. Mission Control will radio a warning before the solar storm hits. Each hour, choose: work outside, or hide in the shelter. Working gets jobs done. Hiding keeps the radiation dose low.',
+      stormLabel: (date: string, flareClass: string) =>
+        `Today’s storm: the real storm of ${date}, linked to a class ${flareClass} solar flare.`,
+      hourOf: (h: number, total: number) => `Hour ${h} of ${total}`,
+      where: 'Where is the crew?',
+      outside: 'Working outside',
+      inside: 'In the shelter',
+      next: 'Next hour',
+      next3: 'Next 3 hours',
+      radioQuiet: 'Radio: all quiet.',
+      radioWarning: (h: number) =>
+        `Radio from Earth: a solar storm hits in ${h} hour${h === 1 ? '' : 's'}!`,
+      radioStorm: 'Solar storm happening now!',
+      radioOver: 'The storm is over. It is safe to work outside again.',
+      dose: (usv: number) => `Radiation dose today: ${usv} µSv`,
+      doseOfLimit: (pct: number) =>
+        `That is ${pct}% of the whole-mission dose limit (an illustrative game limit).`,
+      work: (n: number) => `Work hours outside: ${n}`,
+      doneSafe: 'Great timing! The crew was in the shelter for the whole storm.',
+      doneExposed: (n: number) =>
+        `The crew was outside for ${n} storm hour${n === 1 ? '' : 's'}. Next time, head for the shelter when the warning comes.`,
+      compare: (never: number, you: number, smart: number) =>
+        `If nobody hid: ${never} µSv. Your crew: ${you} µSv. Hiding for exactly the storm: ${smart} µSv.`,
+      nextStorm: 'Next real storm',
+    },
+  },
   words: {
     title: 'Space words',
     lead: 'Words astronauts and engineers use, in plain language.',
