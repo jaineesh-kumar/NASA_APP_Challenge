@@ -994,3 +994,63 @@ a.real-data-badge {
 .storm-replay {
   font-size: var(--text-tiny);
 }
+
+/* ---------- Media card (images and short videos) ---------- */
+
+.media-card {
+  margin: 0;
+  background: var(--coupon);
+  border: 3px solid var(--navy);
+  border-radius: 20px;
+  box-shadow: 4px 4px 0 var(--navy);
+  overflow: hidden;
+}
+
+.media-frame {
+  position: relative;
+  width: 100%;
+  background: var(--carbon-wash);
+}
+
+.media-frame img,
+.media-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--carbon-wash);
+}
+
+.media-card figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-top: 3px solid var(--navy);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-small);
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.media-toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap);
+  min-width: var(--tap);
+  padding: 6px 12px;
+}
+
+.media-card.is-decorative {
+  border: 0;
+  box-shadow: none;
+  border-radius: 0;
+  background: transparent;
+}

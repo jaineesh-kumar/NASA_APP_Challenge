@@ -250,6 +250,12 @@ export const copy = {
       nextStorm: 'Next real storm',
     },
   },
+  media: {
+    play: 'Play',
+    pause: 'Pause',
+    playVideo: 'Play video',
+    pauseVideo: 'Pause video',
+  },
   words: {
     title: 'Space words',
     lead: 'Words astronauts and engineers use, in plain language.',
