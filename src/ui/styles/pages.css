@@ -983,3 +983,14 @@ a.real-data-badge {
 .data-page .archived-label {
   margin-bottom: var(--space-2);
 }
+
+.storm-archive li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+
+.storm-replay {
+  font-size: var(--text-tiny);
+}

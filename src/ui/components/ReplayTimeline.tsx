@@ -8,7 +8,7 @@ import { loadParams } from '../../engine/params.ts';
 import { ComponentId, LoadId, LogEntry, MissionResult, StormMode } from '../../engine/types.ts';
 import { CoreMeters } from './CoreMeters.tsx';
 import { ResourceChart } from './ResourceChart.tsx';
-import { findStorm, stormDate } from './StormPicker.tsx';
+import { ArchivedLabel, findStorm, stormDate } from './StormPicker.tsx';
 
 const k = getSimConstants(loadParams());
 const PLAY_STEP_H = 6;
@@ -81,12 +81,15 @@ export const ReplayTimeline: React.FC<{
 
       <div className="tile" style={{ margin: '12px 0' }}>
         {replayed ? (
-          <p className="small" style={{ fontWeight: 600 }}>
-            {R.replayStorm(stormDate(replayed), replayed.flareClass)}{' '}
-            <a href={replayed.link} target="_blank" rel="noopener noreferrer">
-              {R.donkiLink}
-            </a>
-          </p>
+          <>
+            <p className="small" style={{ fontWeight: 600 }}>
+              {R.replayStorm(stormDate(replayed), replayed.flareClass)}{' '}
+              <a href={replayed.link} target="_blank" rel="noopener noreferrer">
+                {R.donkiLink}
+              </a>
+            </p>
+            <ArchivedLabel />
+          </>
         ) : (
           <p className="small" style={{ fontWeight: 600 }}>
             {R.stormsTitle}

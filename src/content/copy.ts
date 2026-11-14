@@ -314,6 +314,7 @@ export const copy = {
     stormsIntro:
       'These are the archived storms you can replay on the Test step and in Storm Shelter. Each one is a real solar energetic particle event, linked to a solar flare with a recorded class.',
     stormItem: (date: string, flareClass: string) => `${date}: flare class ${flareClass}`,
+    replayButton: (date: string) => `Test my base against the storm of ${date}`,
     honestyTitle: 'Real data, honest labels',
     honesty: [
       'Real: which solar storms happened, when, and the class of their linked flare (NASA DONKI, S12).',
