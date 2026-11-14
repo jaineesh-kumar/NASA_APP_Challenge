@@ -90,3 +90,29 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 - **Context:** AGENTS_NEW.md v1.2 replaces the build contract. Work done before it (ADR-005 to ADR-008) partly conflicts: v1.2 keeps random storms exactly as B5.5 and adds a separate Real Storm Replay (B5.11); F1 forbids removing params; B5.10 defines a simpler comms link; L10 AC4 compares random mode against the old golden files, which came from an engine that broke B5.4.
 - **Decision:** (1) Keep the existing work and adapt it to v1.2 (restore random storms and the two removed params, turn the DONKI window feature into the B5.11 replay picker, drop the Calm/Stormy picker). (2) Run L10 to L13 as the autonomous P-PS sprint. (3) The spec-correct engine wins over the old golden files: goldens are regenerated once here, and L10 AC4 means "random mode unchanged by L10" from this baseline. (4) All work stays on branch `nasa-new`.
 - **Consequences:** ADR-005 (storm windows replacing random draws) and ADR-006 (DONKI-lead comms warnings) are superseded by L10 (B5.11) and L12 (B5.10).
+
+---
+
+### ADR-010: Real Storm Replay (L10) and the DONKI archive
+
+- **Date:** 2026-11-14
+- **Status:** Accepted (autonomous P-PS sprint, decided by the agent and logged here)
+- **Context:** B5.11 asks for one real archived storm per replay mission, strength by linked flare class. B10.2 expects the flare class from `/DONKI/FLR`, which returned HTTP 404 throughout 2026-11-14.
+- **Decision:**
+  - Random storms restored exactly as B5.5 (uSpe draw each tick, `radiation.spe_per_month`, `radiation.spe_warning_lead_h`); the params removed earlier are restored unchanged (F1).
+  - `StormMode = { kind: 'random' } | { kind: 'replay'; eventId }`. Replay schedules one SPE at `radiation.replay_onset_h` with strength `radiation.spe_multiplier_by_flare_class[C|M|X]`; the uSpe draw still happens so all other randomness is unchanged.
+  - Replay warning starts `radiation.spe_warning_lead_h` before onset, like a random storm. Without this the warning would be on from hour 0 and a shelter rule would keep the crew hiding for 300 hours.
+  - Flare class taken from DONKI SEP notifications ("associated with an <class> flare ... with ID <flrID>"), accepted only when that flare id is in the SEP event's `linkedEvents`; evidence id and URL stored per event. The script still tries `/DONKI/FLR` first.
+  - New params (ASSUMPTION, low, TODO human): `radiation.replay_onset_h` = 300, `radiation.spe_multiplier_by_flare_class` = [10, 20, 40].
+- **Consequences:** Contract additions in types.ts (StormMode, MissionOptions.stormMode, DonkiEvent, DonkiArchive, CampaignResult.stormMode, StormInfo) and index.ts (archive loaders). Random-mode golden file hash b2c0beb unchanged by the replay code (L10 AC4); new tests/golden/replay.json (AC5). Scenario code v2 now carries the storm mode instead of the dropped Calm/Stormy era.
+
+---
+
+### ADR-011: Step-by-step flow and the Ticket Wallet look
+
+- **Date:** 2026-11-14
+- **Status:** Accepted (team lead chose "step-by-step screens", "bright and playful", and the Jet-Age Ticket Wallet world on the impeccable decision page)
+- **Context:** The team lead asked for pagination and a beautiful UI before continuing the sprint.
+- **Decision:** The core loop is paged one step per coupon (Briefing, Build, Rules, Test, Review) with a route-arc step track and a sticky Back/Next pager whose Next is locked with a plain-words reason (over the weight limit; no test results). Learn and How it works sit outside the flow. Visual world: bright translation of the ticket wallet (sky ground, white coupons with perforation and notches, navy strips, rocket-red single primary action, carbon-violet numbers, yellow Done stamps). Display face is an installed condensed stack because remote fonts are banned (F10) and font licences are a human decision.
+- **Consequences:** Screens no longer carry their own Back/Next buttons. Emoji glyphs replaced by an authored SVG icon set. Review leads with a boarding pass. Open human decision: self-host an OFL condensed grotesk so iPads and Chromebooks get the same display face.
+

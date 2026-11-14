@@ -2,7 +2,7 @@
 
 This document lists authoritative reference sources and IDs used throughout Moonbase Margin.
 Per AGENTS.md rule A4 (F9) and rule B7, agents may not add rows to this table.
-S12 was added on 2026-11-14 at the explicit request of the team lead (see ADR-005).
+Rows S12 to S14 are copied from AGENTS_NEW.md v1.2, section B7.
 
 | Id         | Source                                                                                                                                                                                          |
 | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -17,6 +17,8 @@ S12 was added on 2026-11-14 at the explicit request of the team lead (see ADR-00
 | S09        | Wood, C. (2017). Peaks of "Eternal" Light. Sky & Telescope, June 2017.                                                                                                                          |
 | S10        | ECLSS sizing reference (secondary source that cites NASA-STD-3001 and BVAD). https://skills.cat/skills/luncosim/space-engineering-skills/eclss-assessment. Use only until verified against S01. |
 | S11        | NASA-STD-3001 (crew health standards). **Not yet read; any value attributed to it must be verified by a human.**                                                                                |
-| S12        | NASA Community Coordinated Modeling Center (CCMC). Space Weather Database Of Notifications, Knowledge, Information (DONKI), SEP endpoint, via https://api.nasa.gov/DONKI/SEP. Archived snapshot in data/spaceWeather.json (fetch date inside the file). |
+| S12        | NASA CCMC. Space Weather Database Of Notifications, Knowledge, Information (DONKI), accessed through `api.nasa.gov/DONKI` (endpoints such as `/DONKI/SEP` and `/DONKI/FLR`). Named on the challenge page. Archived events must record `retrievedAt` (see data/donki_archive.json). |
+| S13        | NASA Open Science Data Repository (OSDR), named on the challenge page. Every card must record the dataset id and URL it came from. |
+| S14        | Official challenge page: "Build a Junior Astronaut Mission Trainer", spaceappschallenge.org/2026/challenges/junior-astronaut-mission-trainer/ (Details tab, read 14 Nov 2026). The Resources tab has not been reviewed by an agent. |
 | ASSUMPTION | A value chosen by the team for the game. Must be labeled "illustrative" on screen.                                                                                                              |
 | DERIVED    | Derived from basic physics or chemistry stated in the param note.                                                                                                                               |
