@@ -8,6 +8,7 @@ import { copy } from './content/copy.ts';
 import { AppStoreProvider } from './state/store.tsx';
 import { ErrorBoundary } from './ui/components/ErrorBoundary.tsx';
 import { Header } from './ui/components/Header.tsx';
+import { MissionRecorder } from './ui/components/MissionRecorder.tsx';
 import { RouteId, useRoute } from './ui/router.ts';
 import { DataScienceScreen } from './ui/screens/DataScience.tsx';
 import { FreeBuildScreen } from './ui/screens/FreeBuild.tsx';
@@ -75,6 +76,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AppStoreProvider>
+        <MissionRecorder />
         <AppContent />
       </AppStoreProvider>
     </ErrorBoundary>

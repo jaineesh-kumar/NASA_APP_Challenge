@@ -469,3 +469,219 @@ a.real-data-badge {
   color: var(--color-success);
   font-weight: 700;
 }
+
+/* ---------- Missions ---------- */
+
+.mission-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mission-card {
+  display: flex;
+  gap: var(--space-4);
+  background: var(--coupon);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+  border-left: 8px solid var(--navy);
+}
+
+.mission-card.is-complete {
+  border-left-color: var(--color-success);
+}
+
+.mission-card-number {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--navy);
+  color: var(--coupon);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.mission-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.mission-card h3 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+}
+
+.mission-card-sub {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-2);
+}
+
+.mission-badges {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-3);
+  padding: 0;
+}
+
+.mission-badges li {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-tiny);
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-bg-surface-elevated);
+  color: var(--color-text-muted);
+}
+
+.mission-badges li.is-good {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+/* ---------- Debrief (multiple choice) ---------- */
+
+.mcq {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.mcq-legend {
+  padding: 0;
+  margin-bottom: var(--space-3);
+}
+
+.mcq-prompt {
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.mcq-option {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  min-height: var(--tap);
+  padding: var(--space-3);
+  margin-bottom: var(--space-2);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--coupon);
+  cursor: pointer;
+}
+
+.mcq-option:hover {
+  border-color: var(--navy);
+}
+
+.mcq-option:has(input:checked) {
+  border-color: var(--carbon);
+  background: var(--carbon-wash);
+}
+
+.mcq-option:has(input:focus-visible) {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 2px;
+}
+
+.mcq-option.is-tried {
+  cursor: default;
+  color: var(--color-text-muted);
+  background: var(--color-bg-surface-elevated);
+  text-decoration: line-through;
+}
+
+.mcq-option.is-right {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+  color: var(--navy);
+}
+
+.mcq-option.is-right .icon {
+  color: var(--color-success);
+  margin-left: auto;
+}
+
+.mcq-option span:first-of-type {
+  flex: 1;
+}
+
+.mcq-tag {
+  font-size: var(--text-tiny);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mcq-feedback {
+  margin: var(--space-3) 0;
+}
+
+.mcq-feedback > div {
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.mcq-feedback p + p {
+  margin-top: var(--space-2);
+}
+
+.feedback-wrong {
+  background: var(--color-warning-bg);
+  color: #5c3c00;
+}
+
+.feedback-right {
+  background: var(--color-success-bg);
+  color: var(--navy);
+}
+
+.feedback-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+}
+
+.feedback-source {
+  font-size: var(--text-small);
+  font-style: italic;
+}
+
+.debrief-done {
+  text-align: center;
+}
+
+.debrief-done h3 {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  margin-bottom: var(--space-2);
+}
+
+.debrief-done .button-row {
+  justify-content: center;
+  margin-top: var(--space-4);
+}
+
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--sun);
+}
+
+.stars .icon {
+  fill: var(--sun);
+  stroke: var(--navy);
+}
