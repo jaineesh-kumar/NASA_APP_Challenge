@@ -1,111 +1,59 @@
-# Moonbase Margin: Architecture & Data Flow
+# Architecture
 
-> Specification Version: 0.1.0  
-> System: Pure TypeScript Engine + React 19 UI + Web Worker Monte Carlo Pipeline
+Moonbase Margin is a static single-page app. Nothing runs on a server and nothing is fetched at runtime.
 
----
-
-## 1. System Overview
-
-Moonbase Margin separates the simulation engine completely from the UI layer to maintain strict determinism, testability, and replay fidelity:
-
-1. **Engine Layer (`src/engine/`):** Pure functional TypeScript. Zero React or DOM dependencies. Zero runtime imports. All domain constants are loaded via `params.ts` from `data/params.json`. Uses standard 32-bit `mulberry32` PRNG for bit-for-bit replayability.
-2. **Web Worker Layer (`src/worker/`):** Offloads multi-second 300-run Monte Carlo campaigns from the UI thread, broadcasting periodic progress messages to keep the user interface responsive.
-3. **State Management (`src/state/`):** Built on React `useReducer` and Context (`AppStoreProvider`). Handles screen navigation, hardware selections, priority ladders, rule creation, and scenario code encode/decode.
-4. **UI Screen & Component Layer (`src/ui/`):** Accessible (WCAG 2.1 AA 4.5:1 contrast, visible focus rings, keyboard navigable) screens for Briefing, Design, Rules, Rehearsal, Review, Learn, and Model Card.
-
----
-
-## 2. Block Architecture & Module Diagram
-
-```mermaid
-graph TD
-    subgraph Data Layer
-        PJSON[data/params.json] --> PLOAD[src/engine/params.ts]
-    end
-
-    subgraph Simulation Engine [src/engine/ - Pure TypeScript]
-        PLOAD --> SIM[sim.ts: runMission]
-        RNG[rng.ts: mulberry32] --> SIM
-        MASS[mass.ts: massUsed & isWithinBudget]
-        SCHED[schedule.ts: dark windows & jitter] --> SIM
-        POW[power.ts: generation, dust, battery] --> SIM
-        LIFE[lifeSupport.ts: O2, CO2, water, Sabatier] --> SIM
-        CREW[crew.ts: work allocation & repairs] --> SIM
-        RAD[radiation.ts: dose, shield, SPE] --> SIM
-        EVT[events.ts: MTBF, dust, storms] --> SIM
-        RULES[rules.ts: ladder & IF-THEN interpreter] --> SIM
-        SIM --> MC[montecarlo.ts: runCampaign & Wilson CI]
-        SIM --> REV[review.ts: buildCauseChain]
-    end
-
-    subgraph Background Concurrency
-        MC --> WORKER[src/worker/campaign.worker.ts]
-    end
-
-    subgraph Application State
-        STORE[src/state/store.tsx: useReducer + Context]
-        SCENARIO[src/state/scenarioCode.ts: encode/decode]
-    end
-
-    subgraph UI Screens [src/ui/screens/]
-        WORKER -. Progress & Results .-> STORE
-        STORE --> SCR_BRIEF[Briefing.tsx]
-        STORE --> SCR_DES[Design.tsx]
-        STORE --> SCR_RULES[Rules.tsx]
-        STORE --> SCR_REH[Rehearse.tsx]
-        STORE --> SCR_REV[Review.tsx]
-        STORE --> SCR_LRN[Learn.tsx]
-        STORE --> SCR_MC[ModelCard.tsx]
-    end
-
-    subgraph UI Components [src/ui/components/]
-        SCR_DES --> METER[MassBudgetBar.tsx]
-        SCR_DES --> STEPPER[NumberStepper.tsx]
-        SCR_RULES --> LADDER[PriorityLadder.tsx]
-        SCR_RULES --> REDIT[RuleEditor.tsx]
-        SCR_REV --> REPLAY[ReplayTimeline.tsx]
-        SCR_REV --> CAUSE[RiskBarChart.tsx]
-        SCR_REV --> MVR[MassVsRiskChart.tsx: Hand-written SVG]
-        SCR_REV --> WHY[WhyThisNumber.tsx: Provenance Modal]
-        SCR_MC --> WHY
-    end
+```
+data/params.json  data/donki_archive.json  data/osdr_cards.json      (archived, human-owned data)
+        |                 |                        |
+        v                 v                        v
+src/engine/  (pure TypeScript: no React, no DOM, no I/O, no randomness except the seeded RNG)
+  params.ts       load + validate params and the DONKI archive
+  constants.ts    resolve every param once per load (fast tick loop)
+  rng.ts          mulberry32
+  schedule.ts     dark windows, jitter, mast effect
+  events.ts       seeded storms (random mode), dust, component failures, repair help
+  power.ts        generation, priority-ladder allocation, battery
+  lifeSupport.ts  oxygen, CO2, water, electrolysis, Sabatier
+  crew.ts         crew hours: greenhouse, science, construction, repairs
+  food.ts         stored food and greenhouse
+  radiation.ts    dose with shields, shelter and storm strength
+  rules.ts        IF-THEN interpreter and validation
+  sim.ts          runMission(design, rules, seed, params, { stormMode, trace })
+  montecarlo.ts   runCampaign, Wilson interval, nearest-rank percentile
+  review.ts       cause chain + concept from the mission log
+        |
+        v
+src/worker/campaign.worker.ts   runs runCampaign off the main thread
+        |
+        v
+src/state/   store.tsx (useReducer + Context: design, rules, storm mode, Junior/Planner mode,
+             results, history) · useCampaign.ts (worker, fallback, worst-run trace) ·
+             scenarioCode.ts (versioned share codes, strict validation)
+        |
+        v
+src/ui/      App shell: Header (mode toggle), StepTrack (route arc + stubs), coupon per step,
+             StepFooter (Back/Next with lock reasons). Screens: Briefing, Design, Rules,
+             Rehearse (Test), Review, Learn, ModelCard. Charts are hand-written SVG.
+src/content/ every user-facing string (copy.ts, concepts, missions/kits, quiz, OSDR cards)
 ```
 
----
+## Data flow of one test
 
-## 3. Hourly Simulation Tick Data Flow (720 Ticks)
+1. The player builds a design and rules, and picks a storm mode (random, or replay of one archived DONKI storm).
+2. `useCampaign` posts them to the worker, which runs seeds 1 to 300 through `runMission` and aggregates a `CampaignResult`.
+3. The main thread re-runs only the worst seed with `trace: true` for the replay charts and meters.
+4. Review renders the result: boarding pass, 100-icon grid (Junior) or ranges (Planner), cause chart, mass-vs-risk dots for every design tried this session, replay, cause chain, concept hint, and a matching OSDR finding.
 
-Within `src/engine/sim.ts`, each tick advances deterministically through fixed steps:
+## Per-tick order (spec B5.4)
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Sim as runMission()
-    participant Evt as events.ts
-    participant Rules as rules.ts
-    participant Power as power.ts
-    participant Life as lifeSupport.ts
-    participant Crew as crew.ts
-    participant Rad as radiation.ts
-    participant Check as Loss Evaluator
+Events (storms, dust, failures; repair help if the radio link was up) → rules (state at the end of the previous tick) → generation → power allocation and battery (radio link = comms powered) → life support → crew hours → food → radiation → loss checks and log (state changes only).
 
-    Sim->>Evt: Step 1: Draw seeded PRNG events (SPE, dust, component MTBF)
-    Sim->>Rules: Step 2: Evaluate IF-THEN rules on tick t-1 state
-    Sim->>Power: Step 3: Compute generation (Sun, dust, array loss)
-    Sim->>Power: Step 4: Allocate priority ladder power & update battery kWh
-    Sim->>Life: Step 5: Process O2 electrolysis, CO2 scrubbing, water recovery, Sabatier return
-    Sim->>Crew: Step 6: Allocate productive crew-hours (repairs, crops, science, shielding)
-    Sim->>Life: Step 7: Calculate food caloric draw & crop yields
-    Sim->>Rad: Step 8: Calculate cosmic background and SPE radiation accumulation
-    Sim->>Check: Step 9: Verify deficit counters (hypoxia, dehydration, hypercapnia, dose) & log transitions
-```
+## Determinism and tests
 
----
+- Same seed and inputs give a deep-equal result; golden files (`tests/golden/missions.json`, `tests/golden/replay.json`) lock the engine.
+- Each engine module has its own test file; UI tests use Testing Library roles and names; `tests/ui/accessibility.test.tsx` checks text contrast pairs.
+- The production build gets a Content-Security-Policy (`vite.config.ts`).
 
-## 4. Scenario Code Format (`src/state/scenarioCode.ts`)
+## Real data pipeline (developer machine only)
 
-Shareable scenario codes serialize the outpost design and rules into a URL-safe format:
-
-- **Format:** `MM<version>-<base64url_json_payload>`
-- **Validation:** String length capped at 2048 characters. Schema validated on decode; corrupt payloads, unknown load IDs, or out-of-range hardware settings throw typed `EngineError`.
+`scripts/fetch-donki.mjs` and `scripts/fetch-osdr.mjs` write the archives in `data/`. They are never part of the app bundle. See `docs/DATA_USED.md`.

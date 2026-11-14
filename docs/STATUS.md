@@ -1,25 +1,39 @@
-# Project Status: Moonbase Margin
+# Project status: Moonbase Margin
 
-**Current Level:** L9 (Hardening and release)  
-**Status:** v0.1.0 Ready / Verification Complete
+**Contract:** AGENTS_NEW.md v1.2 (PS-alignment sprint, run autonomously with prompt P-PS on branch `nasa-new`).
+**Current level:** sprint L10 to L13 complete; waiting for the team's review and the human items below.
+**Last verified:** 2026-11-14. `npm run typecheck`, `lint`, `test` (see the final commit), `build` all pass.
 
-## Level Checklist
+## Levels
 
-- [x] L0 Preflight and bootstrap (skeleton, toolchain, configs, smoke test)
-- [x] L1 Contracts, params, RNG, mass (frozen types, params.json, validation, mulberry32, massUsed)
-- [x] L2 Schedule and power (dark windows, jitter, mast reduction, solar generation, dust, priority ladder, battery)
-- [x] L3 Life support, water, oxygen, CO2 (water recovery loops, Sabatier, CO2 scrubbing, deficit counters)
-- [x] L4 Food, crew time, radiation, events and failures (stored food, greenhouse yield, crew priority, shield building, radiation shielding, SPE and MTBF failures)
-- [x] L5 Rules, mission loop, Monte Carlo, worker (IF-THEN rule engine, 720-tick sim, Wilson 95% CI, review cause chain, Web Worker, golden tests)
-- [x] L6 UI foundation, Design screen, Rules screen (useReducer store, mass budget bar, steppers, priority ladder, rule editor, presets)
-- [x] L7 Rehearse and Review screens (worker execution, Wilson CIs, margin percentiles, cause chain, replay scrubber, SVG chart, WhyThisNumber provenance)
-- [x] L8 Learn, Model Card, scenario codes (M1-M3 guided missions, concept checks, 6-question quiz, full parameter table, simplifications, URL scenario code round-trip)
-- [x] L9 Hardening and release (complete ARCHITECTURE.md, README.md, CHANGELOG.md, accessibility focus and contrast verification)
+- [x] L0 to L9: baseline (earlier work), engine re-aligned with spec B5.4 to B5.9 (ADR-007, ADR-009)
+- [x] L10 Real data: DONKI archive and Real Storm Replay (ADR-010)
+- [x] Redesign: step-by-step flow and ticket-wallet design system (ADR-011, impeccable finish review: all material fixes resolved)
+- [x] L12 Comms link (ADR-012; the team should confirm `comms.repair_assist_fraction`)
+- [x] L11 Junior Mode (ADR-013)
+- [x] L13 OSDR cards and compliance pass
 
-## Open Questions (ASK-HUMAN)
+## Challenge compliance (B10.9)
 
-- None.
+- [x] Junior Mode is the default and usable by a child on a phone: `tests/ui/junior.test.tsx` (AC1); screenshots at 360px show no horizontal scroll.
+- [x] At most 3 core meters visible by default: Power, Life support, Shield in the Junior replay; charts under "More details" (`tests/ui/review.test.tsx`, three `meter` roles).
+- [x] Life support, shielding, power, food and comms (delay and link) are all present: engine B5.4 and B5.10; Moon vs Mars delay on the Rules step (`tests/ui/comms.test.tsx`).
+- [x] At least one real NASA dataset drives gameplay (Storm Replay), labelled archived: `tests/engine/replay.test.ts`, `tests/ui/rehearse.test.tsx`.
+- [x] Data panel and `docs/DATA_USED.md` exist and are accurate: DONKI and OSDR rows (`tests/ui/osdr.test.tsx` AC3).
+- [x] No static data shown as live: every archive shows "Archived NASA data, retrieved <date>. Not live."
+- [x] Failure messages are kind; replay is one click: no "You failed" anywhere (`tests/ui/junior.test.tsx` AC6); "Try again" and "New challenge" on Review.
+- [ ] Resources tab contents recorded in `docs/CHALLENGE_RESOURCES.md` and considered: **needs a human** (the agent must not guess the Resources tab).
 
-## Decisions Log Reference
+## Open questions and human items
 
-See `docs/DECISIONS.md`.
+1. Paste the challenge page's Resources tab into `docs/CHALLENGE_RESOURCES.md`.
+2. Confirm the illustrative params added in the sprint: `radiation.replay_onset_h` (300 h), `radiation.spe_multiplier_by_flare_class` ([10, 20, 40]), `comms.repair_assist_fraction` (0.25).
+3. Balance (ADR-008): CO2 breakdowns dominate losses; shield layers matter little while a shelter rule is on.
+4. Verify S01 (BVAD) crew values and the S11 (NASA-STD-3001) dose limit.
+5. Review the agent-drafted texts marked `needsReview: true` (quiz, missions, concepts, OSDR summaries).
+6. Font licence: self-host an OFL condensed grotesk so iPads and Chromebooks get the same display face (DESIGN.md).
+7. Licence for the repository (no LICENSE file yet), deployment, demo video, playtest notes in `docs/PLAYTEST.md`.
+
+## Decisions log
+
+See `docs/DECISIONS.md` (ADR-001 to ADR-013).

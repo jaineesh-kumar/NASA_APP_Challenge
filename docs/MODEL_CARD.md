@@ -1,157 +1,115 @@
-# Scientific Model Card: Moonbase Margin
+# Model card
 
-> **Version:** 0.1.0  
-> **Date:** October 2026  
-> **Target Audience:** Junior Astronauts & Students (Ages 10–16), Space Educators, Mission Architects  
-> **Simulation Scope:** 4-crew, 30-day (720 hourly ticks) lunar south pole outpost life support and power dynamics.
+Generated from `data/params.json` (version 0.2.0, 85 numbers). The same table is on the game's How it works screen. Numbers with source ASSUMPTION are illustrative game choices made by the team, not NASA requirements; the team tunes them, agents never do.
 
----
+Sources: ASSUMPTION 66, S10 4, S08 1, S04 2, S05 1, DERIVED 4, S02 2, S03 3, S09 2. Source ids are listed in `docs/SOURCES.md`.
 
-## 1. Model Overview & Purpose
+## What the model does
 
-Moonbase Margin is a static, browser-based probabilistic mission simulator built for the NASA Space Apps Challenge 2026. Its educational objective is to teach students the critical balance between **launch mass**, **system redundancy**, and **safety margin** when engineering an extraterrestrial outpost.
+A 30-day mission at the lunar south pole, crew of 4, in 720 one-hour steps (spec B5.4): solar power with dark windows and dust, a priority ladder for power, oxygen from water electrolysis, water recycling, Sabatier, CO2 scrubbing, crew hours, greenhouse food, radiation with shields and a shelter, solar storms (random, or one real archived DONKI storm), component failures with spares, and a radio link that carries storm warnings and repair help. Each test runs 300 seeded missions and reports survival and success with 95% Wilson intervals.
 
-Players choose a landing site (Malapert Ridge or Shackleton Crater Edge), configure hardware subsystems within a 120 mass unit budget, define load-shedding priority ladders and automated IF-THEN emergency triggers, and rehearse campaigns of 300 Monte Carlo seeded runs to assess survival probabilities and subsystem margins with 95% Wilson confidence intervals.
+## What we simplified
 
----
+- One-hour steps; every crew member uses the same air, water and food.
+- Storm strength is a fixed multiplier (by flare class for replayed storms) and every storm lasts the same time; real particle flux is not modelled.
+- A replayed storm arrives at mission hour `radiation.replay_onset_h`, not at its real time of day.
+- No spacewalk radiation, crew tiredness or mood, detailed heating (one dark-window multiplier), or orbit and relay model (the radio is simply on or off).
+- Two example landing spots with simple dark-window schedules.
+- Out of scope: accounts, backend, multiplayer, 3D, live AI chat, Mars.
 
-## 2. Core Subsystems Modeled
+## Open items for the team
 
-1. **Power Generation & Storage:**
-   - Solar photovoltaic panels producing 10 kW each during sunlit periods.
-   - Illumination mast towers reducing dark window durations caused by terrain shadows.
-   - 100 kWh battery storage units with 90% round-trip charge efficiency.
-   - Solar array partial string failure (25% loss) and lunar surface dust accumulation (15% loss).
+- Verify S01 (BVAD) values for crew oxygen, CO2 and food (`TODO(human)` notes).
+- Verify the mission dose limit against S11 (NASA-STD-3001).
+- Confirm the illustrative params added in this sprint: `radiation.replay_onset_h`, `radiation.spe_multiplier_by_flare_class`, `comms.repair_assist_fraction`.
+- Balance: see ADR-008 in `docs/DECISIONS.md`.
 
-2. **Environmental Control and Life Support System (ECLSS):**
-   - Metabolic oxygen consumption (0.84 kg/crew/day) and carbon dioxide production (1.0 kg/crew/day).
-   - Water consumption and recycling: baseline 90% recovery; upgraded 98% brine processor loop.
-   - Closed-loop oxygen recovery via catalytic Sabatier reactor (up to 50% O2 recovery via water synthesis).
-   - Cabin CO2 scrubbing with failure MTBF and emergency deficit counters.
+## Every number
 
-3. **Crew Allocation & Habitat Construction:**
-   - 8 productive hours per crew member per day (32 crew-hours daily pool).
-   - Dynamic allocation prioritizing repairs, greenhouse crops, science, and regolith shield construction.
-
-4. **Radiation Protection & Space Weather:**
-   - Background galactic cosmic radiation (GCR) surface baseline dose equivalent (1,369 µSv/day).
-   - Sporadic Solar Particle Events (SPEs) with 20x radiation dose multiplier and 2-hour early warning lead time.
-   - Regolith shielding layers (0.67, 0.50, 0.40 dose factors) and storm sheltering (0.25 dose factor).
-
----
-
-## 3. Documented Modeling Simplifications (Spec B1)
-
-To deliver an interactive, zero-latency browser experience without external backend servers, the following deliberate abstractions were adopted:
-
-| Subsystem                              | Modeled Behavior                                              | Simplification / Out of Scope                                                               |
-| -------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| **Time Discretization**                | Discrete 1-hour time ticks over 720 hours.                    | Continuous differential fluid dynamics and sub-minute electrical transients omitted.        |
-| **Crew Uniformity**                    | Identical metabolic and nutritional demands for 4 astronauts. | Crew gender variation, individual metabolic scaling, and sleep schedules omitted.           |
-| **Crew Psychology & Fatigue**          | Fixed 8 productive hours/day.                                 | Sleep deprivation, psychological morale, and cognitive stress are out of scope for v0.1.    |
-| **Thermal Dynamics**                   | 4 kW baseline conditioning + 1.5x dark window multiplier.     | Detailed thermal radiative equilibrium and surface conductive regolith modeling simplified. |
-| **Radiation Exposure**                 | Outpost and shelter dose accumulation.                        | Extravehicular Activity (EVA) spacewalk radiation exposure omitted.                         |
-| **Communications & Orbital Mechanics** | Constant 1 kW comms link.                                     | Deep Space Network (DSN) tracking stations and line-of-sight occultation omitted.           |
-| **Resupply Logistics**                 | Fixed 30-day closed campaign.                                 | Intermediate Earth resupply missions or lunar orbital gateway transfers omitted.            |
-
----
-
-## 4. Parameter Single Source of Truth (`data/params.json`)
-
-All 62 simulation constants are validated and frozen. No hardcoded domain numbers exist in the simulation engine.
-
-| Parameter Key                               | Value                 | Unit         | Source     | Confidence | Note                                         |
-| ------------------------------------------- | --------------------- | ------------ | ---------- | ---------- | -------------------------------------------- |
-| `mission.hours`                             | 720                   | h            | ASSUMPTION | high       | 30-day mission duration                      |
-| `campaign.runs`                             | 300                   | runs         | ASSUMPTION | high       | Default Monte Carlo sample size              |
-| `crew.size`                                 | 4                     | crew         | ASSUMPTION | high       | Expedition crew complement                   |
-| `crew.o2_kg_per_day`                        | 0.84                  | kg/crew/d    | S10        | medium     | NASA BVAD human metabolic consumption        |
-| `crew.co2_kg_per_day`                       | 1.0                   | kg/crew/d    | S10        | medium     | NASA BVAD human metabolic exhalation         |
-| `crew.water_total_kg_per_day`               | 4.35                  | kg/crew/d    | S08        | high       | ISS ECLSS total consumption standard         |
-| `crew.food_kcal_per_day`                    | 2500                  | kcal/crew/d  | S10        | medium     | Standard daily astronaut caloric requirement |
-| `crew.food_kg_per_day`                      | 0.6                   | kg/crew/d    | S10        | medium     | Packaging mass display reference             |
-| `crew.productive_hours_per_day`             | 8                     | h/crew/d     | ASSUMPTION | low        | Illustrative productive shift length         |
-| `water.recovery_base`                       | 0.9                   | fraction     | S04        | high       | Heritage ISS urine & condensate recovery     |
-| `water.recovery_upgraded`                   | 0.98                  | fraction     | S04        | high       | Advanced ISS brine processor assembly        |
-| `o2.sabatier_recovery`                      | 0.5                   | fraction     | S05        | high       | Sabatier CO2 reduction oxygen ceiling        |
-| `o2.electrolysis_water_per_o2`              | 1.125                 | kg H2O/kg O2 | DERIVED    | high       | Stoichiometric ratio: 2 H2O -> 2 H2 + O2     |
-| `o2.generator_capacity_factor`              | 1.5                   | x need       | ASSUMPTION | low        | Illustrative surge production factor         |
-| `co2.scrubber_capacity_factor`              | 1.5                   | x prod       | ASSUMPTION | low        | Illustrative scrubber capacity buffer        |
-| `co2.cabin_limit_kg`                        | 2.0                   | kg           | ASSUMPTION | low        | Cabin atmospheric toxicity threshold         |
-| `loss.o2_deficit_hours`                     | 3                     | h            | ASSUMPTION | low        | Permissible hypoxia buffer hours             |
-| `loss.co2_over_hours`                       | 6                     | h            | ASSUMPTION | low        | Permissible hypercapnia buffer hours         |
-| `loss.water_deficit_hours`                  | 72                    | h            | ASSUMPTION | low        | Permissible dehydration buffer hours         |
-| `loss.food_shortfall_hours`                 | 168                   | h            | ASSUMPTION | low        | Permissible caloric deficit buffer hours     |
-| `radiation.surface_usv_per_day`             | 1369                  | µSv/d        | S02        | high       | Chang'e-4 lunar surface measurements         |
-| `radiation.iss_usv_per_day`                 | 731                   | µSv/d        | S02        | high       | Low Earth orbit reference comparison         |
-| `radiation.shield_factor_by_layers`         | [1.0, 0.67, 0.5, 0.4] | factor       | ASSUMPTION | low        | Attenuation factors for regolith shielding   |
-| `radiation.shelter_factor`                  | 0.25                  | factor       | ASSUMPTION | low        | Dedicated storm shelter dose attenuation     |
-| `radiation.spe_multiplier`                  | 20                    | x            | ASSUMPTION | low        | Solar flare proton spike multiplier          |
-| `radiation.spe_duration_h`                  | 12                    | h            | ASSUMPTION | low        | Solar particle event typical duration        |
-| `radiation.spe_warning_lead_h`              | 2                     | h            | ASSUMPTION | low        | Space weather early warning window           |
-| `radiation.spe_per_month`                   | 1.0                   | events/30d   | ASSUMPTION | low        | Poisson arrival rate for solar storms        |
-| `radiation.dose_limit_usv_mission`          | 60000                 | µSv          | ASSUMPTION | low        | 30-day cumulative career limit proxy         |
-| `power.panel_kw`                            | 10                    | kW/panel     | ASSUMPTION | low        | High-efficiency solar array unit rating      |
-| `power.battery_kwh_per_unit`                | 100                   | kWh/unit     | ASSUMPTION | low        | Regenerative modular battery pack rating     |
-| `power.charge_efficiency`                   | 0.9                   | fraction     | ASSUMPTION | low        | Round-trip battery charge efficiency         |
-| `power.dust_events_per_month`               | 1.5                   | events/30d   | ASSUMPTION | low        | Regolith lofting storm frequency             |
-| `power.dust_factor`                         | 0.85                  | factor       | ASSUMPTION | low        | Dust obscuration solar derating factor       |
-| `power.dust_duration_h`                     | 72                    | h            | ASSUMPTION | low        | Dust settling duration                       |
-| `power.array_failure_factor`                | 0.75                  | factor       | ASSUMPTION | low        | Loss of 1 of 4 internal solar strings        |
-| `power.mast_dark_reduction_per_level`       | 0.1                   | frac/level   | S03        | low        | Elevation mast illumination gain             |
-| `power.thermal_dark_multiplier`             | 1.5                   | x            | ASSUMPTION | low        | Nighttime heating power multiplier           |
-| `load.life_support_kw`                      | 5                     | kW           | ASSUMPTION | low        | Nominal ECLSS base electrical load           |
-| `load.thermal_kw`                           | 4                     | kW           | ASSUMPTION | low        | Nominal habitat thermal conditioning         |
-| `load.comms_kw`                             | 1                     | kW           | ASSUMPTION | low        | Deep space communication transmitter         |
-| `load.greenhouse_kw_per_module`             | 3                     | kW/mod       | ASSUMPTION | low        | Hydroponic LED and fluid pumps               |
-| `load.science_kw`                           | 3                     | kW           | ASSUMPTION | low        | Surface scientific research instruments      |
-| `load.construction_kw`                      | 3                     | kW           | ASSUMPTION | low        | Regolith robotic 3D printer / sintered       |
-| `site.ridge.dark_starts_h`                  | [200, 560]            | h            | S09        | medium     | Malapert Ridge night window schedule         |
-| `site.ridge.dark_length_h`                  | 36                    | h            | S09        | medium     | Malapert Ridge night duration (10% total)    |
-| `site.ridge.start_water_kg`                 | 600                   | kg           | ASSUMPTION | low        | Ridge starting water reserve                 |
-| `site.crater_edge.dark_starts_h`            | [120, 330, 540]       | h            | S03        | medium     | Shackleton Rim night window schedule         |
-| `site.crater_edge.dark_length_h`            | 72                    | h            | S03        | medium     | Shackleton Rim night duration (30% total)    |
-| `site.crater_edge.start_water_kg`           | 900                   | kg           | ASSUMPTION | low        | Volatiles-adjacent crater water reserve      |
-| `site.dark_jitter_h`                        | 24                    | h            | ASSUMPTION | low        | Orbital precession start hour jitter         |
-| `start.o2_tank_kg`                          | 130                   | kg           | ASSUMPTION | low        | Pressurized oxygen storage tank              |
-| `start.food_kcal`                           | 220000                | kcal         | ASSUMPTION | low        | Stored dehydrated food reserves              |
-| `greenhouse.kcal_per_module_per_day`        | 5000                  | kcal/d       | ASSUMPTION | low        | Fresh crops caloric yield                    |
-| `greenhouse.water_kg_per_module_per_day`    | 3                     | kg/d         | ASSUMPTION | low        | Crop transpiration fluid consumption         |
-| `greenhouse.crew_hours_per_module_per_tick` | 0.2                   | h            | ASSUMPTION | low        | Crop maintenance crew attention              |
-| `greenhouse.low_power_factor`               | 0.5                   | factor       | ASSUMPTION | low        | Emergency reduced illumination yield         |
-| `construction.hours_per_shield_layer`       | 40                    | crew-h       | ASSUMPTION | low        | Robotic sintering build labor per layer      |
-| `science.target_hours`                      | 120                   | crew-h       | ASSUMPTION | low        | Primary mission science success bar          |
-| `science.max_hours_per_tick`                | 0.6                   | h            | ASSUMPTION | low        | Max science productivity cap per hour        |
-| `failure.mtbf_h.co2_scrubber`               | 900                   | h            | ASSUMPTION | low        | Mean time between failures                   |
-| `failure.mtbf_h.o2_generator`               | 1100                  | h            | ASSUMPTION | low        | Mean time between failures                   |
-| `failure.mtbf_h.water_processor`            | 800                   | h            | ASSUMPTION | low        | Mean time between failures                   |
-| `failure.mtbf_h.power_array`                | 1500                  | h            | ASSUMPTION | low        | Mean time between failures                   |
-| `repair.hours.co2_scrubber`                 | 6                     | crew-h       | ASSUMPTION | low        | Crew repair time with spare                  |
-| `repair.hours.o2_generator`                 | 10                    | crew-h       | ASSUMPTION | low        | Crew repair time with spare                  |
-| `repair.hours.water_processor`              | 12                    | crew-h       | ASSUMPTION | low        | Crew repair time with spare                  |
-| `repair.hours.power_array`                  | 8                     | crew-h       | ASSUMPTION | low        | Crew repair time with spare                  |
-| `mass.budget`                               | 120                   | mu           | ASSUMPTION | low        | Total lander payload mass limit              |
-| `mass.panel`                                | 5                     | mu           | ASSUMPTION | low        | Solar panel mass unit cost                   |
-| `mass.mast_level`                           | 6                     | mu/level     | ASSUMPTION | low        | Mast tower structural mass                   |
-| `mass.battery`                              | 5                     | mu           | ASSUMPTION | low        | Battery unit mass cost                       |
-| `mass.water_tier1`                          | 8                     | mu           | ASSUMPTION | low        | Brine processor upgrade mass cost            |
-| `mass.o2_tier1`                             | 10                    | mu           | ASSUMPTION | low        | Sabatier reactor upgrade mass cost           |
-| `mass.greenhouse_module`                    | 10                    | mu           | ASSUMPTION | low        | Hydroponic greenhouse module mass cost       |
-| `mass.shield_layer`                         | 12                    | mu           | ASSUMPTION | low        | Sintering regolith frame mass cost           |
-| `mass.spare`                                | 3                     | mu           | ASSUMPTION | low        | Modular component replacement spare mass     |
-| `rating.flight_ready_survival`              | 0.95                  | fraction     | ASSUMPTION | low        | Game certification threshold (95%)           |
-| `rating.flight_ready_success`               | 0.8                   | fraction     | ASSUMPTION | low        | Game science completion threshold (80%)      |
-
----
-
-## 5. Authoritative References (`docs/SOURCES.md`)
-
-- **S01:** Anderson, Ewert & Keener (2018). _Life Support Baseline Values and Assumptions Document (BVAD)_, NASA/TP-2015-218570/REV1.
-- **S02:** Zhang, S. et al. (2020). _First measurements of the radiation dose on the lunar surface_. Science Advances 6(39), eaaz1334.
-- **S03:** Ross, A. et al. (2021). _Towers on the Peaks of Eternal Light: Quantifying Available Solar Power_. arXiv:2102.11766.
-- **S04:** NASA (2025). _Environmental Control and Life Support System (ECLSS) Fact Sheet_.
-- **S05:** NASA. _Sabatier Carbon Dioxide Reduction Assembly Development_.
-- **S06:** NASA (2011). _Probabilistic Risk Assessment Procedures Guide_, NASA/SP-2011-3421.
-- **S08:** Frontiers in Space Technologies (2024). _Assessment of physical and psychological aspects of ECLSS on ISS_.
-- **S09:** Wood, C. (2017). _Peaks of "Eternal" Light_, Sky & Telescope.
-- **S10:** ECLSS Sizing Reference (Secondary source citing NASA-STD-3001 and BVAD).
+| Number | Value | Unit | Source | Confidence | Note |
+|---|---|---|---|---|---|
+| `mission.hours` | 720 (illustrative) | h | ASSUMPTION | high | 30-day mission design choice |
+| `campaign.runs` | 300 (illustrative) | runs | ASSUMPTION | high | default Monte Carlo size |
+| `crew.size` | 4 (illustrative) | crew | ASSUMPTION | high | design choice |
+| `crew.o2_kg_per_day` | 0.84 | kg/crew/day | S10 | medium | TODO(human): verify in S01 BVAD |
+| `crew.co2_kg_per_day` | 1 | kg/crew/day | S10 | medium | TODO(human): verify in S01 BVAD |
+| `crew.water_total_kg_per_day` | 4.35 | kg/crew/day | S08 | high | BVAD value quoted by S08; verify in S01 |
+| `crew.food_kcal_per_day` | 2500 | kcal/crew/day | S10 | medium | TODO(human): verify |
+| `crew.food_kg_per_day` | 0.6 | kg/crew/day | S10 | medium | display only, not used by the engine |
+| `crew.productive_hours_per_day` | 8 (illustrative) | h/crew/day | ASSUMPTION | low | illustrative |
+| `water.recovery_base` | 0.9 | fraction | S04 | high | ISS water recovery, older hardware |
+| `water.recovery_upgraded` | 0.98 | fraction | S04 | high | ISS with brine processor |
+| `o2.sabatier_recovery` | 0.5 | fraction | S05 | high | ceiling of Sabatier oxygen recovery |
+| `o2.electrolysis_water_per_o2` | 1.125 | kg water/kg O2 | DERIVED | high | 2 H2O to 2 H2 + O2: 36 g water per 32 g oxygen |
+| `o2.generator_capacity_factor` | 1.5 (illustrative) | x need | ASSUMPTION | low | illustrative |
+| `co2.scrubber_capacity_factor` | 1.5 (illustrative) | x production | ASSUMPTION | low | illustrative |
+| `co2.cabin_limit_kg` | 2 (illustrative) | kg | ASSUMPTION | low | game limit, illustrative |
+| `loss.o2_deficit_hours` | 3 (illustrative) | h | ASSUMPTION | low | game rule |
+| `loss.co2_over_hours` | 6 (illustrative) | h | ASSUMPTION | low | game rule |
+| `loss.water_deficit_hours` | 72 (illustrative) | h | ASSUMPTION | low | game rule |
+| `loss.food_shortfall_hours` | 168 (illustrative) | h | ASSUMPTION | low | game rule |
+| `radiation.surface_usv_per_day` | 1369 | uSv/day | S02 | high | measured dose equivalent, far side, lunar day, suit-level proxy |
+| `radiation.iss_usv_per_day` | 731 | uSv/day | S02 | high | ISS reference over the same period; display only |
+| `radiation.shield_factor_by_layers` | [1, 0.67, 0.5, 0.4] (illustrative) | factor | ASSUMPTION | low | illustrative; non-increasing; index = layers built |
+| `radiation.shelter_factor` | 0.25 (illustrative) | factor | ASSUMPTION | low | illustrative |
+| `radiation.spe_multiplier` | 20 (illustrative) | x | ASSUMPTION | low | illustrative |
+| `radiation.spe_duration_h` | 12 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `radiation.spe_warning_lead_h` | 2 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `radiation.spe_per_month` | 1 (illustrative) | events/30 d | ASSUMPTION | low | illustrative |
+| `radiation.replay_onset_h` | 300 (illustrative) | h | ASSUMPTION | low | mission hour when a replayed real storm arrives; TODO(human): confirm |
+| `radiation.spe_multiplier_by_flare_class` | [10, 20, 40] (illustrative) | x | ASSUMPTION | low | storm strength in the game by linked flare class: index 0 = C, 1 = M, 2 = X; illustrative; TODO(human): confirm |
+| `radiation.dose_limit_usv_mission` | 60000 (illustrative) | uSv | ASSUMPTION | low | game limit; TODO(human): verify against S11 NASA-STD-3001 |
+| `power.panel_kw` | 10 (illustrative) | kW/panel | ASSUMPTION | low | game unit |
+| `power.battery_kwh_per_unit` | 100 (illustrative) | kWh/unit | ASSUMPTION | low | game unit |
+| `power.charge_efficiency` | 0.9 (illustrative) | fraction | ASSUMPTION | low | illustrative |
+| `power.dust_events_per_month` | 1.5 (illustrative) | events/30 d | ASSUMPTION | low | illustrative |
+| `power.dust_factor` | 0.85 (illustrative) | factor | ASSUMPTION | low | illustrative |
+| `power.dust_duration_h` | 72 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `power.array_failure_factor` | 0.75 (illustrative) | factor | ASSUMPTION | low | one of four strings lost |
+| `power.mast_dark_reduction_per_level` | 0.1 | fraction/level | S03 | low | S03 shows height raises illumination (qualitative); the size is our assumption |
+| `power.thermal_dark_multiplier` | 1.5 (illustrative) | x | ASSUMPTION | low | illustrative |
+| `load.life_support_kw` | 5 (illustrative) | kW | ASSUMPTION | low | game unit |
+| `load.thermal_kw` | 4 (illustrative) | kW | ASSUMPTION | low | game unit |
+| `load.comms_kw` | 1 (illustrative) | kW | ASSUMPTION | low | game unit |
+| `load.greenhouse_kw_per_module` | 3 (illustrative) | kW/module | ASSUMPTION | low | game unit |
+| `load.science_kw` | 3 (illustrative) | kW | ASSUMPTION | low | game unit |
+| `load.construction_kw` | 3 (illustrative) | kW | ASSUMPTION | low | game unit |
+| `site.ridge.dark_starts_h` | [200, 560] | h | S09 | medium | illustrative schedule matching the about 90% illumination band |
+| `site.ridge.dark_length_h` | 36 | h | S09 | medium | 2 x 36 h = 10% of 720 h |
+| `site.ridge.start_water_kg` | 600 (illustrative) | kg | ASSUMPTION | low | illustrative |
+| `site.crater_edge.dark_starts_h` | [120, 330, 540] | h | S03 | medium | illustrative schedule matching the about 70% illumination band |
+| `site.crater_edge.dark_length_h` | 72 | h | S03 | medium | 3 x 72 h = 30% of 720 h |
+| `site.crater_edge.start_water_kg` | 900 (illustrative) | kg | ASSUMPTION | low | closer to ice; illustrative |
+| `site.dark_jitter_h` | 24 (illustrative) | h | ASSUMPTION | low | window start variation |
+| `start.o2_tank_kg` | 130 (illustrative) | kg | ASSUMPTION | low | illustrative |
+| `start.food_kcal` | 220000 (illustrative) | kcal | ASSUMPTION | low | about 22 days for 4 crew |
+| `greenhouse.kcal_per_module_per_day` | 5000 (illustrative) | kcal/day | ASSUMPTION | low | illustrative |
+| `greenhouse.water_kg_per_module_per_day` | 3 (illustrative) | kg/day | ASSUMPTION | low | illustrative |
+| `greenhouse.crew_hours_per_module_per_tick` | 0.2 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `greenhouse.low_power_factor` | 0.5 (illustrative) | factor | ASSUMPTION | low | power and yield both scaled |
+| `construction.hours_per_shield_layer` | 40 (illustrative) | crew-h | ASSUMPTION | low | illustrative |
+| `science.target_hours` | 120 (illustrative) | crew-h | ASSUMPTION | low | illustrative |
+| `science.max_hours_per_tick` | 0.6 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `failure.mtbf_h.co2_scrubber` | 900 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `failure.mtbf_h.o2_generator` | 1100 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `failure.mtbf_h.water_processor` | 800 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `failure.mtbf_h.power_array` | 1500 (illustrative) | h | ASSUMPTION | low | illustrative |
+| `repair.hours.co2_scrubber` | 6 (illustrative) | crew-h | ASSUMPTION | low | illustrative |
+| `repair.hours.o2_generator` | 10 (illustrative) | crew-h | ASSUMPTION | low | illustrative |
+| `repair.hours.water_processor` | 12 (illustrative) | crew-h | ASSUMPTION | low | illustrative |
+| `repair.hours.power_array` | 8 (illustrative) | crew-h | ASSUMPTION | low | illustrative |
+| `mass.budget` | 120 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.panel` | 5 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.mast_level` | 6 (illustrative) | mu/level | ASSUMPTION | low | game unit |
+| `mass.battery` | 5 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.water_tier1` | 8 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.o2_tier1` | 10 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.greenhouse_module` | 10 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.shield_layer` | 12 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `mass.spare` | 3 (illustrative) | mu | ASSUMPTION | low | game unit |
+| `rating.flight_ready_survival` | 0.95 (illustrative) | fraction | ASSUMPTION | low | game threshold, not a NASA requirement |
+| `rating.flight_ready_success` | 0.8 (illustrative) | fraction | ASSUMPTION | low | game threshold, not a NASA requirement |
+| `comms.earth_moon_light_delay_s` | 1.28 | s | DERIVED | high | 384,400 km average Earth-Moon distance divided by the speed of light (299,792 km/s); display only |
+| `comms.earth_mars_light_delay_min` | [3, 22] | min | DERIVED | high | closest (54.6 million km) and farthest (401 million km) Earth-Mars distance divided by the speed of light; display only |
+| `comms.repair_assist_fraction` | 0.25 (illustrative) | fraction | ASSUMPTION | low | repair hours saved while the radio link to Earth is up (B5.10); illustrative; TODO(human): confirm |
+| `comms.moon_one_way_delay_s` | 1.3 | s | DERIVED | low | Earth-Moon distance divided by the speed of light (B5.10); display only |

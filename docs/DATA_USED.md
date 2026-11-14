@@ -5,6 +5,7 @@ One page for judges and teachers: which real datasets the game uses, why, where 
 | Dataset | Source id | Why we use it | Where it appears | Retrieved |
 |---|---|---|---|---|
 | NASA DONKI space weather database, SEP events plus SEP notifications (`api.nasa.gov/DONKI/SEP`, `/DONKI/notifications?type=SEP`) | S12 | The challenge names DONKI. Real solar storms make the radiation-shielding decision real. | Test step: "Replay a real storm" picker; Review: "Your crew vs the storm of <date>"; Data panel; How it works | 2026-11-14 (`data/donki_archive.json`, field `retrievedAt`) |
+| NASA Open Science Data Repository, OSDR (`osdr.nasa.gov/osdr/data/search`) | S13 | The challenge names OSDR. Real studies of how space changes bodies, cells and plants make the game's risks real. | Learn: "Real astronaut findings"; Review: one "Real astronaut finding" matched to what went wrong; Data panel | 2026-11-14 (`data/osdr_cards.json`, field `retrievedAt`) |
 | Chang'e-4 lunar surface radiation measurement (Zhang et al. 2020) | S02 | The everyday radiation dose on the Moon's surface. | `radiation.surface_usv_per_day` in every mission | Published paper |
 | NASA ECLSS fact sheet | S04 | Water recovery of the space station's basic and upgraded recyclers. | `water.recovery_base`, `water.recovery_upgraded` | Published source |
 | NASA Sabatier system | S05 | The ceiling of oxygen recovery by the Sabatier air recycler. | `o2.sabatier_recovery` | Published source |
@@ -29,7 +30,13 @@ One page for judges and teachers: which real datasets the game uses, why, where 
 - Every storm lasts `radiation.spe_duration_h`, and its warning comes `radiation.spe_warning_lead_h` hours early, the same as random storms.
 - Random storms (the default mode) use the illustrative rate `radiation.spe_per_month`; they are not real events.
 
-## Not used yet
+## OSDR cards: how they were built
 
-- NASA OSDR (S13), astronaut research cards: planned in level L13.
-- Artemis and Mars surface data: only if listed in `docs/CHALLENGE_RESOURCES.md` by the team.
+- Script: `scripts/fetch-osdr.mjs` (developer machine only). One search per game topic: astronauts: "astronaut"; radiation: "space radiation"; bones: "bone loss microgravity"; muscles: "muscle atrophy spaceflight"; plants: "plant growth spaceflight".
+- For each topic it keeps the top study with a title and description (preferring a human study for "astronauts") and checks that the study page opens.
+- Each card stores the study's own description as `evidence`. The kid-friendly `summary` was drafted by the agent **only from that evidence** and carries `needsReview: true` until a person checks it. Summaries only restate what the study's own description says; nothing is added.
+- Cards: OSD-53 (astronauts), OSD-992 (radiation), OSD-18 (bones), OSD-225 (muscles), OSD-615 (plants).
+
+## Not used
+
+- Artemis and Mars surface data: only if listed in `docs/CHALLENGE_RESOURCES.md` by the team (Resources tab not yet pasted).
