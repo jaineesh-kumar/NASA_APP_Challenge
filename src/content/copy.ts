@@ -83,7 +83,23 @@ export const copy = {
     startButton: 'Start building',
   },
   landing: {
+    kicker: 'Incoming message from Mission Control',
+    title: 'Can you bring your crew home?',
+    story: (crew: number, days: number) =>
+      `${crew} astronauts are about to land at the Moon’s south pole. They will live there for ${days} days. You are the Commander. Your rocket cannot carry everything, so every choice costs something. Pack well, plan for trouble, and test your plan before they fly.`,
     play: 'Play',
+    playHint: 'Start with a quick “How to play”, then fly your first mission.',
+    sceneLabel: 'A small Moon base on a grey hill, with Earth and the low Sun in the black sky.',
+    badgeTitle: 'Real NASA data',
+    badgeBody: (storms: number, date: string) =>
+      `Test your base against ${storms} real solar storms from NASA’s DONKI database, and read real astronaut studies from NASA OSDR. These are saved copies, retrieved ${date}. Not live.`,
+    badgeLink: 'See where our data comes from',
+    insideTitle: 'What you can do here',
+    inside: {
+      missions: 'Five short missions. Each one teaches one big space idea.',
+      training: 'Quick games to practise sharing power and hiding from storms.',
+      'free-build': (runs: number) => `Design your own base and test it ${runs} times.`,
+    },
   },
   words: {
     title: 'Space words',
