@@ -2,11 +2,17 @@
 // Spec B8, B9, Part C (L8 AC1, AC2, AC4, AC5, AC6)
 
 import React, { useState } from 'react';
+import { copy } from '../../content/copy.ts';
 import { concepts } from '../../content/concepts.ts';
 import { guidedMissions, GuidedMission } from '../../content/missions.ts';
 import { quizQuestions } from '../../content/quiz.ts';
-import { decodeScenarioCode, encodeScenarioCode } from '../../state/scenarioCode.ts';
+import {
+  decodeScenarioCode,
+  encodeScenarioCode,
+  SCENARIO_CODE_VERSION,
+} from '../../state/scenarioCode.ts';
 import { useAppStore } from '../../state/store.tsx';
+import { Icon } from '../components/Icon.tsx';
 
 type LearnTab = 'missions' | 'concepts' | 'quiz' | 'share';
 
@@ -136,7 +142,7 @@ export const LearnScreen: React.FC = () => {
             fontWeight: 600,
           }}
         >
-          Guided Missions (M1–M3)
+          {copy.learnTabs.missions}
         </button>
         <button
           type="button"
@@ -244,7 +250,7 @@ export const LearnScreen: React.FC = () => {
                         padding: '8px 16px',
                       }}
                     >
-                      Load into Simulator →
+                      Load into Simulator
                     </button>
                   </div>
 
@@ -278,7 +284,7 @@ export const LearnScreen: React.FC = () => {
                         color: 'var(--color-text-main)',
                       }}
                     >
-                      💡 Concept Check: {m.conceptCheck.prompt}
+                      <Icon name="bulb" size={18} /> Concept Check: {m.conceptCheck.prompt}
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -369,8 +375,8 @@ export const LearnScreen: React.FC = () => {
                           }}
                         >
                           {isCorrect
-                            ? '✓ Correct Astronaut Assessment!'
-                            : '⚠️ Review Concept Notes'}
+                            ? 'Correct! Nice thinking.'
+                            : 'Not quite. Read the note below.'}
                         </div>
                         <p style={{ margin: 0, color: 'var(--color-text-main)', lineHeight: 1.4 }}>
                           {m.conceptCheck.explanation}
@@ -518,7 +524,7 @@ export const LearnScreen: React.FC = () => {
                   onClick={() => setCurrentQuizIdx((i) => i - 1)}
                   style={{ padding: '8px 16px' }}
                 >
-                  ← Previous
+                  <Icon name="back" size={18} /> Previous
                 </button>
 
                 {currentQuizIdx < quizQuestions.length - 1 ? (
@@ -532,7 +538,7 @@ export const LearnScreen: React.FC = () => {
                       padding: '8px 20px',
                     }}
                   >
-                    Next Question →
+                    Next Question <Icon name="next" size={18} />
                   </button>
                 ) : (
                   <button
@@ -545,7 +551,7 @@ export const LearnScreen: React.FC = () => {
                       padding: '10px 24px',
                     }}
                   >
-                    Submit Mission Assessment ✓
+                    Submit Mission Assessment <Icon name="check" size={18} />
                   </button>
                 )}
               </div>
@@ -562,8 +568,8 @@ export const LearnScreen: React.FC = () => {
                 </h3>
                 <p style={{ color: 'var(--color-text-muted)', fontSize: '0.95rem' }}>
                   {calculateScore() >= 5
-                    ? '🚀 Flight Qualified: You possess strong understanding of lunar life support and margins.'
-                    : '⚠️ Flight Readiness Incomplete: Review the engineering explanations below and re-test.'}
+                    ? 'Great work! You understand how Moon bases stay safe.'
+                    : 'Good try! Read the notes below, then try the quiz again.'}
                 </p>
               </div>
 
@@ -598,7 +604,11 @@ export const LearnScreen: React.FC = () => {
                           marginBottom: '6px',
                         }}
                       >
-                        <span>{isCorrect ? '✓' : '✗'}</span>
+                        <Icon
+                          name={isCorrect ? 'check' : 'cross'}
+                          size={18}
+                          label={isCorrect ? 'Correct' : 'Not correct'}
+                        />
                         <span>
                           Q{idx + 1}: {q.question}
                         </span>
@@ -708,7 +718,7 @@ export const LearnScreen: React.FC = () => {
                 padding: '8px 18px',
               }}
             >
-              {copiedCode ? '✓ Copied to Clipboard!' : 'Copy Scenario Code'}
+              {copiedCode ? 'Copied!' : 'Copy Scenario Code'}
             </button>
           </div>
 
@@ -719,8 +729,7 @@ export const LearnScreen: React.FC = () => {
             <p
               style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem', marginBottom: '14px' }}
             >
-              Paste a friend’s scenario code starting with{' '}
-              <code style={{ color: 'var(--color-primary)' }}>MM1-</code> to test their base design.
+              {copy.learnTabs.importHint(`MM${SCENARIO_CODE_VERSION}-`)}
             </p>
 
             <form onSubmit={handleImportScenario}>
@@ -755,7 +764,7 @@ export const LearnScreen: React.FC = () => {
                     padding: '8px 18px',
                   }}
                 >
-                  Load Scenario Code →
+                  Load Scenario Code
                 </button>
               </div>
 

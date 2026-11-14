@@ -1,58 +1,77 @@
-/* Design tokens for Moonbase Margin */
-/* Spec B2, B4.9 */
+/* Design tokens: Jet-Age Ticket Wallet, bright and playful (see .impeccable/surfaces) */
+/* Spec B2, B4.9. Contrast pairs are checked in tests/ui/accessibility.test.tsx. */
 
 :root {
-  /* Color Palette (High Contrast Deep Space Theme) */
-  --color-bg-base: #0b0f19;
-  --color-bg-surface: #131c2e;
-  --color-bg-surface-elevated: #1c273e;
-  --color-bg-highlight: #283756;
+  /* World palette */
+  --sky: #dcebff; /* stock ground the wallet lies on */
+  --coupon: #ffffff; /* coupon card */
+  --navy: #14245c; /* mission navy: strips, text */
+  --rocket: #cc2a1f; /* rocket red: the one primary action */
+  --rocket-deep: #a9211a;
+  --carbon: #5b3fd9; /* carbon violet: big numbers */
+  --sun: #ffc233; /* sunny yellow: Done stamps */
+  --carbon-wash: #eee9ff;
 
-  --color-text-main: #f0f4fc;
-  --color-text-muted: #9bb0d3;
-  --color-text-faint: #63779b;
+  /* Roles (names kept so existing components re-theme) */
+  --color-bg-base: var(--sky);
+  --color-bg-surface: var(--coupon);
+  --color-bg-surface-elevated: #f2f6ff;
+  --color-bg-highlight: #e4ecff;
 
-  --color-border: #2a3b5c;
-  --color-border-focus: #3b82f6;
+  --color-text-main: var(--navy);
+  --color-text-muted: #45557f;
+  --color-text-faint: #6b7899;
 
-  /* Semantic Alerts & Status */
-  --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.15);
-  --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.15);
-  --color-danger: #ef4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.2);
+  --color-border: #c3d2f0;
+  --color-border-focus: var(--carbon);
 
-  /* Primary Action */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
+  --color-success: #127a3e;
+  --color-success-bg: #ddf5e6;
+  --color-warning: #8a5a00;
+  --color-warning-bg: #fff1cc;
+  --color-danger: #b4231a;
+  --color-danger-bg: #ffe3e0;
+
+  --color-primary: var(--rocket);
+  --color-primary-hover: var(--rocket-deep);
   --color-primary-text: #ffffff;
 
-  /* Charts (validated with the dataviz palette checker against --color-bg-surface) */
-  --viz-calm: #3987e5;
-  --viz-stormy: #d95926;
-  --viz-neutral: #5b6b88;
-  --viz-line: #3987e5;
-  --viz-grid: #22314d;
-  --viz-dark-band: rgba(155, 176, 211, 0.12);
-  --viz-storm-band: rgba(217, 89, 38, 0.22);
-  --viz-limit: #e66767;
+  /* Charts: light-surface steps of the validated dataviz palette */
+  --viz-calm: #2a78d6;
+  --viz-stormy: #eb6834;
+  --viz-neutral: #8a97b8;
+  --viz-line: #2a78d6;
+  --viz-grid: #dfe7f7;
+  --viz-dark-band: rgba(20, 36, 92, 0.08);
+  --viz-storm-band: rgba(235, 104, 52, 0.18);
+  --viz-limit: #b4231a;
+  --viz-cause-1: #2a78d6;
+  --viz-cause-2: #eb6834;
+  --viz-cause-3: #1baf7a;
+  --viz-cause-4: #eda100;
+  --viz-cause-5: #e87ba4;
+  --viz-cause-6: #6250d6;
 
-  /* Typography */
+  /* Type: installed condensed grotesks only (no remote fonts, AGENTS F10) */
+  --font-display:
+    Bahnschrift, 'DIN Alternate', 'DIN Condensed', 'Avenir Next Condensed', 'Roboto Condensed',
+    'Arial Narrow', system-ui, sans-serif;
   --font-family-sans:
-    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-    sans-serif;
-  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  /* Radii & Shadows */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --text-body: 1.0625rem;
+  --text-small: 0.9375rem;
+  --text-tiny: 0.8125rem;
 
-  /* Layout Spacing */
+  /* Shape and depth */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-sm: 0 1px 2px rgba(20, 36, 92, 0.1);
+  --shadow-md: 0 8px 18px -10px rgba(20, 36, 92, 0.35);
+  --shadow-coupon: 0 14px 30px -18px rgba(20, 36, 92, 0.45);
+
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -60,4 +79,7 @@
   --space-6: 24px;
   --space-8: 32px;
   --space-12: 48px;
+
+  --tap: 44px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }

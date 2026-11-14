@@ -4,6 +4,7 @@
 import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { FailureCause } from '../../engine/types.ts';
+import { Icon } from './Icon.tsx';
 
 interface RiskBarChartProps {
   causeCounts: Record<FailureCause | 'science_missed', number>;
@@ -12,12 +13,12 @@ interface RiskBarChartProps {
 
 export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRuns }) => {
   const categories: { key: FailureCause | 'science_missed'; label: string; color: string }[] = [
-    { key: 'oxygen', label: 'Oxygen Loss', color: '#38bdf8' },
-    { key: 'co2', label: 'CO2 Hypercapnia', color: '#fb923c' },
-    { key: 'water', label: 'Water Dehydration', color: '#60a5fa' },
-    { key: 'food', label: 'Food Shortfall', color: '#4ade80' },
-    { key: 'dose', label: 'Radiation Overdose', color: '#f43f5e' },
-    { key: 'science_missed', label: 'Science Target Missed', color: '#a78bfa' },
+    { key: 'oxygen', label: copy.causes.oxygen, color: 'var(--viz-cause-1)' },
+    { key: 'co2', label: copy.causes.co2, color: 'var(--viz-cause-2)' },
+    { key: 'water', label: copy.causes.water, color: 'var(--viz-cause-3)' },
+    { key: 'food', label: copy.causes.food, color: 'var(--viz-cause-4)' },
+    { key: 'dose', label: copy.causes.dose, color: 'var(--viz-cause-5)' },
+    { key: 'science_missed', label: copy.causes.science_missed, color: 'var(--viz-cause-6)' },
   ];
 
   const maxCount = Math.max(1, ...categories.map((c) => causeCounts[c.key]));
@@ -37,7 +38,7 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
         {copy.review.riskChartTitle}
       </h3>
       <p style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)', marginBottom: '16px' }}>
-        Distribution of lost missions and missed objectives over {totalRuns} campaign runs.
+        {copy.charts.intro(totalRuns)}
       </p>
 
       {totalFailures === 0 ? (
@@ -52,7 +53,7 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
             fontSize: '0.95rem',
           }}
         >
-          ✓ {copy.charts.noFailures}
+          <Icon name="check" size={18} /> {copy.charts.noFailures}
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
@@ -90,7 +91,6 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
                     y={y + 4}
                     fill="var(--color-text-muted)"
                     fontSize="11"
-                    fontFamily="var(--font-family-mono)"
                     textAnchor="end"
                   >
                     {val}
@@ -124,7 +124,6 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
                     fill="var(--color-text-main)"
                     fontSize="12"
                     fontWeight="700"
-                    fontFamily="var(--font-family-mono)"
                     textAnchor="middle"
                   >
                     {count}
@@ -137,16 +136,7 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
                     fontSize="11"
                     textAnchor="middle"
                   >
-                    {cat.label.split(' ')[0]}
-                  </text>
-                  <text
-                    x={x + barWidth / 2}
-                    y={chartHeight + 32}
-                    fill="var(--color-text-faint)"
-                    fontSize="10"
-                    textAnchor="middle"
-                  >
-                    {cat.label.split(' ')[1] ?? ''}
+                    {copy.causesShort[cat.key]}
                   </text>
                 </g>
               );
@@ -158,7 +148,7 @@ export const RiskBarChart: React.FC<RiskBarChartProps> = ({ causeCounts, totalRu
       {/* Accessible Text Fallback (B4.9) */}
       <details style={{ marginTop: '14px', fontSize: '0.85rem' }}>
         <summary style={{ cursor: 'pointer', color: 'var(--color-text-muted)' }}>
-          View Failure Counts as Accessible Data Table
+          {copy.charts.tableToggle}
         </summary>
         <table
           style={{

@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { loadParams } from '../../engine/params.ts';
 import { ParamEntry } from '../../engine/types.ts';
+import { Icon } from './Icon.tsx';
 
 interface WhyThisNumberProps {
   paramId: string;
@@ -35,24 +36,7 @@ export const WhyThisNumber: React.FC<WhyThisNumberProps> = ({ paramId, label }) 
         onClick={() => setIsOpen(true)}
         aria-label={`Why this number for ${paramId}`}
         aria-haspopup="dialog"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '18px',
-          height: '18px',
-          padding: 0,
-          marginLeft: '6px',
-          fontSize: '0.7rem',
-          fontWeight: 700,
-          color: 'var(--color-primary)',
-          backgroundColor: 'transparent',
-          border: '1px solid var(--color-primary)',
-          borderRadius: '50%',
-          cursor: 'pointer',
-          verticalAlign: 'middle',
-          lineHeight: 1,
-        }}
+        className="why-btn"
         title="Why this number? Click to inspect source & methodology"
       >
         {label || '?'}
@@ -69,7 +53,7 @@ export const WhyThisNumber: React.FC<WhyThisNumberProps> = ({ paramId, label }) 
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.75)',
+            backgroundColor: 'rgba(20, 36, 92, 0.55)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -121,7 +105,7 @@ export const WhyThisNumber: React.FC<WhyThisNumberProps> = ({ paramId, label }) 
                   padding: '4px 8px',
                 }}
               >
-                ✕
+                <Icon name="close" size={18} />
               </button>
             </div>
 

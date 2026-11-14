@@ -1,6 +1,7 @@
 // Replay of the worst run: play / pause / scrub (L7 AC4), resources over time, real storms.
 
 import React, { useEffect, useState } from 'react';
+import { Icon } from './Icon.tsx';
 import { copy } from '../../content/copy.ts';
 import { getSimConstants } from '../../engine/constants.ts';
 import { loadParams } from '../../engine/params.ts';
@@ -33,7 +34,7 @@ export function describeLog(e: LogEntry): string {
     case 'shield_layer_built':
       return t.shield_layer_built(e.detail);
     case 'rule_fired':
-      return t.rule_fired(e.detail);
+      return t.rule_fired(e.detail.replace(/_/g, ' '));
     case 'failure':
       return t.failure(copy.causes[e.detail as keyof typeof copy.causes] ?? e.detail);
     default:
@@ -109,7 +110,7 @@ export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: S
           }}
           aria-pressed={isPlaying}
         >
-          {isPlaying ? `⏸ ${R.pause}` : `▶ ${R.play}`}
+          <Icon name={isPlaying ? 'pause' : 'play'} size={18} /> {isPlaying ? R.pause : R.play}
         </button>
         <label style={{ flex: 1, minWidth: 200 }}>
           <span className="sr-only">{R.scrubberLabel}</span>
@@ -133,10 +134,25 @@ export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: S
           <h4 className="small" style={{ fontWeight: 600, margin: '8px 0' }}>
             {R.resourcesTitle}
           </h4>
+          <div className="legend" aria-hidden="true" style={{ marginBottom: 8 }}>
+            <span>
+              <span
+                className="legend-swatch"
+                style={{
+                  background: 'var(--viz-dark-band)',
+                  border: '1px solid var(--color-border)',
+                }}
+              />
+              {R.darkBand}
+            </span>
+            <span>
+              <span className="legend-swatch" style={{ background: 'var(--viz-storm-band)' }} />
+              {R.stormBand}
+            </span>
+          </div>
           <ResourceChart
             title={R.battery}
             values={trace.batteryPct}
-            totalHours={k.missionHours}
             hour={hour}
             isDark={trace.isDark}
             isStorm={trace.isStorm}
@@ -146,7 +162,6 @@ export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: S
           <ResourceChart
             title={R.o2}
             values={trace.o2Days}
-            totalHours={k.missionHours}
             hour={hour}
             isDark={trace.isDark}
             isStorm={trace.isStorm}
@@ -156,7 +171,6 @@ export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: S
           <ResourceChart
             title={R.dose}
             values={trace.doseUsv}
-            totalHours={k.missionHours}
             hour={hour}
             isDark={trace.isDark}
             isStorm={trace.isStorm}

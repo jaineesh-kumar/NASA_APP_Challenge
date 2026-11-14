@@ -24,17 +24,14 @@ export const ConceptHintBox: React.FC<{ worstResult: MissionResult }> = ({ worst
         <p className="tile muted">{c.none}</p>
       ) : (
         <ol style={{ listStyle: 'none' }} className="stack">
-          <li
-            className="tile notice-danger"
-            style={{ borderLeft: '4px solid var(--color-danger)' }}
-          >
+          <li className="tile notice-danger">
             <span className="muted small">h{failure.t}</span>{' '}
             <strong>{describeLog(failure)}</strong>
           </li>
           {chain.map((link, i) => (
             <li key={i} className="tile">
               <span className="muted small">
-                ↑ {c.because} · h{link.cause.t}
+                {c.because}, hour {link.cause.t}
               </span>
               <div>{describeLog(link.cause)}</div>
             </li>
@@ -44,9 +41,8 @@ export const ConceptHintBox: React.FC<{ worstResult: MissionResult }> = ({ worst
       {hint ? (
         <div
           className="tile"
-          style={{ marginTop: 16, borderLeft: '4px solid var(--color-primary)' }}
+          style={{ marginTop: 16, background: 'var(--carbon-wash)', borderColor: 'transparent' }}
         >
-          <p className="muted small">{c.hintTitle}</p>
           <p style={{ fontWeight: 700 }}>
             {hint.title}: {hint.subtitle}
           </p>

@@ -64,8 +64,12 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
   it('AC2: survival and success with ranges, margins, rating, cause bars', () => {
     renderReview();
     expect(screen.getByText(new RegExp(copy.review.needsWorkTitle))).toBeDefined();
-    expect(screen.getByText('90.0%')).toBeDefined();
-    expect(screen.getByText(/86\.1% – 92\.9%/)).toBeDefined();
+    // The boarding pass leads with one big number: crews home out of 100.
+    const pass = screen.getByRole('region', { name: copy.pass.label });
+    expect(within(pass).getByText('90')).toBeDefined();
+    expect(within(pass).getByText(copy.pass.crewsHomeText)).toBeDefined();
+    expect(within(pass).getByText(copy.pass.of100(85))).toBeDefined();
+    expect(screen.getByText(/86\.1% to 92\.9%/)).toBeDefined();
     expect(screen.getByText(copy.review.batteryP5Label)).toBeDefined();
     // L10 AC7: the result names the real storm.
     expect(screen.getByText(copy.stormResult.vsStorm(stormDate(storm), 90))).toBeDefined();
@@ -105,7 +109,7 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
   it('AC5: the cause chain comes from the log and a hint is shown', () => {
     renderReview();
     const section = screen.getByRole('region', { name: copy.causeChain.title });
-    expect(within(section).getByText(copy.causeChain.hintTitle)).toBeDefined();
+    expect(within(section).getByText(/:/, { selector: 'p' })).toBeDefined();
   });
 
   it('AC6: "Why this number?" opens the param entry', () => {

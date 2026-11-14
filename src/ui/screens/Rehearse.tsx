@@ -8,6 +8,7 @@ import { useAppStore } from '../../state/store.tsx';
 import { CAMPAIGN_RUNS, useCampaign } from '../../state/useCampaign.ts';
 import { DataPanel } from '../components/DataPanel.tsx';
 import { StormPicker, StormResultLine } from '../components/StormPicker.tsx';
+import { Icon } from '../components/Icon.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const k = getSimConstants(loadParams());
@@ -41,7 +42,7 @@ export const RehearseScreen: React.FC = () => {
   ];
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div>
       <h2 className="screen-title">{t.heading}</h2>
       <p className="muted" style={{ marginBottom: 20 }}>
         {t.subheading}
@@ -131,19 +132,20 @@ export const RehearseScreen: React.FC = () => {
                 />
               </div>
             ) : null}
-            <p style={{ fontWeight: 600, color: 'var(--color-success)', marginBottom: 16 }}>
-              ✓ {t.completedNotice}
+            <p
+              className="row"
+              style={{
+                fontWeight: 700,
+                color: 'var(--color-success)',
+                marginBottom: 16,
+                justifyContent: 'center',
+              }}
+            >
+              <Icon name="check" size={20} /> {t.completedNotice}
             </p>
             <div className="row" style={{ justifyContent: 'center' }}>
               <button type="button" onClick={start}>
-                ↻ {t.rerunButton}
-              </button>
-              <button
-                type="button"
-                className="btn-primary"
-                onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'review' })}
-              >
-                {t.proceedToReview}
+                <Icon name="retry" size={18} /> {t.rerunButton}
               </button>
             </div>
           </div>
@@ -155,16 +157,12 @@ export const RehearseScreen: React.FC = () => {
             disabled={!state.isWithinBudget}
             style={{ fontSize: '1.15rem', padding: '14px 32px' }}
           >
-            ▶ {t.runButton(CAMPAIGN_RUNS)}
+            <Icon name="rocket" size={22} /> {t.runButton(CAMPAIGN_RUNS)}
           </button>
         )}
       </section>
 
       <DataPanel />
-
-      <button type="button" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rules' })}>
-        {t.backToRules}
-      </button>
     </div>
   );
 };

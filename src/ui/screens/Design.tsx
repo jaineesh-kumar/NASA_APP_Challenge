@@ -15,7 +15,6 @@ const params = loadParams();
 const k = getSimConstants(params);
 const m = (id: string) => params.getNumber(`mass.${id}`);
 const budget = m('budget');
-const muText = (id: string) => `${m(id)} ${copy.design.mu}`;
 const pctOf = (v: number) => Math.round(v * 100);
 
 function darkPct(site: SiteId): number {
@@ -31,7 +30,7 @@ const SPARES: Array<[ComponentId, string]> = [
 
 export const DesignScreen: React.FC = () => {
   const { state, dispatch } = useAppStore();
-  const { design, isWithinBudget, massUsed } = state;
+  const { design, massUsed } = state;
   const d = copy.design;
   const fits = (massId: string) => massUsed + m(massId) <= budget;
 
@@ -191,19 +190,6 @@ export const DesignScreen: React.FC = () => {
             ))}
           </section>
         </div>
-      </div>
-
-      <div className="row" style={{ justifyContent: 'flex-end', marginTop: 8 }}>
-        <span className="sr-only">{muText('budget')}</span>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rules' })}
-          disabled={!isWithinBudget}
-          style={{ padding: '12px 24px' }}
-        >
-          {d.nextButton}
-        </button>
       </div>
     </div>
   );

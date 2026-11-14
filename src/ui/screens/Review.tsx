@@ -5,10 +5,10 @@ import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { getSimConstants } from '../../engine/constants.ts';
 import { loadParams } from '../../engine/params.ts';
-import { Interval } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { ConceptHintBox } from '../components/ConceptHintBox.tsx';
 import { MassVsRiskChart } from '../components/MassVsRiskChart.tsx';
+import { MissionPass } from '../components/MissionPass.tsx';
 import { ReplayTimeline } from '../components/ReplayTimeline.tsx';
 import { RiskBarChart } from '../components/RiskBarChart.tsx';
 import { StormResultLine } from '../components/StormPicker.tsx';
@@ -16,9 +16,6 @@ import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const params = loadParams();
 const k = getSimConstants(params);
-const budget = params.getNumber('mass.budget');
-const pct = (v: number) => `${(v * 100).toFixed(1)}%`;
-const range = (ci: Interval) => `${pct(ci.low)} – ${pct(ci.high)}`;
 
 export const ReviewScreen: React.FC = () => {
   const { state, dispatch } = useAppStore();
@@ -43,10 +40,6 @@ export const ReviewScreen: React.FC = () => {
     );
   }
 
-  const isReady = c.rating === 'flight_ready';
-  const survTarget = Math.round(k.flightReadySurvival * 100);
-  const succTarget = Math.round(k.flightReadySuccess * 100);
-
   return (
     <div>
       <h2 className="screen-title">{t.heading}</h2>
@@ -60,60 +53,7 @@ export const ReviewScreen: React.FC = () => {
         </p>
       ) : null}
 
-      <section
-        className="panel-card"
-        role="status"
-        style={{
-          borderLeft: `6px solid ${isReady ? 'var(--color-success)' : 'var(--color-warning)'}`,
-          background: isReady ? 'var(--color-success-bg)' : 'var(--color-warning-bg)',
-        }}
-      >
-        <h3
-          style={{
-            fontSize: '1.3rem',
-            fontWeight: 800,
-            color: isReady ? 'var(--color-success)' : 'var(--color-warning)',
-          }}
-        >
-          {isReady ? `🚀 ${t.flightReadyTitle}` : `⚠️ ${t.needsWorkTitle}`}
-          <WhyThisNumber paramId="rating.flight_ready_survival" />
-        </h3>
-        <p>
-          {isReady
-            ? t.flightReadyDesc(survTarget, succTarget)
-            : t.needsWorkDesc(survTarget, succTarget)}
-        </p>
-      </section>
-
-      <div className="tiles" style={{ marginBottom: 24 }}>
-        <div className="tile">
-          <div className="tile-label">{t.survivalRateTitle}</div>
-          <div className="tile-value">{pct(c.survivalRate)}</div>
-          <div className="small muted" title={t.confidenceHelp}>
-            {t.confidenceIntervalLabel}: {range(c.survivalCi)}
-          </div>
-        </div>
-        <div className="tile">
-          <div className="tile-label">
-            {t.successRateTitle}
-            <WhyThisNumber paramId="science.target_hours" />
-          </div>
-          <div className="tile-value">{pct(c.successRate)}</div>
-          <div className="small muted" title={t.confidenceHelp}>
-            {t.confidenceIntervalLabel}: {range(c.successCi)}
-          </div>
-        </div>
-        <div className="tile">
-          <div className="tile-label">
-            {t.massUsedTitle}
-            <WhyThisNumber paramId="mass.budget" />
-          </div>
-          <div className="tile-value">{t.massOf(c.massUsed, budget)}</div>
-        </div>
-      </div>
-      <p className="muted small" style={{ marginTop: -16, marginBottom: 24 }}>
-        {t.confidenceHelp}
-      </p>
+      <MissionPass result={c} showRanges />
 
       <section className="panel-card" aria-labelledby="margins-title">
         <h3 id="margins-title" className="card-title">
@@ -173,19 +113,6 @@ export const ReviewScreen: React.FC = () => {
         stormMode={c.stormMode}
       />
       <ConceptHintBox worstResult={worst} />
-
-      <div className="row-between" style={{ marginTop: 24 }}>
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'design' })}
-        >
-          {t.redesignButton}
-        </button>
-        <button type="button" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rehearse' })}>
-          ↻ {t.rerunButton}
-        </button>
-      </div>
     </div>
   );
 };

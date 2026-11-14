@@ -1,5 +1,6 @@
 // One resource over the mission hours, as a small multiple (one series, one axis).
-// Dark windows and solar storms are shaded bands; the current replay hour is a crosshair.
+// The x-axis ends where the mission ended. Dark windows and storms are shaded bands; the
+// replay hour is a crosshair.
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
@@ -7,7 +8,6 @@ import { copy } from '../../content/copy.ts';
 interface Props {
   title: string;
   values: readonly number[];
-  totalHours: number;
   hour: number;
   isDark: readonly boolean[];
   isStorm: readonly boolean[];
@@ -18,10 +18,10 @@ interface Props {
 }
 
 const W = 600;
-const H = 90;
+const H = 96;
 const PAD_L = 4;
 const PAD_T = 6;
-const PAD_B = 6;
+const PAD_B = 20;
 
 function bands(flags: readonly boolean[]): Array<[number, number]> {
   const out: Array<[number, number]> = [];
@@ -40,7 +40,6 @@ function bands(flags: readonly boolean[]): Array<[number, number]> {
 export const ResourceChart: React.FC<Props> = ({
   title,
   values,
-  totalHours,
   hour,
   isDark,
   isStorm,
@@ -48,28 +47,30 @@ export const ResourceChart: React.FC<Props> = ({
   format,
   onPickHour,
 }) => {
+  const span = Math.max(1, values.length); // hours actually flown
   const maxV = Math.max(limit ?? 0, ...values, 1e-9);
   const plotH = H - PAD_T - PAD_B;
-  const x = (t: number) => PAD_L + (t / totalHours) * (W - PAD_L);
+  const x = (t: number) => PAD_L + (t / span) * (W - PAD_L);
   const y = (v: number) => PAD_T + plotH - (v / maxV) * plotH;
   const path = values
     .map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`)
     .join('');
-  const clamped = Math.min(hour, values.length - 1);
+  const clamped = Math.max(0, Math.min(hour, values.length - 1));
   const current = values[clamped];
+  const ticks = [0, Math.round(span / 2), span];
 
   const pick = (e: React.MouseEvent<SVGSVGElement>) => {
     if (!onPickHour) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const frac = (e.clientX - rect.left) / rect.width;
-    onPickHour(Math.max(0, Math.min(totalHours - 1, Math.round(frac * totalHours))));
+    onPickHour(Math.max(0, Math.min(span - 1, Math.round(frac * span))));
   };
 
   return (
     <figure className="chart" style={{ marginBottom: 12 }}>
       <figcaption className="row-between small" style={{ marginBottom: 2 }}>
-        <span style={{ fontWeight: 600 }}>{title}</span>
-        <span className="chart-tooltip">{current === undefined ? '—' : format(current)}</span>
+        <span style={{ fontWeight: 700 }}>{title}</span>
+        <span className="chart-tooltip">{current === undefined ? '' : format(current)}</span>
       </figcaption>
       <svg
         viewBox={`0 0 ${W} ${H}`}
@@ -105,8 +106,8 @@ export const ResourceChart: React.FC<Props> = ({
             y1={y(limit)}
             y2={y(limit)}
             stroke="var(--viz-limit)"
-            strokeWidth={1}
-            strokeDasharray="4 3"
+            strokeWidth={1.5}
+            strokeDasharray="5 4"
           />
         ) : null}
         <path
@@ -121,7 +122,7 @@ export const ResourceChart: React.FC<Props> = ({
           x2={x(clamped)}
           y1={PAD_T}
           y2={PAD_T + plotH}
-          stroke="var(--color-text-main)"
+          stroke="var(--navy)"
           strokeWidth={1}
         />
         {current !== undefined ? (
@@ -130,24 +131,23 @@ export const ResourceChart: React.FC<Props> = ({
             cy={y(current)}
             r={4}
             fill="var(--viz-line)"
-            stroke="var(--color-bg-surface)"
+            stroke="var(--coupon)"
             strokeWidth={2}
           />
         ) : null}
+        {ticks.map((t, i) => (
+          <text
+            key={t}
+            x={x(t)}
+            y={H - 4}
+            fontSize={9}
+            fill="var(--color-text-muted)"
+            textAnchor={i === 0 ? 'start' : i === ticks.length - 1 ? 'end' : 'middle'}
+          >
+            {copy.replay.hourTick(t)}
+          </text>
+        ))}
       </svg>
-      <div className="legend" aria-hidden="true">
-        <span>
-          <span
-            className="legend-swatch"
-            style={{ background: 'var(--viz-dark-band)', border: '1px solid var(--color-border)' }}
-          />
-          {copy.replay.darkBand}
-        </span>
-        <span>
-          <span className="legend-swatch" style={{ background: 'var(--viz-storm-band)' }} />
-          {copy.replay.stormBand}
-        </span>
-      </div>
     </figure>
   );
 };

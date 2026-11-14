@@ -2,6 +2,7 @@
 // Spec B4.9
 
 import React from 'react';
+import { Icon } from './Icon.tsx';
 
 export interface SegmentOption<T extends string | number> {
   value: T;
@@ -54,11 +55,10 @@ export function SegmentedControl<T extends string | number>({
               aria-checked={isSelected}
               onClick={() => onChange(opt.value)}
               style={{
-                backgroundColor: isSelected
-                  ? 'var(--color-primary)'
-                  : 'var(--color-bg-surface-elevated)',
-                borderColor: isSelected ? 'var(--color-primary)' : 'var(--color-border)',
-                color: isSelected ? '#ffffff' : 'var(--color-text-main)',
+                backgroundColor: isSelected ? 'var(--carbon-wash)' : 'var(--coupon)',
+                borderColor: isSelected ? 'var(--carbon)' : 'var(--color-border)',
+                color: 'var(--color-text-main)',
+                boxShadow: isSelected ? 'var(--shadow-md)' : 'none',
                 padding: '10px 12px',
                 textAlign: 'center',
                 display: 'flex',
@@ -68,12 +68,14 @@ export function SegmentedControl<T extends string | number>({
                 gap: '2px',
               }}
             >
-              <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{opt.label}</span>
+              <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
+                {isSelected ? <Icon name="check" size={16} /> : null} {opt.label}
+              </span>
               {opt.sublabel && (
                 <span
                   style={{
                     fontSize: '0.75rem',
-                    color: isSelected ? 'rgba(255,255,255,0.85)' : 'var(--color-text-muted)',
+                    color: 'var(--color-text-muted)',
                   }}
                 >
                   {opt.sublabel}

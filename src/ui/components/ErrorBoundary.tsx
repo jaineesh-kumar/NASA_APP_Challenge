@@ -2,6 +2,7 @@
 // Spec Part C (L9 AC3)
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Icon } from './Icon.tsx';
 
 interface Props {
   children: ReactNode;
@@ -59,7 +60,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <div
               style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}
             >
-              <span style={{ fontSize: '1.75rem' }}>⚠️</span>
+              <Icon name="warning" size={28} />
               <h2
                 style={{
                   fontSize: '1.35rem',
@@ -111,7 +112,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 border: 'none',
               }}
             >
-              Reset Outpost to Nominal Baseline ↺
+              Reset Outpost to Nominal Baseline <Icon name="retry" size={18} />
             </button>
           </div>
         </div>

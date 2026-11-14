@@ -5,6 +5,7 @@ import { copy } from '../../content/copy.ts';
 import { getDonkiArchive } from '../../engine/params.ts';
 import { DonkiEvent, StormMode } from '../../engine/types.ts';
 import { WhyThisNumber } from './WhyThisNumber.tsx';
+import { Icon } from './Icon.tsx';
 
 const archive = getDonkiArchive();
 
@@ -30,7 +31,7 @@ export function stormModeName(mode: StormMode): string {
 
 export const ArchivedLabel: React.FC = () => (
   <p className="small" role="note" style={{ fontWeight: 600 }}>
-    🗄 {copy.storms.archivedLabel(archive.retrievedAt)}
+    <Icon name="archive" size={18} /> {copy.storms.archivedLabel(archive.retrievedAt)}
   </p>
 );
 
@@ -54,7 +55,7 @@ export const StormPicker: React.FC<Props> = ({ value, onChange, disabled }) => {
         <legend className="small" style={{ fontWeight: 600, marginBottom: 8 }}>
           {s.pickerLabel}
         </legend>
-        <div className="choice-list">
+        <div className="choice-list storm-grid">
           <label className="choice">
             <input
               type="radio"
@@ -82,12 +83,7 @@ export const StormPicker: React.FC<Props> = ({ value, onChange, disabled }) => {
                 <br />
                 <span className="small">{s.replayDesc(e.flareClass)}</span>
                 <br />
-                <span
-                  className="tile small"
-                  style={{ display: 'inline-block', padding: '2px 8px', marginTop: 4 }}
-                >
-                  {s.sourceBadge}
-                </span>
+                <span className="small muted">{s.sourceBadge}</span>
               </span>
             </label>
           ))}

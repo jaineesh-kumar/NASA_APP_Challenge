@@ -35,11 +35,9 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
     expect(plus.disabled).toBe(true);
     const bar = screen.getByRole('progressbar');
     expect(Number(bar.getAttribute('aria-valuenow'))).toBeLessThanOrEqual(budget);
-    const next = screen.getByRole('button', { name: copy.design.nextButton }) as HTMLButtonElement;
-    expect(next.disabled).toBe(false);
   });
 
-  it('blocks moving on when a loaded design is over budget', () => {
+  it('shows the over-budget warning for a loaded design that is too heavy', () => {
     const heavy = {
       ...initialAppState.design,
       batteries: 12,
@@ -59,9 +57,6 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
       </AppStoreProvider>,
     );
     expect(screen.getByText(copy.design.overBudgetWarning)).toBeDefined();
-    expect(
-      (screen.getByRole('button', { name: copy.design.nextButton }) as HTMLButtonElement).disabled,
-    ).toBe(true);
   });
 
   it('example bases load their designs', () => {

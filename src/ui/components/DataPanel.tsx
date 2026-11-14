@@ -3,6 +3,7 @@
 import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { getDonkiArchive } from '../../engine/params.ts';
+import { Icon } from './Icon.tsx';
 
 const archive = getDonkiArchive();
 
@@ -20,7 +21,7 @@ export const DataPanel: React.FC = () => {
   return (
     <section className="panel-card" aria-labelledby="data-panel-title">
       <h3 id="data-panel-title" className="card-title">
-        📚 {d.title}
+        <Icon name="book" size={22} /> {d.title}
       </h3>
       <p className="muted small" style={{ marginBottom: 12 }}>
         {d.intro}

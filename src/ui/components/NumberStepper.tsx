@@ -2,6 +2,7 @@
 // Spec B4.9
 
 import React from 'react';
+import { Icon } from './Icon.tsx';
 
 interface NumberStepperProps {
   label: string;
@@ -61,8 +62,8 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
           disabled={value <= min}
           aria-label={`Decrease ${label}`}
           style={{
-            width: '32px',
-            height: '32px',
+            width: '44px',
+            height: '44px',
             padding: 0,
             display: 'flex',
             alignItems: 'center',
@@ -71,7 +72,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
             lineHeight: 1,
           }}
         >
-          −
+          <Icon name="minus" size={18} />
         </button>
 
         <span
@@ -80,9 +81,11 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
           style={{
             minWidth: '40px',
             textAlign: 'center',
-            fontFamily: 'var(--font-family-mono)',
+            fontFamily: 'var(--font-display)',
+            fontStretch: 'condensed',
+            fontSize: '1.3rem',
+            fontVariantNumeric: 'tabular-nums',
             fontWeight: 700,
-            fontSize: '1rem',
           }}
         >
           {value}
@@ -95,8 +98,8 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
           disabled={value >= max || !canIncrement}
           aria-label={`Increase ${label}`}
           style={{
-            width: '32px',
-            height: '32px',
+            width: '44px',
+            height: '44px',
             padding: 0,
             display: 'flex',
             alignItems: 'center',
@@ -105,7 +108,7 @@ export const NumberStepper: React.FC<NumberStepperProps> = ({
             lineHeight: 1,
           }}
         >
-          +
+          <Icon name="plus" size={18} />
         </button>
       </div>
     </div>

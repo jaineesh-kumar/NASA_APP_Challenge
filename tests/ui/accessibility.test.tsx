@@ -52,24 +52,32 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
       return (lighter + 0.05) / (darker + 0.05);
     }
 
-    // Token pairs from tokens.css
-    const bgBase: [number, number, number] = [0x0b, 0x0f, 0x19]; // #0b0f19
-    const bgSurface: [number, number, number] = [0x13, 0x1c, 0x2e]; // #131c2e
-    const textMain: [number, number, number] = [0xf0, 0xf4, 0xfc]; // #f0f4fc
-    const textMuted: [number, number, number] = [0x9b, 0xb0, 0xd3]; // #9bb0d3
-    const primaryBlue: [number, number, number] = [0x25, 0x63, 0xeb]; // #2563eb
-    const white: [number, number, number] = [0xff, 0xff, 0xff];
-
-    const contrastMain = getContrast(textMain, bgBase);
-    const contrastMuted = getContrast(textMuted, bgBase);
-    const contrastSurface = getContrast(textMain, bgSurface);
-    const contrastPrimaryBtn = getContrast(white, primaryBlue);
-
-    // All text pairs must exceed 4.5:1
-    expect(contrastMain).toBeGreaterThanOrEqual(4.5); // ~16.1:1
-    expect(contrastMuted).toBeGreaterThanOrEqual(4.5); // ~8.5:1
-    expect(contrastSurface).toBeGreaterThanOrEqual(4.5); // ~14.6:1
-    expect(contrastPrimaryBtn).toBeGreaterThanOrEqual(4.5); // ~5.5:1
+    // Text/background pairs from src/ui/styles/tokens.css (bright ticket-wallet theme)
+    const hex = (h: string): [number, number, number] => [
+      parseInt(h.slice(1, 3), 16),
+      parseInt(h.slice(3, 5), 16),
+      parseInt(h.slice(5, 7), 16),
+    ];
+    const pairs: Array<[string, string, string]> = [
+      ['navy on sky ground', '#14245c', '#dcebff'],
+      ['navy on coupon white', '#14245c', '#ffffff'],
+      ['muted on coupon white', '#45557f', '#ffffff'],
+      ['muted on sky ground', '#45557f', '#dcebff'],
+      ['muted on elevated', '#45557f', '#f2f6ff'],
+      ['white on rocket red button', '#ffffff', '#cc2a1f'],
+      ['sun numbers on navy strip', '#ffc233', '#14245c'],
+      ['navy on sun stamp', '#14245c', '#ffc233'],
+      ['carbon numbers on white', '#5b3fd9', '#ffffff'],
+      ['navy on carbon wash', '#14245c', '#eee9ff'],
+      ['warning text on white', '#8a5a00', '#ffffff'],
+      ['warning text on warning bg', '#5c3c00', '#fff1cc'],
+      ['danger text on danger bg', '#7d1710', '#ffe3e0'],
+      ['success text on white', '#127a3e', '#ffffff'],
+    ];
+    for (const [name, fg, bg] of pairs) {
+      const ratio = getContrast(hex(fg), hex(bg));
+      expect(ratio, `${name}: ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(4.5);
+    }
   });
 
   it('ErrorBoundary recovers cleanly when a component throws an unhandled error (AC3)', () => {
@@ -86,7 +94,7 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
     expect(screen.getByRole('alert')).toBeDefined();
     expect(screen.getByText('Simulation Recovery System')).toBeDefined();
     expect(screen.getByText(/hardware bus disconnected/)).toBeDefined();
-    expect(screen.getByText('Reset Outpost to Nominal Baseline ↺')).toBeDefined();
+    expect(screen.getByRole('button', { name: /Reset Outpost to Nominal Baseline/ })).toBeDefined();
   });
 
   it('displays user-facing error alert when importing a corrupt scenario code (AC3)', () => {

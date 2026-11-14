@@ -61,7 +61,7 @@ describe('LearnScreen Component (Spec Part C L8 AC1, AC2, AC6)', () => {
     fireEvent.click(checkBtn);
 
     // Feedback should be displayed
-    expect(screen.getByText(/Review Concept Notes|Correct Astronaut Assessment/)).toBeDefined();
+    expect(screen.getByText(/Not quite|Correct! Nice thinking/)).toBeDefined();
   });
 
   it('allows completing the 6-question quiz and computes readiness score (AC2)', () => {
@@ -83,7 +83,7 @@ describe('LearnScreen Component (Spec Part C L8 AC1, AC2, AC6)', () => {
       const optionBtn = screen.getByText((content) => content.includes(correctOpt));
       fireEvent.click(optionBtn);
 
-      const nextBtn = screen.getByText('Next Question →');
+      const nextBtn = screen.getByRole('button', { name: /Next Question/ });
       fireEvent.click(nextBtn);
     }
 
@@ -94,7 +94,7 @@ describe('LearnScreen Component (Spec Part C L8 AC1, AC2, AC6)', () => {
     fireEvent.click(optionBtn6);
 
     // Submit Quiz
-    const submitBtn = screen.getByText('Submit Mission Assessment ✓');
+    const submitBtn = screen.getByRole('button', { name: /Submit Mission Assessment/ });
     fireEvent.click(submitBtn);
 
     // Score should be shown

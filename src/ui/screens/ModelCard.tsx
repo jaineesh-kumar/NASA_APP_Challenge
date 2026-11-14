@@ -8,6 +8,7 @@ import { getDonkiArchive } from '../../engine/params.ts';
 import { ParamEntry } from '../../engine/types.ts';
 import { DataPanel } from '../components/DataPanel.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
+import { Icon } from '../components/Icon.tsx';
 
 const paramsInstance = loadParams();
 const allParamEntries = paramsInstance.allEntries();
@@ -62,7 +63,7 @@ export const ModelCardScreen: React.FC = () => {
 
       <section className="panel-card" aria-labelledby="comms-title">
         <h3 id="comms-title" className="card-title">
-          📡 {mc.commsTitle}
+          <Icon name="antenna" size={22} /> {mc.commsTitle}
           <WhyThisNumber paramId="comms.earth_moon_light_delay_s" />
         </h3>
         <p className="small">
@@ -85,18 +86,13 @@ export const ModelCardScreen: React.FC = () => {
           {SIMPLIFICATIONS.map((item, idx) => (
             <div
               key={idx}
-              style={{
-                backgroundColor: 'var(--color-bg-base)',
-                padding: '14px',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--color-border)',
-              }}
+              style={{ padding: '12px 0', borderTop: '2px dashed var(--color-border)' }}
             >
               <div
                 style={{
                   fontWeight: 700,
                   fontSize: '0.95rem',
-                  color: 'var(--color-primary)',
+                  color: 'var(--navy)',
                   marginBottom: '4px',
                 }}
               >
@@ -122,10 +118,10 @@ export const ModelCardScreen: React.FC = () => {
         >
           <div>
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
-              Complete Parameter Registry ({filteredEntries.length} of {allParamEntries.length})
+              {mc.tableHeading(filteredEntries.length, allParamEntries.length)}
             </h3>
             <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-              Values sourced from NASA BVAD (S01), Chang’e-4 (S02), and Space Engineering References
+              {mc.tableIntro}
             </span>
           </div>
 
@@ -186,12 +182,12 @@ export const ModelCardScreen: React.FC = () => {
           >
             <thead>
               <tr style={{ borderBottom: '2px solid var(--color-border)' }}>
-                <th style={{ padding: '10px 8px' }}>Param ID</th>
-                <th style={{ padding: '10px 8px' }}>Baseline Value</th>
-                <th style={{ padding: '10px 8px' }}>Source</th>
-                <th style={{ padding: '10px 8px' }}>Confidence</th>
-                <th style={{ padding: '10px 8px' }}>Scientific Context & Notes</th>
-                <th style={{ padding: '10px 8px', textAlign: 'center' }}>Inspect</th>
+                <th style={{ padding: '10px 8px' }}>{mc.colId}</th>
+                <th style={{ padding: '10px 8px' }}>{mc.colValue}</th>
+                <th style={{ padding: '10px 8px' }}>{mc.colSource}</th>
+                <th style={{ padding: '10px 8px' }}>{mc.colConfidence}</th>
+                <th style={{ padding: '10px 8px' }}>{mc.colNotes}</th>
+                <th style={{ padding: '10px 8px', textAlign: 'center' }}>{mc.colDetails}</th>
               </tr>
             </thead>
             <tbody>
@@ -208,9 +204,8 @@ export const ModelCardScreen: React.FC = () => {
                     <td
                       style={{
                         padding: '10px 8px',
-                        fontFamily: 'var(--font-family-mono)',
                         fontWeight: 600,
-                        color: 'var(--color-primary)',
+                        color: 'var(--navy)',
                         whiteSpace: 'nowrap',
                       }}
                     >

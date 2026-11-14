@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
+import { Icon } from './Icon.tsx';
 import { LoadId } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
 
@@ -62,7 +63,7 @@ export const PriorityLadder: React.FC = () => {
                     minWidth: '24px',
                   }}
                 >
-                  #{index + 1}
+                  {index + 1}
                 </span>
                 <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{loadName}</span>
                 {isTop && (
@@ -76,7 +77,7 @@ export const PriorityLadder: React.FC = () => {
                       fontWeight: 600,
                     }}
                   >
-                    Protected (Shed Last)
+                    {copy.ladder.first}
                   </span>
                 )}
                 {isBottom && (
@@ -90,7 +91,7 @@ export const PriorityLadder: React.FC = () => {
                       fontWeight: 600,
                     }}
                   >
-                    Shed First
+                    {copy.ladder.last}
                   </span>
                 )}
               </div>
@@ -103,7 +104,8 @@ export const PriorityLadder: React.FC = () => {
                   aria-label={`Move up ${loadName}`}
                   style={{ padding: '4px 10px', fontSize: '0.85rem' }}
                 >
-                  ▲ {copy.rules.priorityMoveUp}
+                  <Icon name="up" size={16} />{' '}
+                  <span className="hide-sm">{copy.rules.priorityMoveUp}</span>
                 </button>
                 <button
                   type="button"
@@ -112,7 +114,8 @@ export const PriorityLadder: React.FC = () => {
                   aria-label={`Move down ${loadName}`}
                   style={{ padding: '4px 10px', fontSize: '0.85rem' }}
                 >
-                  ▼ {copy.rules.priorityMoveDown}
+                  <Icon name="down" size={16} />{' '}
+                  <span className="hide-sm">{copy.rules.priorityMoveDown}</span>
                 </button>
               </div>
             </li>

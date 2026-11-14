@@ -5,6 +5,7 @@ import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { loadParams } from '../../engine/params.ts';
 import { useAppStore } from '../../state/store.tsx';
+import { Icon } from './Icon.tsx';
 
 const params = loadParams();
 const maxBudget = params.getNumber('mass.budget'); // 120
@@ -16,7 +17,7 @@ export const MassBudgetBar: React.FC = () => {
   const percentage = Math.min(100, Math.round((massUsed / maxBudget) * 100));
   const isOver = !isWithinBudget;
 
-  const barColor = isOver ? 'var(--color-danger)' : 'var(--color-primary)';
+  const barColor = isOver ? 'var(--color-danger)' : 'var(--carbon)';
   const statusColor = isOver ? 'var(--color-danger)' : 'var(--color-success)';
 
   return (
@@ -41,7 +42,9 @@ export const MassBudgetBar: React.FC = () => {
         <span style={{ fontWeight: 600, fontSize: '1rem' }}>{copy.design.budgetTitle}</span>
         <span
           style={{
-            fontFamily: 'var(--font-family-mono)',
+            fontFamily: 'var(--font-display)',
+            fontStretch: 'condensed',
+            fontVariantNumeric: 'tabular-nums',
             fontSize: '1rem',
             fontWeight: 700,
             color: statusColor,
@@ -91,12 +94,12 @@ export const MassBudgetBar: React.FC = () => {
       >
         {isOver ? (
           <>
-            <span aria-hidden="true">⚠️</span>
+            <Icon name="warning" size={20} />
             <span>{copy.design.overBudgetWarning}</span>
           </>
         ) : (
           <>
-            <span aria-hidden="true">✓</span>
+            <Icon name="check" size={20} />
             <span>{copy.design.withinBudgetSuccess}</span>
           </>
         )}

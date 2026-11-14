@@ -6,6 +6,7 @@ import { copy } from '../../content/copy.ts';
 import { MAX_RULES } from '../../engine/rules.ts';
 import { Action, Condition, IfThenRule, LoadId } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
+import { Icon } from './Icon.tsx';
 
 export const RuleEditor: React.FC = () => {
   const { state, dispatch } = useAppStore();
@@ -48,22 +49,22 @@ export const RuleEditor: React.FC = () => {
   const formatCondition = (c: Condition): string => {
     switch (c.kind) {
       case 'battery_below_pct':
-        return `Battery drops below ${c.value}%`;
+        return copy.ruleText.battery_below_pct(c.value);
       case 'spe_warning':
-        return 'Solar Particle Event warning is active';
+        return copy.ruleText.spe_warning;
       case 'o2_days_below':
-        return `Oxygen reserves drop below ${c.value} days`;
+        return copy.ruleText.o2_days_below(c.value);
       case 'dark_window_within_h':
-        return `Dark window starts within ${c.value} hours`;
+        return copy.ruleText.dark_window_within_h(c.value);
       case 'component_failed':
-        return 'Any critical component breaks down';
+        return copy.ruleText.component_failed;
     }
   };
 
   const formatAction = (a: Action): string => {
     switch (a.kind) {
       case 'shed':
-        return `Shed load: ${copy.loads[a.load] ?? a.load}`;
+        return copy.ruleText.shed(copy.loads[a.load] ?? a.load);
       case 'shelter':
         return copy.actions.shelter;
       case 'repair_first':
@@ -128,7 +129,7 @@ export const RuleEditor: React.FC = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <span
                   style={{
-                    backgroundColor: 'var(--color-primary)',
+                    backgroundColor: 'var(--navy)',
                     color: '#fff',
                     padding: '2px 6px',
                     borderRadius: 'var(--radius-sm)',
@@ -170,7 +171,7 @@ export const RuleEditor: React.FC = () => {
                   color: 'var(--color-danger)',
                 }}
               >
-                ✕ {copy.rules.removeRule}
+                <Icon name="close" size={16} /> {copy.rules.removeRule}
               </button>
             </li>
           ))}
@@ -188,7 +189,7 @@ export const RuleEditor: React.FC = () => {
           }}
         >
           <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: '12px' }}>
-            Add New Rule
+            {copy.ruleText.addTitle}
           </div>
 
           <div
@@ -238,7 +239,7 @@ export const RuleEditor: React.FC = () => {
                     marginBottom: '4px',
                   }}
                 >
-                  Threshold Value
+                  {copy.ruleText.valueLabel}
                 </label>
                 <input
                   id="rule-condition-value"
@@ -287,7 +288,7 @@ export const RuleEditor: React.FC = () => {
                     marginBottom: '4px',
                   }}
                 >
-                  Load to Shed
+                  {copy.ruleText.loadLabel}
                 </label>
                 <select
                   id="rule-action-load-select"
@@ -305,16 +306,7 @@ export const RuleEditor: React.FC = () => {
             )}
           </div>
 
-          <button
-            type="button"
-            onClick={handleAddRule}
-            style={{
-              backgroundColor: 'var(--color-primary)',
-              color: '#fff',
-              border: 'none',
-              padding: '8px 16px',
-            }}
-          >
+          <button type="button" onClick={handleAddRule}>
             {copy.rules.addRuleButton}
           </button>
         </div>

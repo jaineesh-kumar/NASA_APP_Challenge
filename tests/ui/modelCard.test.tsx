@@ -51,7 +51,9 @@ describe('ModelCardScreen Component (Spec Part C L8 AC3)', () => {
     expect(
       screen.getByText(
         new RegExp(
-          `Complete Parameter Registry \\(${REQUIRED_PARAM_IDS.length} of ${REQUIRED_PARAM_IDS.length}\\)`,
+          copy.modelCard
+            .tableHeading(REQUIRED_PARAM_IDS.length, REQUIRED_PARAM_IDS.length)
+            .replace(/[()]/g, (m) => `\\${m}`),
         ),
       ),
     ).toBeDefined();
