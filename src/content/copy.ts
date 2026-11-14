@@ -253,7 +253,75 @@ export const copy = {
   words: {
     title: 'Space words',
     lead: 'Words astronauts and engineers use, in plain language.',
-    soon: 'This part of the base is still being built.',
+    count: (n: number) => `${n} words`,
+  },
+  logbook: {
+    title: 'Logbook',
+    lead: 'Your missions, training scores and badges.',
+    privacy:
+      'Your logbook is saved only in this browser on this device. Nothing is sent anywhere. If this browser blocks saving, it lasts until you close the page.',
+    badgesTitle: 'Badges',
+    badgesCount: (got: number, all: number) => `${got} of ${all} badges earned`,
+    earned: 'Earned',
+    locked: 'Not yet',
+    missionsTitle: 'Missions',
+    colMission: 'Mission',
+    colBest: 'Best test',
+    colGoal: 'Goal',
+    colDebrief: 'Debrief',
+    bestOf: (n: number) => `${n} of 100 home`,
+    none: 'Not tested',
+    yes: 'Done',
+    no: 'Not yet',
+    trainingTitle: 'Training Bay',
+    colGame: 'Game',
+    colPlays: 'Rounds played',
+    colScore: 'Best score',
+    colCleared: 'Cleared',
+    clear: 'Clear my logbook',
+    clearAsk: 'Clear every mission, score and badge? This cannot be undone.',
+    clearYes: 'Yes, clear it',
+    clearNo: 'No, keep it',
+    cleared: 'Your logbook is empty. Ready for a fresh start!',
+  },
+  teachers: {
+    title: 'For teachers and parents',
+    lead: 'Moonbase Margin is a free browser game for ages 7 to 12. Players plan a Moon base, then test it many times, so a mistake becomes a lesson instead of a game over.',
+    privacy:
+      'No accounts, no ads, no tracking. Nothing is sent anywhere. Progress stays in the browser on this device.',
+    planTitle: 'A 45-minute lesson',
+    plan: (goal: number) => [
+      '5 minutes: read the story on the home page together, then look at How to play.',
+      '15 minutes: in pairs, play Missions 1 and 2 and answer the debrief questions.',
+      '10 minutes: everyone plays Storm Shelter once and compares their radiation dose.',
+      `10 minutes: Free build challenge: who can bring at least ${goal} of every 100 crews home with the lightest rocket?`,
+      '5 minutes: each pair shares one thing that surprised them.',
+    ],
+    conceptsTitle: 'Big ideas in the game',
+    modesTitle: 'Junior and Planner mode',
+    modesBody:
+      'Junior mode is the default: three big meters and plain words. Planner mode (switch in the header) shows every control, the if-then rule builder, likely ranges and all charts, for older students.',
+    reviewNote:
+      'Some texts were drafted with AI help and are marked for review by our team. Numbers marked ASSUMPTION are illustrative game choices, not NASA requirements. The Data and science page lists every number with its source.',
+    toolsTitle: 'Classroom tools',
+    toolsIntro:
+      'A 6-question quiz to use before and after playing, the guided missions, and scenario codes so students can share their bases.',
+  },
+  dataPage: {
+    title: 'Data and science',
+    lead: 'Where every number and dataset in the game comes from, and what is real and what we simplified.',
+    stormsTitle: 'Real solar storms from NASA DONKI',
+    stormsIntro:
+      'These are the archived storms you can replay on the Test step and in Storm Shelter. Each one is a real solar energetic particle event, linked to a solar flare with a recorded class.',
+    stormItem: (date: string, flareClass: string) => `${date}: flare class ${flareClass}`,
+    honestyTitle: 'Real data, honest labels',
+    honesty: [
+      'Real: which solar storms happened, when, and the class of their linked flare (NASA DONKI, S12).',
+      'Real: the studies on the astronaut finding cards (NASA OSDR, S13).',
+      'Real measurements: everyday radiation on the Moon (S02), water recycling on the space station (S04) and the Sabatier oxygen recovery limit (S05).',
+      'Our simplification: how strong each storm is in the game, and every number marked ASSUMPTION, which we label “illustrative”.',
+      'Nothing here is live. The game uses saved copies and never goes online while you play.',
+    ],
   },
   learnTabs: {
     missions: 'Guided missions',
@@ -355,6 +423,28 @@ export const copy = {
         meaning: 'A machine that cleans used water or air so the crew can use it again.',
       },
       { term: 'µSv (microsievert)', meaning: 'A tiny unit for radiation dose.' },
+      {
+        term: 'Greenhouse',
+        meaning:
+          'A room where plants grow under lamps. It makes food, but it needs power, water and crew time.',
+      },
+      {
+        term: 'Shelter',
+        meaning: 'A small, well-protected room where the crew hides while a solar storm passes.',
+      },
+      {
+        term: 'Flare class',
+        meaning:
+          'A letter that NASA’s DONKI database gives each solar flare: C, M or X. In this game a C flare makes a small storm, M a medium one and X the biggest.',
+      },
+      {
+        term: 'Mission Control',
+        meaning: 'The team on Earth that watches the mission and sends help and warnings by radio.',
+      },
+      {
+        term: 'Archived data',
+        meaning: 'A saved copy of real data from the past. It is real, but it is not live.',
+      },
     ],
   },
   design: {

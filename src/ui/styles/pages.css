@@ -864,3 +864,122 @@ a.real-data-badge {
     padding: var(--space-4);
   }
 }
+
+/* ---------- Logbook ---------- */
+
+.badge-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.badge {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'icon name'
+    'icon state'
+    'how how';
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  background: var(--coupon);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  border: 2px dashed var(--color-border);
+}
+
+.badge.is-earned {
+  border: 2px solid var(--carbon);
+  background: var(--carbon-wash);
+}
+
+.badge-icon {
+  grid-area: icon;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: var(--color-bg-surface-elevated);
+  color: var(--color-text-muted);
+}
+
+.badge.is-earned .badge-icon {
+  background: var(--sun);
+  color: var(--navy);
+}
+
+.badge-name {
+  grid-area: name;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.badge-state {
+  grid-area: state;
+  font-size: var(--text-tiny);
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+.badge.is-earned .badge-state {
+  color: var(--carbon);
+}
+
+.badge-how {
+  grid-area: how;
+  margin-top: var(--space-2);
+  font-size: var(--text-small);
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.log-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--coupon);
+  border-radius: var(--radius-md);
+}
+
+.log-table th,
+.log-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-top: 1px solid var(--color-border);
+}
+
+.log-table thead th {
+  border-top: 0;
+  font-size: var(--text-tiny);
+  color: var(--color-text-muted);
+}
+
+/* ---------- Data and science ---------- */
+
+.storm-archive {
+  margin: var(--space-3) 0;
+  padding-left: var(--space-6);
+}
+
+.storm-archive li {
+  margin-bottom: var(--space-2);
+}
+
+.honesty-list {
+  padding-left: var(--space-6);
+  max-width: 75ch;
+}
+
+.honesty-list li {
+  margin-bottom: var(--space-2);
+}
+
+.data-page .archived-label {
+  margin-bottom: var(--space-2);
+}
