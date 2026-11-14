@@ -2,8 +2,6 @@
 // muted inline videos with a Play/Pause button, reduced motion respected, flat placeholder on error.
 
 import { fireEvent, render, screen } from '@testing-library/react';
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
@@ -20,6 +18,11 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+// Every file actually present in public/images and public/video (keys are paths).
+const publicFiles = Object.keys(
+  import.meta.glob('../../public/{images,video}/*', { query: '?url', import: 'default' }),
+).map((k) => k.replace('../../public/', ''));
+
 const setReducedMotion = (on: boolean) => {
   window.matchMedia = ((q: string) => ({
     matches: on && q.includes('reduce'),
@@ -30,9 +33,17 @@ const setReducedMotion = (on: boolean) => {
 };
 
 describe('media catalog', () => {
+  it('lists every media file exactly once', () => {
+    expect(
+      Object.values(media)
+        .map((e) => e.file)
+        .sort(),
+    ).toEqual([...publicFiles].sort());
+  });
+
   it('every entry points at a real file in public/ and has alt text', () => {
     for (const e of Object.values(media)) {
-      expect(existsSync(resolve('public', e.file)), e.file).toBe(true);
+      expect(publicFiles, e.file).toContain(e.file);
       expect(e.alt.length, e.id).toBeGreaterThan(10);
       expect(e.width).toBeGreaterThan(0);
       expect(e.height).toBeGreaterThan(0);
