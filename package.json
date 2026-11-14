@@ -12,8 +12,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
-    "data:fetch": "node scripts/fetch-nasa-data.mjs",
-    "golden:update": "node scripts/update-golden.mjs"
+    "data:fetch": "node scripts/fetch-donki.mjs",
+    "golden:update": "node scripts/update-golden.mjs",
+    "data:osdr": "node scripts/fetch-osdr.mjs"
   },
   "engines": {
     "node": ">=22.0.0"

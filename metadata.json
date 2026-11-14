@@ -1,6 +1,6 @@
 {
   "name": "Moonbase Margin",
-  "description": "Junior Astronaut Mission Trainer - Lunar outpost life support, power, and margin simulator.",
+  "description": "Junior Astronaut Mission Trainer: run a Moon base, balance power, air and radiation shielding, and test it against real archived NASA solar storms.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": []
 }

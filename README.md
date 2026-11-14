@@ -62,8 +62,8 @@ npm run preview     # serve the production bundle locally
 ### Refresh the NASA data (developer machine only)
 
 ```bash
-node scripts/fetch-donki.mjs        # DONKI storms -> data/donki_archive.json (DEMO_KEY, or NASA_API_KEY in the environment)
-node scripts/fetch-osdr.mjs         # OSDR studies -> data/osdr_cards.json
+npm run data:fetch                  # DONKI storms -> data/donki_archive.json (DEMO_KEY, or NASA_API_KEY in the environment)
+npm run data:osdr                   # OSDR studies -> data/osdr_cards.json
 npm run golden:update               # only after an approved model change (see docs/DECISIONS.md)
 ```
 

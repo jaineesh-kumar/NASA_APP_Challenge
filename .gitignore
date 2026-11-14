@@ -48,3 +48,8 @@ secrets.json
 ehthumbs.db
 Thumbs.db
 desktop.ini
+
+# Local-only material (not for the public repo)
+*.pdf
+.impeccable/reference/
+.impeccable/review/
