@@ -487,11 +487,11 @@ a.real-data-badge {
   border-radius: var(--radius-lg);
   padding: var(--space-4);
   box-shadow: var(--shadow-sm);
-  border-left: 8px solid var(--navy);
 }
 
-.mission-card.is-complete {
-  border-left-color: var(--color-success);
+/* A finished mission shows on its number disc (plus the "Mission complete" badge text). */
+.mission-card.is-complete .mission-card-number {
+  background: var(--color-success);
 }
 
 .mission-card-number {
