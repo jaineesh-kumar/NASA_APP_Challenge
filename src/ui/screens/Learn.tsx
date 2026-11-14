@@ -13,6 +13,7 @@ import {
 } from '../../state/scenarioCode.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { Icon } from '../components/Icon.tsx';
+import { OsdrCards } from '../components/OsdrCards.tsx';
 
 type LearnTab = 'missions' | 'concepts' | 'quiz' | 'share';
 
@@ -115,6 +116,8 @@ export const LearnScreen: React.FC = () => {
           astronaut readiness, and exchange mission scenario codes.
         </p>
       </div>
+
+      <OsdrCards />
 
       {/* Tabs */}
       <div

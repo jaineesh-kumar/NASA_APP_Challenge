@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
+import { osdr } from '../../content/osdr.ts';
 import { getDonkiArchive } from '../../engine/params.ts';
 import { Icon } from './Icon.tsx';
 
@@ -14,6 +15,7 @@ const LINKS: Readonly<Record<string, string>> = {
   S04: 'https://www.nasa.gov/wp-content/uploads/2025/08/g-657270-59-hp-environmental-control-and-life-support-system-eclss.pdf',
   S05: 'https://www.science.gov/topicpages/s/sabatier+carbon+dioxide',
   S03: 'https://arxiv.org/abs/2102.11766',
+  osdr: 'https://osdr.nasa.gov/bio/repo/',
 };
 
 export const DataPanel: React.FC = () => {
@@ -45,7 +47,11 @@ export const DataPanel: React.FC = () => {
                 </td>
                 <td style={{ padding: '6px 8px 6px 0' }}>{row.use}</td>
                 <td style={{ padding: '6px 0' }}>
-                  {row.id === 'donki' ? d.archived(archive.retrievedAt) : d.published}
+                  {row.id === 'donki'
+                    ? d.archived(archive.retrievedAt)
+                    : row.id === 'osdr'
+                      ? d.archived(osdr.retrievedAt)
+                      : d.published}
                 </td>
               </tr>
             ))}

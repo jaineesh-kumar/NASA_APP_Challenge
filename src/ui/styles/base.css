@@ -1271,3 +1271,35 @@ input[type='checkbox'] {
     padding: 6px 10px;
   }
 }
+
+/* ---------- Real astronaut findings (NASA OSDR) ---------- */
+
+.finding-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-4) var(--space-6);
+}
+
+.finding {
+  padding-top: var(--space-3);
+  border-top: 2px dashed var(--color-border);
+}
+
+.finding-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  color: var(--carbon);
+  margin-bottom: 4px;
+}
+
+.finding-summary {
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+  max-width: 60ch;
+}
+
+.coupon-body > div > .finding {
+  margin-bottom: var(--space-6);
+}

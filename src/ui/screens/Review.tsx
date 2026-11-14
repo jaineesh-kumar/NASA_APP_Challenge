@@ -8,7 +8,9 @@ import { loadParams } from '../../engine/params.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { ConceptHintBox } from '../components/ConceptHintBox.tsx';
 import { MassVsRiskChart } from '../components/MassVsRiskChart.tsx';
+import { cardFor } from '../../content/osdr.ts';
 import { HundredGrid } from '../components/HundredGrid.tsx';
+import { OsdrFinding } from '../components/OsdrCards.tsx';
 import { MissionPass } from '../components/MissionPass.tsx';
 import { ReplayTimeline } from '../components/ReplayTimeline.tsx';
 import { RiskBarChart } from '../components/RiskBarChart.tsx';
@@ -204,6 +206,7 @@ export const ReviewScreen: React.FC = () => {
         isJunior={isJunior}
       />
       <ConceptHintBox worstResult={worst} />
+      <OsdrFinding card={cardFor(worst.failureCause)} />
     </div>
   );
 };

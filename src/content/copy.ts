@@ -117,6 +117,15 @@ export const copy = {
     tryAgain: 'Try again',
     moreDetails: 'More details: charts and numbers',
   },
+  osdr: {
+    title: 'Real astronaut findings',
+    intro:
+      'Real studies from NASA’s Open Science Data Repository (OSDR) about how space changes living things.',
+    label: 'Real astronaut finding',
+    source: (id: string, title: string) => `NASA OSDR (S13), study ${id}: ${title}`,
+    link: 'See the study in NASA OSDR',
+    archived: (date: string) => `Archived NASA data, retrieved ${date}. Not live.`,
+  },
   glossary: {
     title: 'Space words',
     terms: [
@@ -301,6 +310,11 @@ export const copy = {
         id: 'S03',
         name: 'Sunlight at the lunar south pole (S03)',
         use: 'Why landing spots have dark hours, and why a taller mast helps.',
+      },
+      {
+        id: 'osdr',
+        name: 'NASA Open Science Data Repository, OSDR (S13)',
+        use: 'Real astronaut findings: studies of how space changes bodies, cells and plants.',
       },
     ],
   },

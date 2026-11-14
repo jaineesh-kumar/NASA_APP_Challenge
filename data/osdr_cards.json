@@ -1,0 +1,68 @@
+{
+  "source": "S13",
+  "endpoint": "https://osdr.nasa.gov/osdr/data/search",
+  "query": "astronauts: \"astronaut\"; radiation: \"space radiation\"; bones: \"bone loss microgravity\"; muscles: \"muscle atrophy spaceflight\"; plants: \"plant growth spaceflight\"",
+  "retrievedAt": "2026-11-14",
+  "cards": [
+    {
+      "topic": "astronauts",
+      "datasetId": "OSD-53",
+      "title": "Spaceflight Modulates Gene Expression in Astronauts",
+      "organism": "Homo sapiens",
+      "mission": "",
+      "evidence": "Astronauts are exposed to a unique combination of stressors during spaceflight, which leads to alterations in their physiology and potentially increases their susceptibility to infectious pathogens.  Here we report the first microarray evaluation of any astronaut tissue sample, specifically whole blood, before and after spaceflight using an array comprising 234 well-characterized stress response genes.  Differentially regulated genes included those important for DNA repair, oxidative stress, and protein folding/degradation.",
+      "summary": "Scientists tested blood from astronauts before and after a space flight. Some genes that help the body repair itself and handle stress worked differently after the flight.",
+      "needsReview": true,
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-53",
+      "retrievedAt": "2026-11-14"
+    },
+    {
+      "topic": "radiation",
+      "datasetId": "OSD-992",
+      "title": "Space radiation induces distinct senescent phenotypes: Implications for space travel [scRNA-Seq]",
+      "organism": "Homo sapiens",
+      "mission": "",
+      "evidence": "As Earth's magnetic field weakens, space radiation begins to pose a significant threat to the health of not only space travelers, but the world's population.  Space radiation, comprising high-energy and high-charge ions, creates distinct clusters of DNA damage and dense macromolecular damage that result in the accumulation of senescent cells (SnCs) known to play a critical role in promoting multimorbidity.  Here, we demonstrate that human fibroblasts exposed to different forms of space radiation acquire senescence-associated phenotypes including morphological alterations and the accumulation of SA-beta-gal+ cells to a greater extent than what is observed following gamma-irradiation.",
+      "summary": "In a lab, scientists hit human skin cells with space-like radiation. The cells aged in a special way, more than with ordinary radiation.",
+      "needsReview": true,
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-992",
+      "retrievedAt": "2026-11-14"
+    },
+    {
+      "topic": "bones",
+      "datasetId": "OSD-18",
+      "title": "Microarray Profile of Gene Expression during Osteoclast Differentiation in Modeled Microgravity",
+      "organism": "Mus musculus",
+      "mission": "",
+      "evidence": "Microgravity leads to a 10-15% loss of bone mass in astronauts during space flight.  Osteoclast is the multinucleated bone resorbing cell.  In this study, we used NASA developed ground based Rotary Wall Vessel Bioreactor (RWV), Rotary Cell Culture System (RCCS) to simulate microgravity (uXg) conditions and demonstrated a significant increase (2-fold) in osteoclastogenesis compared to ground based control (Xg) mouse bone marrow cultures.",
+      "summary": "Astronauts can lose some bone in low gravity. In a machine on Earth that copies low gravity, mouse cells that break down bone grew about twice as much.",
+      "needsReview": true,
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-18",
+      "retrievedAt": "2026-11-14"
+    },
+    {
+      "topic": "muscles",
+      "datasetId": "OSD-225",
+      "title": "Expression profiling of soleus muscle under the effect of simulated spaceflight",
+      "organism": "Rattus norvegicus",
+      "mission": "",
+      "evidence": "Spaceflight imposes the risk of skeletal muscle atrophy for astronauts.  The understanding of muscle atrophy because of spaceflight is limited, but continued efforts are essential for developing countermeasures of this effect.  A distinct difference between spaceflight-induced muscle atrophy and other forms of atrophy is the additional effect of cosmic rays in outer space.",
+      "summary": "In space, astronauts’ muscles can shrink. Scientists studied a leg muscle in rats during a test that copies spaceflight, to learn how to stop it.",
+      "needsReview": true,
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-225",
+      "retrievedAt": "2026-11-14"
+    },
+    {
+      "topic": "plants",
+      "datasetId": "OSD-615",
+      "title": "Glycome profiling and immunohistochemistry uncover changes in cell walls of Arabidopsis thaliana roots during spaceflight: Advanced Plant EXperiment (APEX) 03-1 Raw Dataset",
+      "organism": "Arabidopsis thaliana",
+      "mission": "SpaceX-5",
+      "evidence": "This study was conducted to uncover the underlying molecular mechanisms by which microgravity impacts cell wall architecture in the model plant Arabidopsis thaliana using the Vegetable Production System (Veggie) housed on the International Space Station (ISS).  Based on our previous space flight studies using the Biological Research in Canisters (BRIC) hardware on the STS-131 Space Shuttle mission, we found that plants respond to microgravity in large part through the transcriptional reprogramming of genes that control cell wall remodeling.  This follow-up spaceflight experiment called the Advanced Plant EXperiments (APEX 03-1) in Space was designed to use Veggie unit on the ISS and on the ground unit on the Space Station Processing Facility (SSPF) to probe deeper into spaceflight-induced cell wall associated transcript expression changes.",
+      "summary": "On the International Space Station, scientists grew small plants in a space garden called Veggie. Their roots changed how they build their cell walls.",
+      "needsReview": true,
+      "url": "https://osdr.nasa.gov/bio/repo/data/studies/OSD-615",
+      "retrievedAt": "2026-11-14"
+    }
+  ]
+}
