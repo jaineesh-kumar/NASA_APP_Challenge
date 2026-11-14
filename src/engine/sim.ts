@@ -1,20 +1,20 @@
 // One seeded 30-day mission: runMission(design, rules, seed)
-// Spec B5.4 (order of operations), B5.5, B5.6; ADR-005 (real storms), ADR-006 (comms warnings)
+// Spec B5.4 (order of operations), B5.5, B5.6, B5.11 (Real Storm Replay)
 
-import { LOAD_IDS, getSimConstants } from './constants.ts';
+import { LOAD_IDS, getSimConstants, SimConstants } from './constants.ts';
 import { allocateCrewTime } from './crew.ts';
-import { buildStormMask, createInitialEventsState, stepEvents } from './events.ts';
+import { createInitialEventsState, ScheduledSpe, stepEvents } from './events.ts';
 import { stepFood } from './food.ts';
 import { createInitialLifeSupportState, stepLifeSupport } from './lifeSupport.ts';
-import { LoadedParams, loadParams } from './params.ts';
+import { flareClassIndex, getDonkiArchive, LoadedParams, loadParams } from './params.ts';
 import { allocatePower, computeDemands, computeGeneration, updateBattery } from './power.ts';
 import { hourlyDoseUsv } from './radiation.ts';
 import { mulberry32 } from './rng.ts';
 import { describeRule, evaluateRules, RuleState, validateRules } from './rules.ts';
 import { buildDarkMask, computeDarkWindows, hoursUntilNextDark } from './schedule.ts';
-import { getSpaceWeather, pickSunWindow, SpaceWeatherRecord } from './spaceWeather.ts';
 import {
   Design,
+  EngineError,
   FailureCause,
   LoadId,
   LogEntry,
@@ -24,7 +24,38 @@ import {
   MissionTrace,
   Rules,
   StormInfo,
+  StormMode,
 } from './types.ts';
+
+/**
+ * Spec B5.11: in replay mode exactly one SPE arrives at radiation.replay_onset_h with the game
+ * strength for the archived event's linked flare class. The warning starts
+ * radiation.spe_warning_lead_h earlier, the same lead random events get (ADR-010).
+ */
+export function replaySpe(mode: StormMode, k: SimConstants): ScheduledSpe | null {
+  if (mode.kind === 'random') return null;
+  const event = getDonkiArchive().events.find((e) => e.id === mode.eventId);
+  if (!event) throw new EngineError('UNKNOWN_STORM', `No archived storm with id ${mode.eventId}.`);
+  const multiplier = k.speMultiplierByFlareClass[flareClassIndex(event.flareClass)];
+  if (multiplier === undefined) {
+    throw new EngineError(
+      'UNKNOWN_FLARE_CLASS',
+      `No game strength for flare class ${event.flareClass}.`,
+    );
+  }
+  if (k.replayOnsetH < 0 || k.replayOnsetH >= k.missionHours) {
+    throw new EngineError(
+      'INVALID_REPLAY_ONSET',
+      'radiation.replay_onset_h must be inside the mission.',
+    );
+  }
+  return {
+    warnH: Math.max(0, k.replayOnsetH - k.speWarningLeadH),
+    onsetH: k.replayOnsetH,
+    endH: k.replayOnsetH + k.speDurationH,
+    multiplier,
+  };
+}
 
 function emptyTrace(): MissionTrace {
   return {
@@ -47,33 +78,24 @@ export function runMission(
   seed: number,
   paramsInput?: LoadedParams,
   options: MissionOptions = {},
-  spaceWeather: SpaceWeatherRecord = getSpaceWeather(),
 ): MissionResult {
   validateRules(rules);
   const k = getSimConstants(paramsInput ?? loadParams());
   const H = k.missionHours;
   const rng = mulberry32(seed);
 
-  // Before tick 0 (B5.3 + ADR-005): one jitter draw per dark window, then one sun-window draw.
+  // Spec B5.3: dark-window jitter is drawn once before tick 0, one draw per window.
   const darkWindows = computeDarkWindows(design.site, design.mastLevel, k, rng);
   const darkMask = buildDarkMask(darkWindows, H);
-  const sunWindow = pickSunWindow(spaceWeather, options.sunEra ?? 'all', H, rng());
-  const storms = sunWindow.storms;
-  const stormMask = buildStormMask(storms, k);
-  const stormInfo: StormInfo[] = storms.map((s) => ({
-    onsetH: s.onsetH,
-    leadH: s.leadH,
-    warningReceivedH: null,
-    wasSheltered: false,
-    id: s.id,
-    link: s.link,
-  }));
+  const storms: StormInfo[] = [];
+  const stormMode: StormMode = options.stormMode ?? { kind: 'random' };
+  const isRandomStorms = stormMode.kind === 'random';
 
   // Step 0: initial state
   const capacityKwh = design.batteries * k.batteryKwhPerUnit;
   let batteryKwh = capacityKwh;
   let ls = createInitialLifeSupportState(design, k);
-  let ev = createInitialEventsState(design);
+  let ev = createInitialEventsState(design, replaySpe(stormMode, k));
   let foodKcal = k.startFoodKcal;
   let doseUsv = 0;
   let shieldBuilt = 0;
@@ -115,8 +137,6 @@ export function runMission(
     science: false,
     construction: false,
   };
-  // Hour after which no received warning is still relevant (alert lasts to storm end).
-  let alertUntilH = -1;
 
   for (let t = 0; t < H; t++) {
     // 1. Events
@@ -124,8 +144,10 @@ export function runMission(
     if (isDark !== wasDark) add(t, isDark ? 'dark_window_start' : 'dark_window_end', '');
     wasDark = isDark;
 
-    const evStep = stepEvents(ev, rng, k);
+    const evStep = stepEvents(ev, t, rng, k, isRandomStorms);
     ev = evStep.state;
+    if (evStep.isSpeEnded) add(t, 'spe_end', '');
+    if (evStep.isSpeWarningStarted && ev.spe) add(t, 'spe_warning', String(ev.spe.onsetH - t));
     if (evStep.isDustStarted) add(t, 'dust_start', '');
     for (const id of evStep.failed) {
       add(
@@ -134,8 +156,7 @@ export function runMission(
         `${id}${Number.isFinite(ev.repairsLeftH[id] ?? 0) ? '' : ' no_spare'}`,
       );
     }
-    const isStorm = stormMask[t] === 1;
-    if (!isStorm && t > 0 && stormMask[t - 1] === 1) add(t, 'spe_end', '');
+    const isStorm = evStep.speMultiplier !== 1;
 
     // 2. Rules (state at the end of the previous tick)
     prev.hoursToNextDark = hoursUntilNextDark(t, darkWindows);
@@ -145,6 +166,10 @@ export function runMission(
     }
     prevFired = flags.fired;
     const isSheltering = flags.shelter;
+    if (evStep.isSpeStarted) {
+      storms.push({ onsetH: t, wasSheltered: isSheltering });
+      add(t, 'spe_start', isSheltering ? 'sheltered' : 'unsheltered');
+    }
 
     // 3. Generation
     const genKw = computeGeneration(
@@ -242,27 +267,8 @@ export function runMission(
     if (food.ghWaterKg > 0) ls = { ...ls, waterKg: Math.max(0, ls.waterKg - food.ghWaterKg) };
 
     // 8. Radiation
-    doseUsv += hourlyDoseUsv(shieldBuilt, isSheltering, isStorm, k);
-
-    // Storm warnings travel from Earth forecasters over the comms link (ADR-006).
+    doseUsv += hourlyDoseUsv(shieldBuilt, isSheltering, evStep.speMultiplier, k);
     const isCommsOn = powered.comms;
-    for (let i = 0; i < storms.length; i++) {
-      const s = storms[i];
-      const info = stormInfo[i];
-      if (!s || !info) continue;
-      if (s.onsetH === t) {
-        info.wasSheltered = isSheltering;
-        if (s.leadH > 0 && info.warningReceivedH === null) add(t, 'warning_missed', s.id);
-        add(t, 'spe_start', isSheltering ? 'sheltered' : 'unsheltered');
-      }
-      if (s.leadH > 0 && info.warningReceivedH === null && t >= s.warnH && t < s.onsetH) {
-        if (isCommsOn) {
-          info.warningReceivedH = t;
-          alertUntilH = Math.max(alertUntilH, s.onsetH + k.speDurationH);
-          add(t, 'spe_warning', String(s.onsetH - t));
-        }
-      }
-    }
 
     // 9. Checks, metrics, log
     o2DeficitH = lsStep.isO2Deficit ? o2DeficitH + 1 : 0;
@@ -305,8 +311,8 @@ export function runMission(
     prev = {
       batteryPct,
       o2Days,
-      // Alert = storm detected at the base, or a warning heard over comms for a storm not over yet.
-      isRadiationAlert: isStorm || t < alertUntilH,
+      // Spec B5.5: the warning is on from the draw until the event ends.
+      isRadiationAlert: evStep.isSpeWarning,
       hoursToNextDark: Infinity,
       isAnyComponentFailed: !(
         ev.isOk.co2_scrubber &&
@@ -327,7 +333,7 @@ export function runMission(
     minO2Days: Number.isFinite(minO2Days) ? minO2Days : prev.o2Days,
     peakDoseUsv,
     log,
-    sun: { startDate: sunWindow.startDate, storms: stormInfo },
+    storms,
     scienceHours,
     ...(trace ? { trace } : {}),
   };

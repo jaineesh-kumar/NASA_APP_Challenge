@@ -2,14 +2,14 @@
 // Spec B3, B5.7
 
 import { runCampaign } from '../engine/montecarlo.ts';
-import { CampaignResult, Design, Rules, SunEra } from '../engine/types.ts';
+import { CampaignResult, Design, Rules, StormMode } from '../engine/types.ts';
 
 export interface WorkerIncomingMessage {
   type: 'RUN_CAMPAIGN';
   id: number;
   design: Design;
   rules: Rules;
-  sunEra: SunEra;
+  stormMode: StormMode;
   runs?: number;
 }
 
@@ -30,7 +30,7 @@ export function handleWorkerMessage(
       data.runs,
       undefined,
       (progress) => post({ type: 'PROGRESS', id: data.id, progress }),
-      { sunEra: data.sunEra },
+      { stormMode: data.stormMode },
     );
     post({ type: 'RESULT', id: data.id, result });
   } catch (err) {

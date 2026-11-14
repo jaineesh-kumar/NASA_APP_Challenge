@@ -67,7 +67,6 @@ export type LogType =
   | 'load_off'
   | 'shield_layer_built'
   | 'rule_fired'
-  | 'warning_missed'
   | 'failure';
 
 export interface LogEntry {
@@ -76,30 +75,37 @@ export interface LogEntry {
   detail: string;
 }
 
-// ADR-005: real solar storms replayed from NASA DONKI instead of invented random draws.
-// 'all' = any 30-day stretch of the record; 'quiet' / 'stormy' = the calendar years with the
-// fewest / most storms in the record (computed from the data, never hard-coded).
-export type SunEra = 'all' | 'quiet' | 'stormy';
+// Spec B5.11: random storms (B5.5) or one real archived DONKI storm.
+export type StormMode = { kind: 'random' } | { kind: 'replay'; eventId: string };
 
 export interface MissionOptions {
-  sunEra?: SunEra;
+  stormMode?: StormMode;
   /** Record an hourly trace of key resources (used only for the replay, not campaigns). */
   trace?: boolean;
 }
 
-/** One real DONKI storm placed on the mission clock. */
-export interface StormInfo {
-  onsetH: number;
-  leadH: number; // forecast lead from DONKI; 0 = no warning was possible
-  warningReceivedH: number | null; // hour the base heard the warning over comms
-  wasSheltered: boolean; // crew in shelter at onset
-  id: string; // DONKI SEP id
-  link: string; // DONKI event page
+/** One archived DONKI SEP event (data/donki_archive.json, source S12). */
+export interface DonkiEvent {
+  id: string;
+  eventTime: string;
+  flareClass: string;
+  flareId: string;
+  link: string;
+  classEvidence: { kind: 'FLR' | 'notification'; id: string; url: string };
 }
 
-export interface SunWindow {
-  startDate: string; // YYYY-MM-DD, first day of the real 30-day stretch
-  storms: StormInfo[];
+export interface DonkiArchive {
+  source: 'S12';
+  endpoint: string;
+  query: string;
+  retrievedAt: string;
+  events: DonkiEvent[];
+}
+
+/** One solar particle event as it hit the base. */
+export interface StormInfo {
+  onsetH: number;
+  wasSheltered: boolean; // crew in shelter at onset
 }
 
 export interface MissionTrace {
@@ -125,7 +131,7 @@ export interface MissionResult {
   minO2Days: number;
   peakDoseUsv: number;
   log: LogEntry[];
-  sun: SunWindow;
+  storms: StormInfo[];
   scienceHours: number;
   trace?: MissionTrace;
 }
@@ -148,10 +154,9 @@ export interface CampaignResult {
   massUsed: number;
   worstSeed: number;
   rating: 'flight_ready' | 'needs_work';
-  sunEra: SunEra;
+  stormMode: StormMode;
   stormsPerRunMean: number;
   stormsMaxInRun: number;
-  warningsMissed: number; // storm warnings that could not reach the base (comms off)
 }
 
 export type SourceId =
@@ -167,6 +172,8 @@ export type SourceId =
   | 'S10'
   | 'S11'
   | 'S12'
+  | 'S13'
+  | 'S14'
   | 'ASSUMPTION'
   | 'DERIVED';
 

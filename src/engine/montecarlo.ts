@@ -5,7 +5,6 @@ import { getSimConstants } from './constants.ts';
 import { massUsed } from './mass.ts';
 import { LoadedParams, loadParams } from './params.ts';
 import { runMission } from './sim.ts';
-import { getSpaceWeather } from './spaceWeather.ts';
 import { CampaignResult, Design, FailureCause, Interval, MissionOptions, Rules } from './types.ts';
 
 const Z95 = 1.96;
@@ -39,8 +38,8 @@ export function runCampaign(
   const params = paramsInput ?? loadParams();
   const k = getSimConstants(params);
   const runs = n !== undefined && n > 0 ? Math.floor(n) : k.campaignRuns;
-  const sw = getSpaceWeather();
-  const missionOptions: MissionOptions = { sunEra: options.sunEra ?? 'all' };
+  // Campaign runs never record a trace (that is only for the single replayed mission).
+  const missionOptions: MissionOptions = { ...options, trace: false };
 
   const causeCounts: Record<FailureCause | 'science_missed', number> = {
     oxygen: 0,
@@ -57,7 +56,6 @@ export function runCampaign(
   let successCount = 0;
   let stormsTotal = 0;
   let stormsMax = 0;
-  let warningsMissed = 0;
 
   // Worst run (B5.7): earliest failure (ties: lowest seed); if none failed, lowest min battery.
   let worstFailSeed = -1;
@@ -67,7 +65,7 @@ export function runCampaign(
 
   const step = Math.max(1, Math.floor(runs / 20));
   for (let seed = 1; seed <= runs; seed++) {
-    const r = runMission(design, rules, seed, params, missionOptions, sw);
+    const r = runMission(design, rules, seed, params, missionOptions);
     if (r.survived) {
       survivedCount++;
       if (r.scienceMet) successCount++;
@@ -87,13 +85,8 @@ export function runCampaign(
     battery.push(r.minBatteryPct);
     o2Days.push(r.minO2Days);
     dose.push(r.peakDoseUsv);
-    stormsTotal += r.sun.storms.length;
-    stormsMax = Math.max(stormsMax, r.sun.storms.length);
-    for (const s of r.sun.storms) {
-      if (s.leadH > 0 && s.warningReceivedH === null && (r.failureHour ?? Infinity) >= s.onsetH) {
-        warningsMissed++;
-      }
-    }
+    stormsTotal += r.storms.length;
+    stormsMax = Math.max(stormsMax, r.storms.length);
     if (onProgress && (seed % step === 0 || seed === runs)) onProgress(seed / runs);
   }
 
@@ -120,9 +113,8 @@ export function runCampaign(
       survivalRate >= k.flightReadySurvival && successRate >= k.flightReadySuccess
         ? 'flight_ready'
         : 'needs_work',
-    sunEra: missionOptions.sunEra ?? 'all',
+    stormMode: options.stormMode ?? { kind: 'random' },
     stormsPerRunMean: stormsTotal / runs,
     stormsMaxInRun: stormsMax,
-    warningsMissed,
   };
 }

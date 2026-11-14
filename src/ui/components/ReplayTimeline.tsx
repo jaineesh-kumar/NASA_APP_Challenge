@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { copy } from '../../content/copy.ts';
 import { getSimConstants } from '../../engine/constants.ts';
 import { loadParams } from '../../engine/params.ts';
-import { ComponentId, LoadId, LogEntry, MissionResult } from '../../engine/types.ts';
+import { ComponentId, LoadId, LogEntry, MissionResult, StormMode } from '../../engine/types.ts';
 import { ResourceChart } from './ResourceChart.tsx';
+import { findStorm, stormDate } from './StormPicker.tsx';
 
 const k = getSimConstants(loadParams());
 const PLAY_STEP_H = 6;
@@ -40,8 +41,12 @@ export function describeLog(e: LogEntry): string {
   }
 }
 
-export const ReplayTimeline: React.FC<{ worstResult: MissionResult }> = ({ worstResult }) => {
+export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: StormMode }> = ({
+  worstResult,
+  stormMode,
+}) => {
   const r = worstResult;
+  const replayed = findStorm(stormMode);
   const trace = r.trace;
   const lastHour = Math.max(0, (trace?.batteryPct.length ?? k.missionHours) - 1);
   const [hour, setHour] = useState(r.failureHour ?? lastHour);
@@ -72,33 +77,24 @@ export const ReplayTimeline: React.FC<{ worstResult: MissionResult }> = ({ worst
       <p className="muted small">{R.intro}</p>
 
       <div className="tile" style={{ margin: '12px 0' }}>
-        <p className="small" style={{ fontWeight: 600 }}>
-          {R.sunWindow(r.sun.startDate)}
-        </p>
-        {r.sun.storms.length === 0 ? (
+        {replayed ? (
+          <p className="small" style={{ fontWeight: 600 }}>
+            {R.replayStorm(stormDate(replayed), replayed.flareClass)}{' '}
+            <a href={replayed.link} target="_blank" rel="noopener noreferrer">
+              {R.donkiLink}
+            </a>
+          </p>
+        ) : (
+          <p className="small" style={{ fontWeight: 600 }}>
+            {R.stormsTitle}
+          </p>
+        )}
+        {r.storms.length === 0 ? (
           <p className="muted small">{R.noStorms}</p>
         ) : (
           <ul className="small" style={{ paddingLeft: 18, marginTop: 4 }}>
-            {r.sun.storms.map((s) => (
-              <li key={s.id}>
-                {R.stormLine(
-                  s.onsetH,
-                  s.leadH === 0 ? R.leadNone : R.lead(s.leadH),
-                  s.leadH === 0
-                    ? ''
-                    : s.warningReceivedH === null
-                      ? R.receivedNo
-                      : R.receivedYes(s.warningReceivedH),
-                  r.failureHour !== null && r.failureHour < s.onsetH
-                    ? ''
-                    : s.wasSheltered
-                      ? R.shelteredYes
-                      : R.shelteredNo,
-                )}{' '}
-                <a href={s.link} target="_blank" rel="noopener noreferrer">
-                  {R.donkiLink}
-                </a>
-              </li>
+            {r.storms.map((s) => (
+              <li key={s.onsetH}>{R.stormLine(s.onsetH, s.wasSheltered)}</li>
             ))}
           </ul>
         )}

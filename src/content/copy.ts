@@ -32,13 +32,13 @@ export const copy = {
       'Decide which machines keep power when energy runs low. Add simple “if this happens, then do that” rules, like “if a solar storm is coming, hide in the shelter.”',
     step3Title: '3. Test it many times',
     step3Desc:
-      'The computer flies your mission hundreds of times. Each test uses a real stretch of the Sun’s history, with real solar storms recorded by NASA.',
+      'The computer flies your mission hundreds of times. Dust, breakdowns and solar storms change every time. You can also replay a real solar storm recorded by NASA.',
     step4Title: '4. Review and improve',
     step4Desc:
       'See how often your crew stayed safe and what went wrong. Watch a replay of the hardest mission. Then change your plan and try again!',
     realDataTitle: 'Real NASA data inside',
     realDataBody:
-      'The solar storms in this game really happened. NASA scientists recorded them in a database called DONKI. The game uses a saved copy, so it is not live.',
+      'You can test your base against real solar storms. NASA recorded them in a space weather database called DONKI. The game uses a saved copy, so it is not live.',
     startButton: 'Start building →',
   },
   glossary: {
@@ -137,32 +137,68 @@ export const copy = {
     nextButton: 'Next: test the mission →',
     backButton: '← Back to building',
   },
-  spaceWeather: {
-    title: 'Which Sun will you face?',
+  storms: {
+    title: 'Which solar storms will your base face?',
+    intro: 'Pick random storms, or replay a real solar storm that NASA recorded.',
+    pickerLabel: 'Storms for this test',
+    randomName: 'Random storms',
+    randomDesc:
+      'Storms arrive at random times. How often and how strong they are is an illustrative game choice.',
+    replayName: (date: string) => `Real storm of ${date}`,
+    replayDesc: (flareClass: string) => `Linked to a class ${flareClass} solar flare.`,
+    sourceBadge: 'NASA DONKI (S12)',
+    archivedLabel: (date: string) => `Archived NASA data, retrieved ${date}. Not live.`,
+    honesty:
+      'Which storm happened, and when, is real NASA data. How strong it is in the game is our simplification: DONKI gives each linked flare a class, and in this game a C flare makes a small storm, M a medium one and X the biggest.',
+    donkiLink: 'See this storm in NASA DONKI',
+    evidenceLink: 'See the DONKI alert that names the flare class',
+  },
+  stormResult: {
+    vsStorm: (date: string, perHundred: number) =>
+      `Your crew vs the storm of ${date}: ${perHundred} out of every 100 came home.`,
+    shieldLink: (layers: number, dose: string, limit: string) =>
+      layers === 0
+        ? `With no shield layers, the highest dose in the hard cases was ${dose} µSv (limit ${limit}).`
+        : `With ${layers} shield layer${layers === 1 ? '' : 's'}, the highest dose in the hard cases was ${dose} µSv (limit ${limit}).`,
+    randomSummary: (mean: string, max: number) =>
+      `Random storms: about ${mean} solar storms per test mission, up to ${max} in one mission.`,
+  },
+  dataPanel: {
+    title: 'Where our data comes from',
     intro:
-      'Each test mission replays a real 30-day stretch of the Sun’s history. The bars show how many solar storms NASA recorded each year.',
-    eraLabel: 'Pick the Sun’s mood',
-    eras: {
-      all: { name: 'Any time', desc: 'Any 30 days from the whole record.' },
-      quiet: {
-        name: 'Calm Sun',
-        desc: (years: string) => `Years with the fewest storms: ${years}.`,
+      'Every dataset the game uses, what we use it for, and whether it is archived or live. Nothing in this game is live.',
+    colDataset: 'Dataset',
+    colUse: 'What we use it for',
+    colStatus: 'Status',
+    archived: (date: string) => `Archived, retrieved ${date}`,
+    published: 'Published source',
+    rows: [
+      {
+        id: 'donki',
+        name: 'NASA DONKI space weather database (S12)',
+        use: 'Real Storm Replay: which storm, its date and its linked flare class.',
       },
-      stormy: {
-        name: 'Stormy Sun',
-        desc: (years: string) => `Years with the most storms: ${years}.`,
+      {
+        id: 'S02',
+        name: 'Chang’e-4 Moon surface radiation measurement (S02)',
+        use: 'The everyday radiation dose on the Moon’s surface.',
       },
-    },
-    chartTitle: 'Solar storms recorded per year',
-    chartDesc: (from: number, to: number) =>
-      `Bar chart of solar storms per year, ${from} to ${to}.`,
-    stats: (storms: number, medianLeadH: number, noWarnPct: number) =>
-      `${storms} storms in the record. The early sign (a flare or a cloud of gas leaving the Sun) usually came only about ${medianLeadH} hours before the particles arrived. ${noWarnPct}% had no early sign at all.`,
-    attribution: (fetchedAt: string, from: string, to: string) =>
-      `Data: NASA DONKI space weather database (source S12), ${from} to ${to}. Saved copy from ${fetchedAt}, not live.`,
-    legendQuiet: 'calm year',
-    legendStormy: 'stormy year',
-    legendOther: 'other year',
+      {
+        id: 'S04',
+        name: 'NASA space station life support fact sheet (S04)',
+        use: 'How much used water the recyclers save.',
+      },
+      {
+        id: 'S05',
+        name: 'NASA Sabatier system (S05)',
+        use: 'The most oxygen the Sabatier air recycler can win back.',
+      },
+      {
+        id: 'S03',
+        name: 'Sunlight at the lunar south pole (S03)',
+        use: 'Why landing spots have dark hours, and why a taller mast helps.',
+      },
+    ],
   },
   rehearse: {
     heading: 'Test your mission',
@@ -216,13 +252,7 @@ export const copy = {
     days: 'days',
     massUsedTitle: 'Rocket weight used',
     massOf: (used: number, max: number) => `${used} / ${max} mu`,
-    sunTitle: 'The real Sun in your tests',
-    sunSummary: (era: string, mean: string, max: number) =>
-      `${era}: about ${mean} solar storms per test mission, up to ${max} in one mission.`,
-    warningsMissed: (n: number) =>
-      n === 0
-        ? 'Every storm warning reached your base by radio.'
-        : `${n} storm warnings never reached your base because the radio was off.`,
+    stormsTitle: 'Solar storms in your tests',
     riskChartTitle: 'What went wrong?',
     massRiskChartTitle: 'Weight vs. risk for every base you tested',
     massRiskEmpty: 'Test more designs to compare them here.',
@@ -232,16 +262,12 @@ export const copy = {
   replay: {
     title: (seed: number) => `Replay of the hardest mission (test #${seed})`,
     intro: 'Drag the slider or press play to watch what happened, hour by hour.',
-    sunWindow: (date: string) => `This test used the real Sun starting ${date}.`,
-    noStorms: 'No solar storms happened in this stretch.',
-    stormLine: (onsetH: number, lead: string, received: string, sheltered: string) =>
-      `Hour ${onsetH}: storm. ${lead} ${received} ${sheltered}`,
-    leadNone: 'No warning was possible.',
-    lead: (h: number) => `Forecast came ${h} h early.`,
-    receivedYes: (h: number) => `Heard by radio at hour ${h}.`,
-    receivedNo: 'Warning never arrived.',
-    shelteredYes: 'Crew was in the shelter.',
-    shelteredNo: 'Crew was NOT in the shelter.',
+    stormsTitle: 'Solar storms in this mission',
+    noStorms: 'No solar storm hit this mission.',
+    stormLine: (onsetH: number, sheltered: boolean) =>
+      `Hour ${onsetH}: solar storm. ${sheltered ? 'The crew was in the shelter.' : 'The crew was NOT in the shelter.'}`,
+    replayStorm: (date: string, flareClass: string) =>
+      `This mission replayed the real storm of ${date} (flare class ${flareClass}).`,
     donkiLink: 'See this storm in NASA DONKI',
     play: 'Play',
     pause: 'Pause',
@@ -334,29 +360,8 @@ export const copy = {
     heading: 'How the game works',
     intro: (version: string, count: number) =>
       `Model version ${version}. Every number the game uses is listed below (${count} in all), with where it came from and how sure we are. Numbers marked ASSUMPTION are illustrative game choices, not NASA requirements.`,
-    dataTitle: 'Real NASA data in this game',
-    dataIntro:
-      'These parts of the game use real measurements or records. Everything else is a labeled game choice.',
-    dataRows: [
-      {
-        name: 'Solar storms (NASA DONKI, S12)',
-        use: 'When storms happen and how much warning was possible. Each test replays a real 30-day stretch.',
-      },
-      {
-        name: 'Moon surface radiation (Chang’e-4 measurement, S02)',
-        use: 'The everyday radiation dose on the Moon’s surface.',
-      },
-      {
-        name: 'Space station water and air recycling (S04, S05, S08)',
-        use: 'How much water the recyclers save, and the Sabatier air-recycler limit.',
-      },
-      {
-        name: 'Sunlight at the south pole (S03, S09)',
-        use: 'Why landing spots have dark hours, and why a taller mast helps.',
-      },
-    ],
-    stormStats: (n: number, raw: number, from: string, to: string, fetched: string) =>
-      `${n} storms built from ${raw} DONKI records, ${from} to ${to}. Saved copy from ${fetched}. It is not live.`,
+    stormStats: (n: number, date: string) =>
+      `${n} archived NASA DONKI storms are available for Real Storm Replay. Retrieved ${date}. Not live.`,
     commsTitle: 'Talking to Earth',
     commsBody: (moonS: number, marsMin: readonly number[]) =>
       `A radio message takes about ${moonS} seconds to travel between Earth and the Moon. To Mars it takes ${marsMin[0]} to ${marsMin[1]} minutes, depending on where the planets are. On the Moon that delay is tiny, so the game does not slow messages down. What matters is whether the radio is on when a warning is sent.`,
@@ -373,9 +378,9 @@ export const copy = {
           'Every crew member eats, drinks and breathes the same amount. Tiredness, mood and sleep are not modeled.',
       },
       {
-        topic: 'Storms from real dates, strength illustrative',
+        topic: 'Real storms, simplified strength',
         detail:
-          'Storm dates and warning times come from DONKI. How strong a storm is and how long it lasts are illustrative game numbers, the same for every storm.',
+          'Replayed storms are real DONKI events. In the game every storm lasts the same time, and its strength depends only on the letter of its flare class (an illustrative table).',
       },
       {
         topic: 'No spacewalks',

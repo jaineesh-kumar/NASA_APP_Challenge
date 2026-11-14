@@ -14,7 +14,7 @@ import {
   MissionResult,
   Rules,
   SiteId,
-  SunEra,
+  StormMode,
 } from '../engine/types.ts';
 
 export type ScreenId =
@@ -25,7 +25,7 @@ export interface TriedDesign {
   n: number;
   massUsed: number;
   riskPct: number;
-  sunEra: SunEra;
+  stormMode: StormMode;
 }
 
 const MAX_HISTORY = 30;
@@ -34,12 +34,12 @@ export interface AppState {
   currentScreen: ScreenId;
   design: Design;
   rules: Rules;
-  sunEra: SunEra;
+  stormMode: StormMode;
   massUsed: number;
   isWithinBudget: boolean;
   campaignResult: CampaignResult | null;
   worstMissionResult: MissionResult | null;
-  /** Design, rules or era changed since the last campaign. */
+  /** Design, rules or storm mode changed since the last campaign. */
   isResultStale: boolean;
   isRunningCampaign: boolean;
   campaignProgress: number;
@@ -64,8 +64,8 @@ export type Action =
   | { type: 'REMOVE_RULE'; index: number }
   | { type: 'SET_PRESET'; preset: MissionPreset }
   | { type: 'LOAD_MISSION'; mission: GuidedMission }
-  | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules; sunEra?: SunEra }
-  | { type: 'SET_SUN_ERA'; sunEra: SunEra }
+  | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules; stormMode?: StormMode }
+  | { type: 'SET_STORM_MODE'; stormMode: StormMode }
   | { type: 'START_CAMPAIGN' }
   | { type: 'SET_CAMPAIGN_PROGRESS'; progress: number }
   | { type: 'SET_CAMPAIGN_RESULT'; result: CampaignResult; worstRun: MissionResult }
@@ -79,7 +79,7 @@ export const initialAppState: AppState = {
   currentScreen: 'briefing',
   design: initialPreset.design,
   rules: initialPreset.rules,
-  sunEra: 'all',
+  stormMode: { kind: 'random' },
   massUsed: massUsed(initialPreset.design, params),
   isWithinBudget: isWithinBudget(initialPreset.design, params),
   campaignResult: null,
@@ -91,20 +91,26 @@ export const initialAppState: AppState = {
   history: [],
 };
 
+export function sameStormMode(a: StormMode, b: StormMode): boolean {
+  return (
+    a.kind === b.kind && (a.kind === 'random' || (b.kind === 'replay' && a.eventId === b.eventId))
+  );
+}
+
 const clampInt = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, Math.floor(v)));
 
 function withConfig(
   state: AppState,
   design: Design,
   rules: Rules,
-  sunEra = state.sunEra,
+  stormMode = state.stormMode,
 ): AppState {
   const mass = massUsed(design, params);
   return {
     ...state,
     design,
     rules,
-    sunEra,
+    stormMode,
     massUsed: mass,
     isWithinBudget: isWithinBudget(design, params),
     isResultStale: state.campaignResult !== null,
@@ -135,7 +141,7 @@ export function appReducer(state: AppState, action: Action): AppState {
         n,
         massUsed: action.result.massUsed,
         riskPct: (1 - action.result.survivalRate) * 100,
-        sunEra: action.result.sunEra,
+        stormMode: action.result.stormMode,
       };
       return {
         ...state,
@@ -200,13 +206,18 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'SET_PRESET':
       return withConfig(state, action.preset.design, action.preset.rules);
     case 'LOAD_MISSION':
-      return withConfig(state, action.mission.design, action.mission.rules, action.mission.sunEra);
+      return withConfig(
+        state,
+        action.mission.design,
+        action.mission.rules,
+        action.mission.stormMode,
+      );
     case 'LOAD_SCENARIO':
-      return withConfig(state, action.design, action.rules, action.sunEra ?? state.sunEra);
-    case 'SET_SUN_ERA':
-      return action.sunEra === state.sunEra
+      return withConfig(state, action.design, action.rules, action.stormMode ?? state.stormMode);
+    case 'SET_STORM_MODE':
+      return sameStormMode(action.stormMode, state.stormMode)
         ? state
-        : withConfig(state, d, state.rules, action.sunEra);
+        : withConfig(state, d, state.rules, action.stormMode);
     default:
       return state;
   }

@@ -69,14 +69,14 @@ describe('appReducer (L6 AC1-AC4)', () => {
       type: 'LOAD_MISSION',
       mission: m3 ?? guidedMissions[0]!,
     });
-    expect(s.sunEra).toBe('stormy');
-    const result = { massUsed: 90, survivalRate: 0.8, sunEra: 'stormy' } as CampaignResult;
+    expect(s.stormMode.kind).toBe('replay');
+    const result = { massUsed: 90, survivalRate: 0.8, stormMode: s.stormMode } as CampaignResult;
     s = appReducer(s, { type: 'SET_CAMPAIGN_RESULT', result, worstRun: {} as MissionResult });
     expect(s.history).toEqual([
-      { n: 1, massUsed: 90, riskPct: expect.closeTo(20, 9), sunEra: 'stormy' },
+      { n: 1, massUsed: 90, riskPct: expect.closeTo(20, 9), stormMode: s.stormMode },
     ]);
     expect(s.isResultStale).toBe(false);
-    s = appReducer(s, { type: 'SET_SUN_ERA', sunEra: 'quiet' });
+    s = appReducer(s, { type: 'SET_STORM_MODE', stormMode: { kind: 'random' } });
     expect(s.isResultStale).toBe(true);
   });
 

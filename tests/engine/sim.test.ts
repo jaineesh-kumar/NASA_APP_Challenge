@@ -45,38 +45,18 @@ describe('runMission (L5 AC1, AC2)', () => {
     }
   });
 
-  it('shedding comms means storm warnings cannot reach the base (ADR-006)', () => {
-    const shedComms: Rules = {
-      priority: goldenRules.priority,
-      ifThen: [
-        {
-          condition: { kind: 'battery_below_pct', value: 101 },
-          action: { kind: 'shed', load: 'comms' },
-        },
-        { condition: { kind: 'spe_warning' }, action: { kind: 'shelter' } },
-      ],
-    };
-    let warned = 0;
-    let missedWithoutComms = 0;
-    for (let seed = 1; seed <= 60; seed++) {
-      const on = runMission(goldenDesign, goldenRules, seed, params, { sunEra: 'stormy' });
-      const off = runMission(goldenDesign, shedComms, seed, params, { sunEra: 'stormy' });
-      expect(off.sun.storms.every((s) => s.warningReceivedH === null)).toBe(true);
-      warned += on.sun.storms.filter((s) => s.warningReceivedH !== null).length;
-      missedWithoutComms += off.log.filter((e) => e.type === 'warning_missed').length;
-    }
-    expect(warned).toBeGreaterThan(0);
-    expect(missedWithoutComms).toBeGreaterThan(0);
-  });
-
-  it('a warned, sheltered crew takes less storm dose than an unwarned one (same seed)', () => {
+  it('the shelter rule lowers dose in runs with a solar particle event (same seed)', () => {
     const noShelter: Rules = { priority: goldenRules.priority, ifThen: [] };
-    for (let seed = 1; seed <= 30; seed++) {
-      const a = runMission(goldenDesign, goldenRules, seed, params, { sunEra: 'stormy' });
-      const b = runMission(goldenDesign, noShelter, seed, params, { sunEra: 'stormy' });
-      if (a.survived && b.survived && a.sun.storms.length > 0) {
+    let compared = 0;
+    for (let seed = 1; seed <= 60; seed++) {
+      const a = runMission(goldenDesign, goldenRules, seed, params);
+      const b = runMission(goldenDesign, noShelter, seed, params);
+      if (a.survived && b.survived && a.storms.length > 0) {
+        expect(a.storms.every((st) => st.wasSheltered)).toBe(true);
         expect(a.peakDoseUsv).toBeLessThan(b.peakDoseUsv);
+        compared++;
       }
     }
+    expect(compared).toBeGreaterThan(0);
   });
 });

@@ -2,7 +2,8 @@
 // Presets were checked with 300-run campaigns (see docs/DECISIONS.md ADR-007); they must stay
 // inside the mass budget (tests/ui/store.test.tsx). Agent-drafted text carries needsReview.
 
-import { Design, IfThenRule, Rules, SunEra } from '../engine/types.ts';
+import { getDonkiArchive } from '../engine/params.ts';
+import { Design, IfThenRule, Rules, StormMode } from '../engine/types.ts';
 
 export interface ConceptCheck {
   prompt: string;
@@ -19,7 +20,7 @@ export interface GuidedMission {
   conceptTarget: string;
   design: Design;
   rules: Rules;
-  sunEra: SunEra;
+  stormMode: StormMode;
   conceptCheck: ConceptCheck;
   needsReview: true;
 }
@@ -53,6 +54,17 @@ const saveScience = (pct: number): IfThenRule => ({
   condition: { kind: 'battery_below_pct', value: pct },
   action: { kind: 'shed', load: 'science' },
 });
+
+/** The archived DONKI storm with the biggest linked flare (X > M > C, then by number). */
+function strongestArchivedStorm(): StormMode {
+  const rank = (cls: string) =>
+    'CMX'.indexOf(cls.charAt(0)) * 1000 + Number.parseFloat(cls.slice(1));
+  const events = [...getDonkiArchive().events].sort(
+    (a, b) => rank(b.flareClass) - rank(a.flareClass),
+  );
+  const top = events[0];
+  return top ? { kind: 'replay', eventId: top.id } : { kind: 'random' };
+}
 
 export const missionPresets: MissionPreset[] = [
   {
@@ -134,7 +146,7 @@ export const guidedMissions: GuidedMission[] = [
       spares: { co2_scrubber: 2, o2_generator: 1, water_processor: 0, power_array: 0 },
     },
     rules: { priority: LADDER, ifThen: [saveScience(30), shelterOnWarning, fixFirst] },
-    sunEra: 'all',
+    stormMode: { kind: 'random' },
     conceptCheck: {
       prompt: 'Why did adding batteries help this base?',
       options: [
@@ -168,7 +180,7 @@ export const guidedMissions: GuidedMission[] = [
       spares: { co2_scrubber: 2, o2_generator: 0, water_processor: 0, power_array: 0 },
     },
     rules: { priority: LADDER, ifThen: [saveScience(30), shelterOnWarning, fixFirst] },
-    sunEra: 'all',
+    stormMode: { kind: 'random' },
     conceptCheck: {
       prompt: 'What is a single point of failure?',
       options: [
@@ -187,7 +199,7 @@ export const guidedMissions: GuidedMission[] = [
     title: 'Mission 3: Stormy Sun',
     subtitle: 'Real storms, and a radio that keeps switching off',
     objective:
-      'This base is tested against the stormiest years in NASA’s record. Its rules switch the radio off to save power, and nobody hides when a storm comes. Fix the rules: add a shelter rule and keep the radio on.',
+      'This base faces the strongest real solar storm in our NASA archive. Its rules switch the radio off to save power, and nobody hides when a storm comes. Fix the rules: add a shelter rule and keep the radio on.',
     conceptTarget: 'communication',
     design: {
       site: 'ridge',
@@ -210,7 +222,7 @@ export const guidedMissions: GuidedMission[] = [
         fixFirst,
       ],
     },
-    sunEra: 'stormy',
+    stormMode: strongestArchivedStorm(),
     conceptCheck: {
       prompt: 'Why did switching off the radio make storms more dangerous?',
       options: [

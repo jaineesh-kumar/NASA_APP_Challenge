@@ -26,7 +26,7 @@ export const LearnScreen: React.FC = () => {
   const [quizSubmitted, setQuizSubmitted] = useState(false);
 
   // Scenario code import/export state
-  const currentScenarioCode = encodeScenarioCode(state.design, state.rules, state.sunEra);
+  const currentScenarioCode = encodeScenarioCode(state.design, state.rules, state.stormMode);
   const [importCodeInput, setImportCodeInput] = useState('');
   const [importStatus, setImportStatus] = useState<{ success: boolean; message: string } | null>(
     null,
@@ -68,7 +68,7 @@ export const LearnScreen: React.FC = () => {
         type: 'LOAD_SCENARIO',
         design: decoded.design,
         rules: decoded.rules,
-        sunEra: decoded.sunEra,
+        stormMode: decoded.stormMode,
       });
       setImportStatus({
         success: true,

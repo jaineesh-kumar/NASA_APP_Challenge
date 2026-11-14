@@ -6,7 +6,7 @@ import { Design } from '../../src/engine/types.ts';
 import { goldenDesign, goldenRules, k, params } from './fixtures.ts';
 
 describe('events and failures (L4 AC6-AC8)', () => {
-  it('AC7: each tick draws exactly 5 numbers in fixed order (uDust, then 4 components)', () => {
+  it('AC7: each tick draws exactly 6 numbers in fixed order (uSpe, uDust, 4 components)', () => {
     const src = mulberry32(1);
     const drawn: number[] = [];
     const recorder = () => {
@@ -15,24 +15,17 @@ describe('events and failures (L4 AC6-AC8)', () => {
       return v;
     };
     let s = createInitialEventsState(goldenDesign);
-    for (let t = 0; t < 10; t++) s = stepEvents(s, recorder, k).state;
-    expect(drawn).toHaveLength(50);
+    for (let t = 0; t < 10; t++) s = stepEvents(s, t, recorder, k).state;
+    expect(drawn).toHaveLength(60);
     const ref = mulberry32(1);
-    expect(drawn).toEqual(Array.from({ length: 50 }, () => ref()));
-    expect(drawn.slice(0, 5).map((v) => v.toFixed(6))).toMatchInlineSnapshot(`
-      [
-        "0.627074",
-        "0.002736",
-        "0.527447",
-        "0.981051",
-        "0.968378",
-      ]
-    `);
+    expect(drawn).toEqual(Array.from({ length: 60 }, () => ref()));
+    // Snapshot of the first 50 draws for seed 1 (L4 AC7), recorded by Vitest from the real RNG.
+    expect(drawn.slice(0, 50).map((v) => v.toFixed(6))).toMatchSnapshot();
   });
 
   it('a draw below the failure chance breaks a component; a spare sets finite repair time', () => {
     const forced = () => 0; // every draw triggers
-    const withSpare = stepEvents(createInitialEventsState(goldenDesign), forced, k);
+    const withSpare = stepEvents(createInitialEventsState(goldenDesign), 0, forced, k);
     expect(withSpare.failed).toEqual([
       'co2_scrubber',
       'o2_generator',
@@ -68,19 +61,40 @@ describe('events and failures (L4 AC6-AC8)', () => {
     }
   });
 
-  it('AC8: with comms on, a storm warning arrives exactly leadH hours before onset', () => {
+  it('AC8: an SPE warning precedes onset by exactly spe_warning_lead_h (B5.5)', () => {
+    const always = () => 0; // uSpe below the chance -> an event is scheduled at t
+    let s = createInitialEventsState(goldenDesign);
+    const first = stepEvents(s, 5, always, k);
+    expect(first.isSpeWarningStarted).toBe(true);
+    expect(first.state.spe?.onsetH).toBe(5 + k.speWarningLeadH);
+    expect(first.state.spe?.endH).toBe(5 + k.speWarningLeadH + k.speDurationH);
+    s = first.state;
+    // No second event while one is pending or active; warning stays on until the end.
+    for (let t = 6; t < 5 + k.speWarningLeadH + k.speDurationH; t++) {
+      const st = stepEvents(s, t, always, k);
+      expect(st.isSpeWarningStarted).toBe(false);
+      expect(st.isSpeWarning).toBe(true);
+      expect(st.isSpeStarted).toBe(t === 5 + k.speWarningLeadH);
+      s = st.state;
+    }
+    // Whole missions: every spe_start is exactly lead hours after its spe_warning.
     let checked = 0;
-    for (let seed = 1; seed <= 60 && checked < 10; seed++) {
-      const r = runMission(goldenDesign, goldenRules, seed, params, { sunEra: 'stormy' });
-      for (const s of r.sun.storms) {
-        if (s.leadH === 0 || s.onsetH - s.leadH < 1) continue;
-        if (r.failureHour !== null && r.failureHour < s.onsetH) continue;
-        const commsWasOn = !r.log.some((e) => e.type === 'load_off' && e.detail === 'comms');
-        if (!commsWasOn) continue;
-        expect(s.warningReceivedH).toBe(s.onsetH - s.leadH);
+    for (let seed = 1; seed <= 80; seed++) {
+      const r = runMission(goldenDesign, goldenRules, seed, params);
+      const warnings = r.log.filter((e) => e.type === 'spe_warning').map((e) => e.t);
+      const starts = r.log.filter((e) => e.type === 'spe_start').map((e) => e.t);
+      starts.forEach((t, i) => {
+        expect(t - (warnings[i] ?? -1)).toBe(k.speWarningLeadH);
         checked++;
-      }
+      });
     }
     expect(checked).toBeGreaterThan(0);
+  });
+
+  it('replay mode never starts a random event but keeps the draw order', () => {
+    const always = () => 0;
+    const st = stepEvents(createInitialEventsState(goldenDesign), 3, always, k, false);
+    expect(st.isSpeWarningStarted).toBe(false);
+    expect(st.state.spe).toBeNull();
   });
 });

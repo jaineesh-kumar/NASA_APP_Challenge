@@ -1,7 +1,8 @@
-// Shareable scenario codes: encode / decode design + rules + sun era (L8 AC4, AC5)
-// Format "MM<version>-<base64url JSON>". v2 adds the sun era (ADR-005); v1 codes still load.
+// Shareable scenario codes: encode / decode design + rules + storm mode (L8 AC4, AC5)
+// Format "MM<version>-<base64url JSON>". v2 adds the storm mode (B5.11); v1 codes still load.
 
 import { LOAD_IDS } from '../engine/constants.ts';
+import { getDonkiArchive } from '../engine/params.ts';
 import { validateRules } from '../engine/rules.ts';
 import {
   Action,
@@ -13,7 +14,7 @@ import {
   LoadId,
   Rules,
   SiteId,
-  SunEra,
+  StormMode,
 } from '../engine/types.ts';
 
 export const SCENARIO_CODE_VERSION = 2;
@@ -23,11 +24,10 @@ const MAX_CODE_LENGTH = 2048;
 export interface Scenario {
   design: Design;
   rules: Rules;
-  sunEra: SunEra;
+  stormMode: StormMode;
 }
 
 const SITES: ReadonlySet<string> = new Set<SiteId>(['ridge', 'crater_edge']);
-const ERAS: ReadonlySet<string> = new Set<SunEra>(['all', 'quiet', 'stormy']);
 const LOADS: ReadonlySet<string> = new Set<string>(LOAD_IDS);
 const COMPONENTS: readonly ComponentId[] = [
   'co2_scrubber',
@@ -80,8 +80,12 @@ function fromBase64Url(s: string): string {
   );
 }
 
-export function encodeScenarioCode(design: Design, rules: Rules, sunEra: SunEra = 'all'): string {
-  const json = JSON.stringify({ v: SCENARIO_CODE_VERSION, d: design, r: rules, e: sunEra });
+export function encodeScenarioCode(
+  design: Design,
+  rules: Rules,
+  stormMode: StormMode = { kind: 'random' },
+): string {
+  const json = JSON.stringify({ v: SCENARIO_CODE_VERSION, d: design, r: rules, s: stormMode });
   return `MM${SCENARIO_CODE_VERSION}-${toBase64Url(json)}`;
 }
 
@@ -165,6 +169,19 @@ function parseRules(r: unknown): Rules {
   return rules;
 }
 
+function parseStormMode(m: unknown): StormMode {
+  if (!isObj(m)) corrupt('Scenario is missing its storm mode.');
+  if (m['kind'] === 'random') return { kind: 'random' };
+  if (m['kind'] === 'replay' && typeof m['eventId'] === 'string') {
+    const eventId = m['eventId'];
+    if (!getDonkiArchive().events.some((e) => e.id === eventId)) {
+      corrupt(`Unknown archived storm: ${eventId}`);
+    }
+    return { kind: 'replay', eventId };
+  }
+  return corrupt('Invalid storm mode.');
+}
+
 export function decodeScenarioCode(code: string): Scenario {
   if (typeof code !== 'string' || code.trim() === '') {
     throw new EngineError('INVALID_SCENARIO_CODE', 'Scenario code cannot be empty.');
@@ -190,8 +207,6 @@ export function decodeScenarioCode(code: string): Scenario {
   if (typeof v !== 'number' || !SUPPORTED_VERSIONS.has(v) || String(v) !== match[1]) {
     throw new EngineError('UNSUPPORTED_VERSION', `Unsupported scenario version: ${String(v)}.`);
   }
-  const e = parsed['e'];
-  const sunEra: SunEra = v >= 2 && typeof e === 'string' && ERAS.has(e) ? (e as SunEra) : 'all';
-  if (v >= 2 && (typeof e !== 'string' || !ERAS.has(e))) corrupt(`Invalid sun era: ${String(e)}`);
-  return { design: parseDesign(parsed['d']), rules: parseRules(parsed['r']), sunEra };
+  const stormMode: StormMode = v >= 2 ? parseStormMode(parsed['s']) : { kind: 'random' };
+  return { design: parseDesign(parsed['d']), rules: parseRules(parsed['r']), stormMode };
 }

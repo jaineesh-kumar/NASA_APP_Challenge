@@ -21,13 +21,16 @@ export function useCampaign() {
   useEffect(() => () => workerRef.current?.terminate(), []);
 
   const start = useCallback(() => {
-    const { design, rules, sunEra } = state;
+    const { design, rules, stormMode } = state;
     const id = ++requestId.current;
     dispatch({ type: 'START_CAMPAIGN' });
 
     const finish = (result: CampaignResult) => {
       if (id !== requestId.current) return; // a newer run replaced this one
-      const worstRun = runMission(design, rules, result.worstSeed, params, { sunEra, trace: true });
+      const worstRun = runMission(design, rules, result.worstSeed, params, {
+        stormMode,
+        trace: true,
+      });
       dispatch({ type: 'SET_CAMPAIGN_RESULT', result, worstRun });
     };
     const fail = (err: unknown) => {
@@ -49,7 +52,7 @@ export function useCampaign() {
               params,
               (p) => dispatch({ type: 'SET_CAMPAIGN_PROGRESS', progress: p }),
               {
-                sunEra,
+                stormMode,
               },
             ),
           );
@@ -91,7 +94,7 @@ export function useCampaign() {
         id,
         design,
         rules,
-        sunEra,
+        stormMode,
         runs: CAMPAIGN_RUNS,
       };
       worker.postMessage(payload);

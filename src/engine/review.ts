@@ -1,5 +1,5 @@
 // Cause chain and concept hint from a mission log
-// Spec B5.9 (table extended by ADR-006 for comms-carried storm warnings)
+// Spec B5.9
 
 import { FailureCause, LogEntry, MissionResult } from './types.ts';
 
@@ -46,9 +46,6 @@ const CAUSES: Readonly<Record<string, readonly Pattern[]>> = {
   'failure:water': [is('component_failed', 'water_processor'), is('load_off', 'life_support')],
   'failure:food': [is('load_off', 'greenhouse'), is('component_failed', 'water_processor')],
   'failure:dose': [is('spe_start', 'unsheltered'), is('spe_start')],
-  'spe_start:unsheltered': [is('warning_missed')],
-  warning_missed: [is('load_off', 'comms'), is('rule_fired', 'shed comms')],
-  'load_off:comms': [is('battery_empty')],
   'load_off:life_support': [
     is('battery_empty'),
     is('rule_fired', 'shed life_support'),
@@ -103,7 +100,6 @@ export function buildCauseChain(input: MissionResult | readonly LogEntry[]): Cau
 // Spec B5.9 concept hint by effect.
 function conceptFor(cause: FailureCause, chain: readonly CauseChainLink[]): ConceptId {
   const types = new Set(chain.map((l) => l.cause.type));
-  if (types.has('warning_missed')) return 'communication';
   if (types.has('battery_empty')) return 'margin';
   switch (cause) {
     case 'water':

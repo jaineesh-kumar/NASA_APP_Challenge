@@ -22,9 +22,11 @@ describe('campaign statistics (L5 AC5-AC8, AC10)', () => {
   });
 
   const runs = 40;
-  const c = runCampaign(goldenDesign, goldenRules, runs, params, undefined, { sunEra: 'stormy' });
+  const c = runCampaign(goldenDesign, goldenRules, runs, params, undefined, {
+    stormMode: { kind: 'random' },
+  });
   const missions = Array.from({ length: runs }, (_, i) =>
-    runMission(goldenDesign, goldenRules, i + 1, params, { sunEra: 'stormy' }),
+    runMission(goldenDesign, goldenRules, i + 1, params, { stormMode: { kind: 'random' } }),
   );
 
   it('AC7: causeCounts match the individual runs', () => {
@@ -53,9 +55,9 @@ describe('campaign statistics (L5 AC5-AC8, AC10)', () => {
     }
   });
 
-  it('storm stats come from the real record', () => {
-    expect(c.sunEra).toBe('stormy');
-    const total = missions.reduce((s, m) => s + m.sun.storms.length, 0);
+  it('storm stats match the individual runs', () => {
+    expect(c.stormMode).toEqual({ kind: 'random' });
+    const total = missions.reduce((s, m) => s + m.storms.length, 0);
     expect(c.stormsPerRunMean).toBeCloseTo(total / runs, 12);
   });
 

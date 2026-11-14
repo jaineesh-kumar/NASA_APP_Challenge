@@ -183,6 +183,34 @@
       "confidence": "low",
       "note": "illustrative"
     },
+    "radiation.spe_warning_lead_h": {
+      "value": 2,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.spe_per_month": {
+      "value": 1,
+      "unit": "events/30 d",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "illustrative"
+    },
+    "radiation.replay_onset_h": {
+      "value": 300,
+      "unit": "h",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "mission hour when a replayed real storm arrives; TODO(human): confirm"
+    },
+    "radiation.spe_multiplier_by_flare_class": {
+      "value": [10, 20, 40],
+      "unit": "x",
+      "source": "ASSUMPTION",
+      "confidence": "low",
+      "note": "storm strength in the game by linked flare class: index 0 = C, 1 = M, 2 = X; illustrative; TODO(human): confirm"
+    },
     "radiation.dose_limit_usv_mission": {
       "value": 60000,
       "unit": "uSv",

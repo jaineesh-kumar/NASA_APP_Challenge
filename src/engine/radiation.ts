@@ -1,5 +1,5 @@
-// Dose with shielding, shelter and solar storms
-// Spec B5.4 step 8
+// Dose with shielding, shelter and solar particle events
+// Spec B5.4 step 8, B5.11
 
 import { SimConstants } from './constants.ts';
 
@@ -8,16 +8,20 @@ export function shieldFactor(shieldBuilt: number, k: SimConstants): number {
   return f[Math.max(0, Math.min(f.length - 1, shieldBuilt))] ?? 1;
 }
 
-/** Dose added this hour in µSv. */
+/**
+ * Spec B5.4 step 8: dose added this hour in µSv.
+ * `speMultiplier` is 1 with no active event, radiation.spe_multiplier for a random event,
+ * or the flare-class value for a replayed real storm (B5.11).
+ */
 export function hourlyDoseUsv(
   shieldBuilt: number,
   isSheltering: boolean,
-  isStormActive: boolean,
+  speMultiplier: number,
   k: SimConstants,
 ): number {
   return (
     k.baseDoseUsvPerH *
-    (isStormActive ? k.speMultiplier : 1) *
+    speMultiplier *
     shieldFactor(shieldBuilt, k) *
     (isSheltering ? k.shelterFactor : 1)
   );

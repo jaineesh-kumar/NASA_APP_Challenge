@@ -12,7 +12,7 @@ describe('campaign worker (L5 AC9)', () => {
         id: 7,
         design: goldenDesign,
         rules: goldenRules,
-        sunEra: 'quiet',
+        stormMode: { kind: 'random' },
         runs: 25,
       },
       (m) => msgs.push(m),
@@ -23,7 +23,9 @@ describe('campaign worker (L5 AC9)', () => {
     if (last?.type === 'RESULT') {
       expect(last.id).toBe(7);
       expect(last.result).toEqual(
-        runCampaign(goldenDesign, goldenRules, 25, undefined, undefined, { sunEra: 'quiet' }),
+        runCampaign(goldenDesign, goldenRules, 25, undefined, undefined, {
+          stormMode: { kind: 'random' },
+        }),
       );
     }
   });
@@ -32,7 +34,14 @@ describe('campaign worker (L5 AC9)', () => {
     const msgs: WorkerOutgoingMessage[] = [];
     const bad = { ...goldenRules, priority: goldenRules.priority.slice(1) };
     handleWorkerMessage(
-      { type: 'RUN_CAMPAIGN', id: 1, design: goldenDesign, rules: bad, sunEra: 'all', runs: 2 },
+      {
+        type: 'RUN_CAMPAIGN',
+        id: 1,
+        design: goldenDesign,
+        rules: bad,
+        stormMode: { kind: 'random' },
+        runs: 2,
+      },
       (m) => msgs.push(m),
     );
     expect(msgs.at(-1)?.type).toBe('ERROR');

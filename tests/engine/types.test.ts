@@ -60,7 +60,7 @@ describe('types contract compliance (Spec B5.2, AC1)', () => {
       minO2Days: 12,
       peakDoseUsv: 3200,
       log: [logEntry],
-      sun: { startDate: '2024-05-01', storms: [] },
+      storms: [],
       scienceHours: 130,
     };
     expect(missionResult.survived).toBe(true);
@@ -88,10 +88,9 @@ describe('types contract compliance (Spec B5.2, AC1)', () => {
       massUsed: 105,
       worstSeed: 47,
       rating: 'flight_ready',
-      sunEra: 'all',
+      stormMode: { kind: 'random' },
       stormsPerRunMean: 1.2,
       stormsMaxInRun: 4,
-      warningsMissed: 0,
     };
     expect(campaignResult.rating).toBe('flight_ready');
   });

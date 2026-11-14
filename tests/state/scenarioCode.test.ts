@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { missionPresets } from '../../src/content/missions.ts';
+import { getDonkiArchive } from '../../src/engine/params.ts';
 import {
   decodeScenarioCode,
   encodeScenarioCode,
@@ -49,5 +50,24 @@ describe('Scenario Code Encoder and Decoder (Spec Part C L8 AC4, AC5)', () => {
     };
     const b64 = btoa(JSON.stringify(corruptPayload));
     expect(() => decodeScenarioCode(`MM1-${b64}`)).toThrowError(/Panels must be an integer/);
+  });
+
+  it('round-trips the storm mode and rejects unknown archived storms (B5.11)', () => {
+    const eventId = getDonkiArchive().events[0]?.id ?? '';
+    const code = encodeScenarioCode(sampleDesign, sampleRules, { kind: 'replay', eventId });
+    expect(decodeScenarioCode(code).stormMode).toEqual({ kind: 'replay', eventId });
+    const forged =
+      'MM2-' +
+      btoa(
+        JSON.stringify({
+          v: 2,
+          d: sampleDesign,
+          r: sampleRules,
+          s: { kind: 'replay', eventId: 'fake-SEP-001' },
+        }),
+      );
+    expect(() => decodeScenarioCode(forged.replace(/=+$/, ''))).toThrowError(
+      /Unknown archived storm/,
+    );
   });
 });

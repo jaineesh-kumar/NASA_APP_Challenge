@@ -4,15 +4,16 @@
 import React, { useMemo, useState } from 'react';
 import { copy } from '../../content/copy.ts';
 import { loadParams } from '../../engine/params.ts';
-import { getSpaceWeather } from '../../engine/spaceWeather.ts';
+import { getDonkiArchive } from '../../engine/params.ts';
 import { ParamEntry } from '../../engine/types.ts';
+import { DataPanel } from '../components/DataPanel.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const paramsInstance = loadParams();
 const allParamEntries = paramsInstance.allEntries();
 
 const SIMPLIFICATIONS = copy.modelCard.simplifications;
-const sw = getSpaceWeather();
+const archive = getDonkiArchive();
 const mc = copy.modelCard;
 
 export const ModelCardScreen: React.FC = () => {
@@ -54,31 +55,10 @@ export const ModelCardScreen: React.FC = () => {
         {mc.intro(paramsInstance.version, allParamEntries.length)}
       </p>
 
-      <section className="panel-card" aria-labelledby="data-title">
-        <h3 id="data-title" className="card-title">
-          ☀ {mc.dataTitle}
-        </h3>
-        <p className="muted small" style={{ marginBottom: 12 }}>
-          {mc.dataIntro}
-        </p>
-        <dl className="tiles">
-          {mc.dataRows.map((row) => (
-            <div key={row.name} className="tile">
-              <dt style={{ fontWeight: 700 }}>{row.name}</dt>
-              <dd className="small">{row.use}</dd>
-            </div>
-          ))}
-        </dl>
-        <p className="small" style={{ marginTop: 12 }}>
-          {mc.stormStats(
-            sw.storms.length,
-            sw.rawEntries,
-            sw.coverageStart,
-            sw.coverageEnd,
-            sw.fetchedAt,
-          )}
-        </p>
-      </section>
+      <DataPanel />
+      <p className="small" style={{ marginTop: -12, marginBottom: 24 }}>
+        {mc.stormStats(archive.events.length, archive.retrievedAt)}
+      </p>
 
       <section className="panel-card" aria-labelledby="comms-title">
         <h3 id="comms-title" className="card-title">

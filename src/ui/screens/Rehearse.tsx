@@ -6,7 +6,8 @@ import { getSimConstants } from '../../engine/constants.ts';
 import { loadParams } from '../../engine/params.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { CAMPAIGN_RUNS, useCampaign } from '../../state/useCampaign.ts';
-import { SpaceWeatherPanel } from '../components/SpaceWeatherPanel.tsx';
+import { DataPanel } from '../components/DataPanel.tsx';
+import { StormPicker, StormResultLine } from '../components/StormPicker.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const k = getSimConstants(loadParams());
@@ -16,7 +17,7 @@ export const RehearseScreen: React.FC = () => {
   const {
     design,
     rules,
-    sunEra,
+    stormMode,
     isRunningCampaign,
     campaignProgress,
     campaignResult,
@@ -66,9 +67,9 @@ export const RehearseScreen: React.FC = () => {
         </dl>
       </section>
 
-      <SpaceWeatherPanel
-        value={sunEra}
-        onChange={(era) => dispatch({ type: 'SET_SUN_ERA', sunEra: era })}
+      <StormPicker
+        value={stormMode}
+        onChange={(mode) => dispatch({ type: 'SET_STORM_MODE', stormMode: mode })}
         disabled={isRunningCampaign}
       />
 
@@ -117,6 +118,19 @@ export const RehearseScreen: React.FC = () => {
           </div>
         ) : hasFreshResult ? (
           <div>
+            {campaignResult ? (
+              <div style={{ marginBottom: 16 }}>
+                <StormResultLine
+                  mode={campaignResult.stormMode}
+                  survivalRate={campaignResult.survivalRate}
+                  shieldLayers={design.shieldingLayers}
+                  doseUsvP95={campaignResult.doseUsvP95}
+                  doseLimitUsv={k.doseLimitUsv}
+                  stormsPerRunMean={campaignResult.stormsPerRunMean}
+                  stormsMaxInRun={campaignResult.stormsMaxInRun}
+                />
+              </div>
+            ) : null}
             <p style={{ fontWeight: 600, color: 'var(--color-success)', marginBottom: 16 }}>
               ✓ {t.completedNotice}
             </p>
@@ -145,6 +159,8 @@ export const RehearseScreen: React.FC = () => {
           </button>
         )}
       </section>
+
+      <DataPanel />
 
       <button type="button" onClick={() => dispatch({ type: 'SET_SCREEN', screen: 'rules' })}>
         {t.backToRules}

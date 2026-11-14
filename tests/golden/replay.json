@@ -1,0 +1,2322 @@
+{
+ "2026-09-05T16:30:00-SEP-001": [
+  {
+   "seed": 1,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 37.89880952380958,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 206,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 229,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 229,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 234,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 234,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 238,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 274,
+     "type": "component_failed",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 292,
+     "type": "component_repaired",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 439,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 550,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 559,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 564,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 568,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 637,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 2,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 67,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 164,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 468,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    },
+    {
+     "t": 551,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 574,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 579,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 583,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 3,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 5,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 238,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 429,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 440,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 537,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 560,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 565,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 569,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.20000000000397
+  }
+ ],
+ "2026-07-30T20:58:00-SEP-001": [
+  {
+   "seed": 1,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 37.89880952380958,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 206,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 229,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 229,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 234,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 234,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 238,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 274,
+     "type": "component_failed",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 292,
+     "type": "component_repaired",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 439,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 550,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 559,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 564,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 568,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 637,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 2,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 67,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 164,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 468,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    },
+    {
+     "t": 551,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 574,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 579,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 583,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 3,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 5,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 238,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 429,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 440,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 537,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 560,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 565,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 569,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.20000000000397
+  }
+ ],
+ "2025-11-14T16:10:00-SEP-001": [
+  {
+   "seed": 1,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 37.89880952380958,
+   "peakDoseUsv": 26410.291666666322,
+   "log": [
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 206,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 229,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 229,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 234,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 234,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 238,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 274,
+     "type": "component_failed",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 292,
+     "type": "component_repaired",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 439,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 550,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 559,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 564,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 568,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 637,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 2,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 26410.291666666322,
+   "log": [
+    {
+     "t": 67,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 164,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 468,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    },
+    {
+     "t": 551,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 574,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 579,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 583,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 3,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 26410.291666666322,
+   "log": [
+    {
+     "t": 5,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 238,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 429,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 440,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 537,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 560,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 565,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 569,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.20000000000397
+  }
+ ],
+ "2024-10-28T08:57:00-SEP-001": [
+  {
+   "seed": 1,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 37.89880952380958,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 206,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 229,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 229,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 234,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 234,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 238,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 274,
+     "type": "component_failed",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 292,
+     "type": "component_repaired",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 439,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 550,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 559,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 564,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 568,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 637,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 2,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 67,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 164,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 468,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    },
+    {
+     "t": 551,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 574,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 579,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 583,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 3,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666417,
+   "log": [
+    {
+     "t": 5,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 238,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 429,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 440,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 537,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 560,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 565,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 569,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.20000000000397
+  }
+ ],
+ "2024-05-10T14:50:00-SEP-001": [
+  {
+   "seed": 1,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 37.89880952380958,
+   "peakDoseUsv": 26410.291666666322,
+   "log": [
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 206,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 229,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 229,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 234,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 234,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 234,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 235,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 238,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 274,
+     "type": "component_failed",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 292,
+     "type": "component_repaired",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 439,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 536,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 550,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 559,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 564,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 564,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 568,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 637,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 2,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 26410.291666666322,
+   "log": [
+    {
+     "t": 67,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 164,
+     "type": "component_repaired",
+     "detail": "power_array"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 468,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
+    },
+    {
+     "t": 551,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 574,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 579,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 583,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 3,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 26410.291666666322,
+   "log": [
+    {
+     "t": 5,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 238,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 298,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 299,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 300,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 312,
+     "type": "spe_end",
+     "detail": ""
+    },
+    {
+     "t": 429,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 440,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 537,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 560,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 565,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 565,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 566,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 569,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 300,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.20000000000397
+  }
+ ]
+}

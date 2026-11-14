@@ -1,8 +1,17 @@
 // Parameter loader and validation for Moonbase Margin
 // Spec B6, A5.4, B4.3
 
+import defaultArchiveJson from '../../data/donki_archive.json' with { type: 'json' };
 import defaultParamsJson from '../../data/params.json' with { type: 'json' };
-import { ConfidenceLevel, EngineError, ParamEntry, ParamsFile, SourceId } from './types.ts';
+import {
+  ConfidenceLevel,
+  DonkiArchive,
+  DonkiEvent,
+  EngineError,
+  ParamEntry,
+  ParamsFile,
+  SourceId,
+} from './types.ts';
 
 const VALID_SOURCES: ReadonlySet<string> = new Set([
   'S01',
@@ -17,6 +26,8 @@ const VALID_SOURCES: ReadonlySet<string> = new Set([
   'S10',
   'S11',
   'S12',
+  'S13',
+  'S14',
   'ASSUMPTION',
   'DERIVED',
 ]);
@@ -58,6 +69,10 @@ export const REQUIRED_PARAM_IDS: readonly string[] = [
   'radiation.shelter_factor',
   'radiation.spe_multiplier',
   'radiation.spe_duration_h',
+  'radiation.spe_warning_lead_h',
+  'radiation.spe_per_month',
+  'radiation.replay_onset_h',
+  'radiation.spe_multiplier_by_flare_class',
   'radiation.dose_limit_usv_mission',
   'power.panel_kw',
   'power.battery_kwh_per_unit',
@@ -257,7 +272,7 @@ function validateParams(data: unknown): LoadedParams {
     if (typeof source !== 'string' || !VALID_SOURCES.has(source)) {
       throw new EngineError(
         'INVALID_PARAM_SOURCE',
-        `Invalid source '${String(source)}' for '${id}'. Must be one of S01..S12, ASSUMPTION, DERIVED.`,
+        `Invalid source '${String(source)}' for '${id}'. Must be one of S01..S14, ASSUMPTION, DERIVED.`,
       );
     }
 
@@ -289,4 +304,122 @@ function validateParams(data: unknown): LoadedParams {
     version: record['version'],
     params: validatedParams,
   });
+}
+
+// ---------------------------------------------------------------------------------------------
+// Archived DONKI storms (AGENTS_NEW.md B10.1, B10.2). Loaded like params: validated once, and any
+// malformed file is rejected with an EngineError (L10 AC2). No network access here (F10).
+
+const MAX_ARCHIVE_EVENTS = 5;
+const FLARE_CLASS_RE = /^[CMX]\d+(\.\d+)?$/;
+const ARCHIVE_KEYS: ReadonlySet<string> = new Set([
+  'source',
+  'endpoint',
+  'query',
+  'retrievedAt',
+  'events',
+]);
+const EVENT_KEYS: ReadonlySet<string> = new Set([
+  'id',
+  'eventTime',
+  'flareClass',
+  'flareId',
+  'link',
+  'classEvidence',
+]);
+
+function archiveError(msg: string): never {
+  throw new EngineError('INVALID_DONKI_ARCHIVE', msg);
+}
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v);
+}
+
+function textField(o: Record<string, unknown>, key: string, where: string): string {
+  const v = o[key];
+  if (typeof v !== 'string' || v.trim() === '')
+    archiveError(`${where}: '${key}' must be a non-empty string.`);
+  return v;
+}
+
+function onlyKeys(o: Record<string, unknown>, allowed: ReadonlySet<string>, where: string): void {
+  for (const key of Object.keys(o))
+    if (!allowed.has(key)) archiveError(`${where}: unknown field '${key}'.`);
+}
+
+function httpsUrl(v: string, where: string): string {
+  if (!/^https:\/\/\S+$/.test(v)) archiveError(`${where}: link must be an https URL.`);
+  return v;
+}
+
+export function loadDonkiArchive(raw: unknown = defaultArchiveJson): DonkiArchive {
+  if (!isPlainObject(raw)) archiveError('Archive root must be an object.');
+  onlyKeys(raw, ARCHIVE_KEYS, 'archive');
+  if (raw['source'] !== 'S12') archiveError("Archive 'source' must be 'S12' (NASA DONKI).");
+  const retrievedAt = textField(raw, 'retrievedAt', 'archive');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(retrievedAt) || Number.isNaN(Date.parse(retrievedAt))) {
+    archiveError("Archive 'retrievedAt' must be an ISO date (YYYY-MM-DD).");
+  }
+  const eventsRaw = raw['events'];
+  if (
+    !Array.isArray(eventsRaw) ||
+    eventsRaw.length === 0 ||
+    eventsRaw.length > MAX_ARCHIVE_EVENTS
+  ) {
+    archiveError(`Archive must list 1 to ${MAX_ARCHIVE_EVENTS} events.`);
+  }
+  const seen = new Set<string>();
+  const events: DonkiEvent[] = eventsRaw.map((e, i) => {
+    const where = `event ${i}`;
+    if (!isPlainObject(e)) archiveError(`${where} must be an object.`);
+    onlyKeys(e, EVENT_KEYS, where);
+    const id = textField(e, 'id', where);
+    if (!/-SEP-\d+$/.test(id)) archiveError(`${where}: id must be a DONKI SEP id.`);
+    if (seen.has(id)) archiveError(`${where}: duplicate id ${id}.`);
+    seen.add(id);
+    const eventTime = textField(e, 'eventTime', where);
+    if (Number.isNaN(Date.parse(eventTime))) archiveError(`${where}: bad eventTime.`);
+    const flareClass = textField(e, 'flareClass', where);
+    if (!FLARE_CLASS_RE.test(flareClass)) archiveError(`${where}: flare class must be C, M or X.`);
+    const flareId = textField(e, 'flareId', where);
+    if (!/-FLR-\d+$/.test(flareId)) archiveError(`${where}: flareId must be a DONKI FLR id.`);
+    const ev = e['classEvidence'];
+    if (!isPlainObject(ev)) archiveError(`${where}: classEvidence is required.`);
+    const kind = ev['kind'];
+    if (kind !== 'FLR' && kind !== 'notification') archiveError(`${where}: unknown evidence kind.`);
+    return {
+      id,
+      eventTime,
+      flareClass,
+      flareId,
+      link: httpsUrl(textField(e, 'link', where), where),
+      classEvidence: {
+        kind,
+        id: textField(ev, 'id', `${where} evidence`),
+        url: httpsUrl(textField(ev, 'url', `${where} evidence`), `${where} evidence`),
+      },
+    };
+  });
+  return {
+    source: 'S12',
+    endpoint: textField(raw, 'endpoint', 'archive'),
+    query: textField(raw, 'query', 'archive'),
+    retrievedAt,
+    events,
+  };
+}
+
+let defaultArchiveCache: DonkiArchive | null = null;
+export function getDonkiArchive(): DonkiArchive {
+  defaultArchiveCache ??= loadDonkiArchive();
+  return defaultArchiveCache;
+}
+
+/** Index into radiation.spe_multiplier_by_flare_class: C = 0, M = 1, X = 2 (Spec B5.11). */
+export function flareClassIndex(flareClass: string): number {
+  const idx = ['C', 'M', 'X'].indexOf(flareClass.charAt(0));
+  if (idx < 0)
+    throw new EngineError('UNKNOWN_FLARE_CLASS', `No game strength for flare class ${flareClass}.`);
+  return idx;
 }

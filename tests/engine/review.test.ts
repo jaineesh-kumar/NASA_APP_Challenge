@@ -25,16 +25,15 @@ describe('cause chain (L5 AC11, Spec B5.9)', () => {
     expect(r.concept).toBe('margin');
   });
 
-  it('dose chain reaches the comms link when a warning was missed', () => {
+  it('dose failure links to a storm the crew faced outside the shelter', () => {
     const log: LogEntry[] = [
-      { t: 10, type: 'rule_fired', detail: 'shed comms when battery_below_pct 30' },
-      { t: 50, type: 'warning_missed', detail: 'X' },
-      { t: 50, type: 'spe_start', detail: 'unsheltered' },
-      { t: 60, type: 'failure', detail: 'dose' },
+      { t: 40, type: 'spe_start', detail: 'sheltered' },
+      { t: 300, type: 'spe_start', detail: 'unsheltered' },
+      { t: 310, type: 'failure', detail: 'dose' },
     ];
     const r = buildCauseChain(log);
-    expect(r.chain.map((l) => l.cause.type)).toEqual(['spe_start', 'warning_missed', 'rule_fired']);
-    expect(r.concept).toBe('communication');
+    expect(r.chain.map((l) => [l.cause.type, l.cause.t])).toEqual([['spe_start', 300]]);
+    expect(r.concept).toBe('trade_offs');
   });
 
   it('AC11 property: every link is a real entry, earlier than its effect, max 5 links', () => {
@@ -46,7 +45,6 @@ describe('cause chain (L5 AC11, Spec B5.9)', () => {
       'load_off',
       'rule_fired',
       'spe_start',
-      'warning_missed',
       'spe_warning',
       'shield_layer_built',
     ];

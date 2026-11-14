@@ -2,13 +2,13 @@
  "ridge_balanced": [
   {
    "seed": 1,
-   "survived": false,
-   "failureCause": "co2",
-   "failureHour": 564,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
-   "minO2Days": 38.565476190476204,
-   "peakDoseUsv": 18952.093750000036,
+   "minO2Days": 37.89880952380958,
+   "peakDoseUsv": 23372.822916666515,
    "log": [
     {
      "t": 74,
@@ -24,6 +24,11 @@
      "t": 206,
      "type": "dark_window_start",
      "detail": ""
+    },
+    {
+     "t": 229,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
     },
     {
      "t": 229,
@@ -46,6 +51,11 @@
      "detail": "greenhouse"
     },
     {
+     "t": 234,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
+    },
+    {
      "t": 235,
      "type": "load_off",
      "detail": "life_support"
@@ -61,19 +71,19 @@
      "detail": ""
     },
     {
-     "t": 275,
+     "t": 274,
+     "type": "component_failed",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 292,
+     "type": "component_repaired",
+     "detail": "o2_generator"
+    },
+    {
+     "t": 439,
      "type": "dust_start",
      "detail": ""
-    },
-    {
-     "t": 329,
-     "type": "component_failed",
-     "detail": "co2_scrubber"
-    },
-    {
-     "t": 340,
-     "type": "component_repaired",
-     "detail": "co2_scrubber"
     },
     {
      "t": 536,
@@ -81,9 +91,14 @@
      "detail": ""
     },
     {
-     "t": 547,
+     "t": 536,
      "type": "component_failed",
-     "detail": "co2_scrubber no_spare"
+     "detail": "power_array"
+    },
+    {
+     "t": 550,
+     "type": "component_repaired",
+     "detail": "power_array"
     },
     {
      "t": 559,
@@ -106,92 +121,78 @@
      "detail": "greenhouse"
     },
     {
-     "t": 564,
-     "type": "failure",
-     "detail": "co2"
-    }
-   ],
-   "sun": {
-    "startDate": "2018-12-21",
-    "storms": []
-   },
-   "scienceHours": 327.00000000000097
-  },
-  {
-   "seed": 2,
-   "survived": false,
-   "failureCause": "co2",
-   "failureHour": 98,
-   "scienceMet": false,
-   "minBatteryPct": 100,
-   "minO2Days": 38.69047619047619,
-   "peakDoseUsv": 4106.999999999992,
-   "log": [
+     "t": 565,
+     "type": "load_off",
+     "detail": "life_support"
+    },
     {
-     "t": 7,
-     "type": "dust_start",
+     "t": 565,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 568,
+     "type": "dark_window_end",
      "detail": ""
     },
     {
-     "t": 62,
-     "type": "spe_warning",
-     "detail": "45"
-    },
-    {
-     "t": 63,
-     "type": "rule_fired",
-     "detail": "shelter when spe_warning"
-    },
-    {
-     "t": 81,
+     "t": 637,
      "type": "component_failed",
-     "detail": "co2_scrubber"
-    },
-    {
-     "t": 98,
-     "type": "failure",
-     "detail": "co2"
+     "detail": "water_processor no_spare"
     }
    ],
-   "sun": {
-    "startDate": "2014-12-19",
-    "storms": [
-     {
-      "onsetH": 107,
-      "leadH": 45,
-      "warningReceivedH": 62,
-      "wasSheltered": false,
-      "id": "2014-12-23T11:15:00-SEP-001",
-      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/7456/-1"
-     }
-    ]
-   },
-   "scienceHours": 37.80000000000005
+   "storms": [],
+   "scienceHours": 415.2000000000043
   },
   {
-   "seed": 3,
+   "seed": 2,
    "survived": true,
    "failureCause": null,
    "failureHour": null,
    "scienceMet": true,
    "minBatteryPct": 0,
    "minO2Days": 38.565476190476204,
-   "peakDoseUsv": 23372.822916666515,
+   "peakDoseUsv": 26424.552083333037,
    "log": [
     {
      "t": 6,
-     "type": "dust_start",
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 7,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 8,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 20,
+     "type": "spe_end",
      "detail": ""
     },
     {
-     "t": 74,
+     "t": 67,
+     "type": "component_failed",
+     "detail": "power_array"
+    },
+    {
+     "t": 88,
      "type": "shield_layer_built",
      "detail": "1"
     },
     {
-     "t": 149,
+     "t": 163,
      "type": "shield_layer_built",
      "detail": "2"
+    },
+    {
+     "t": 178,
+     "type": "component_repaired",
+     "detail": "power_array"
     },
     {
      "t": 211,
@@ -234,14 +235,138 @@
      "detail": ""
     },
     {
-     "t": 369,
+     "t": 468,
      "type": "component_failed",
      "detail": "water_processor no_spare"
     },
     {
-     "t": 515,
+     "t": 551,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 574,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 579,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 579,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 580,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 583,
+     "type": "dark_window_end",
+     "detail": ""
+    }
+   ],
+   "storms": [
+    {
+     "onsetH": 8,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.800000000004
+  },
+  {
+   "seed": 3,
+   "survived": true,
+   "failureCause": null,
+   "failureHour": null,
+   "scienceMet": true,
+   "minBatteryPct": 0,
+   "minO2Days": 38.565476190476204,
+   "peakDoseUsv": 24699.041666666544,
+   "log": [
+    {
+     "t": 5,
      "type": "dust_start",
      "detail": ""
+    },
+    {
+     "t": 74,
+     "type": "shield_layer_built",
+     "detail": "1"
+    },
+    {
+     "t": 149,
+     "type": "shield_layer_built",
+     "detail": "2"
+    },
+    {
+     "t": 211,
+     "type": "dark_window_start",
+     "detail": ""
+    },
+    {
+     "t": 234,
+     "type": "rule_fired",
+     "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 238,
+     "type": "dust_start",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "battery_empty",
+     "detail": ""
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "comms"
+    },
+    {
+     "t": 239,
+     "type": "load_off",
+     "detail": "greenhouse"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "life_support"
+    },
+    {
+     "t": 240,
+     "type": "load_off",
+     "detail": "thermal"
+    },
+    {
+     "t": 243,
+     "type": "dark_window_end",
+     "detail": ""
+    },
+    {
+     "t": 429,
+     "type": "component_failed",
+     "detail": "co2_scrubber"
+    },
+    {
+     "t": 440,
+     "type": "component_repaired",
+     "detail": "co2_scrubber"
     },
     {
      "t": 537,
@@ -282,13 +407,35 @@
      "t": 569,
      "type": "dark_window_end",
      "detail": ""
+    },
+    {
+     "t": 701,
+     "type": "spe_warning",
+     "detail": "2"
+    },
+    {
+     "t": 702,
+     "type": "rule_fired",
+     "detail": "shelter when spe_warning"
+    },
+    {
+     "t": 703,
+     "type": "spe_start",
+     "detail": "sheltered"
+    },
+    {
+     "t": 715,
+     "type": "spe_end",
+     "detail": ""
     }
    ],
-   "sun": {
-    "startDate": "2017-10-17",
-    "storms": []
-   },
-   "scienceHours": 414.6000000000043
+   "storms": [
+    {
+     "onsetH": 703,
+     "wasSheltered": true
+    }
+   ],
+   "scienceHours": 406.20000000000397
   }
  ],
  "crater_closed_loop": [
@@ -353,10 +500,7 @@
      "detail": "co2"
     }
    ],
-   "sun": {
-    "startDate": "2026-06-23",
-    "storms": []
-   },
+   "storms": [],
    "scienceHours": 94.79999999999981
   },
   {
@@ -370,9 +514,14 @@
    "peakDoseUsv": 8616.143749999977,
    "log": [
     {
-     "t": 6,
+     "t": 5,
      "type": "component_failed",
      "detail": "power_array no_spare"
+    },
+    {
+     "t": 67,
+     "type": "component_failed",
+     "detail": "water_processor no_spare"
     },
     {
      "t": 74,
@@ -380,7 +529,7 @@
      "detail": "1"
     },
     {
-     "t": 81,
+     "t": 85,
      "type": "dust_start",
      "detail": ""
     },
@@ -430,10 +579,7 @@
      "detail": "co2"
     }
    ],
-   "sun": {
-    "startDate": "2019-02-23",
-    "storms": []
-   },
+   "storms": [],
    "scienceHours": 97.79999999999978
   },
   {
@@ -460,6 +606,11 @@
      "t": 163,
      "type": "rule_fired",
      "detail": "shed science when battery_below_pct 20"
+    },
+    {
+     "t": 167,
+     "type": "dust_start",
+     "detail": ""
     },
     {
      "t": 171,
@@ -497,10 +648,7 @@
      "detail": "co2"
     }
    ],
-   "sun": {
-    "startDate": "2011-06-27",
-    "storms": []
-   },
+   "storms": [],
    "scienceHours": 97.79999999999978
   }
  ]

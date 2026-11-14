@@ -3,10 +3,15 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
 import { missionPresets } from '../../src/content/missions.ts';
+import { getDonkiArchive } from '../../src/engine/params.ts';
 import { runMission } from '../../src/engine/sim.ts';
-import { CampaignResult, MissionResult } from '../../src/engine/types.ts';
+import { CampaignResult, MissionResult, StormMode } from '../../src/engine/types.ts';
 import { AppStoreProvider, initialAppState } from '../../src/state/store.tsx';
+import { stormDate } from '../../src/ui/components/StormPicker.tsx';
 import { ReviewScreen } from '../../src/ui/screens/Review.tsx';
+
+const storm = getDonkiArchive().events[0]!;
+const replay: StormMode = { kind: 'replay', eventId: storm.id };
 
 // Fixture CampaignResult (L7 AC7); the worst run is a real engine run so the replay has a trace.
 const fixture: CampaignResult = {
@@ -22,20 +27,17 @@ const fixture: CampaignResult = {
   massUsed: 98,
   worstSeed: 3,
   rating: 'needs_work',
-  sunEra: 'stormy',
-  stormsPerRunMean: 1.7,
-  stormsMaxInRun: 4,
-  warningsMissed: 6,
+  stormMode: replay,
+  stormsPerRunMean: 1,
+  stormsMaxInRun: 1,
 };
 
 function findFailedRun(): MissionResult {
   const preset = missionPresets.find((p) => p.id === 'storm_bunker') ?? missionPresets[0]!;
+  const weak = { ...preset.design, batteries: 2 };
   for (let seed = 1; seed < 200; seed++) {
-    const r = runMission(preset.design, preset.rules, seed, undefined, {
-      trace: true,
-      sunEra: 'stormy',
-    });
-    if (!r.survived && r.sun.storms.length > 0) return r;
+    const r = runMission(weak, preset.rules, seed, undefined, { trace: true, stormMode: replay });
+    if (!r.survived) return r;
   }
   throw new Error('no failed run found for fixture');
 }
@@ -49,8 +51,8 @@ const renderReview = () =>
         campaignResult: fixture,
         worstMissionResult: worst,
         history: [
-          { n: 1, massUsed: 80, riskPct: 40, sunEra: 'all' },
-          { n: 2, massUsed: 98, riskPct: 10, sunEra: 'stormy' },
+          { n: 1, massUsed: 80, riskPct: 40, stormMode: { kind: 'random' } },
+          { n: 2, massUsed: 98, riskPct: 10, stormMode: replay },
         ],
       }}
     >
@@ -65,7 +67,13 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
     expect(screen.getByText('90.0%')).toBeDefined();
     expect(screen.getByText(/86\.1% – 92\.9%/)).toBeDefined();
     expect(screen.getByText(copy.review.batteryP5Label)).toBeDefined();
-    expect(screen.getByText(copy.review.warningsMissed(6))).toBeDefined();
+    // L10 AC7: the result names the real storm.
+    expect(screen.getByText(copy.stormResult.vsStorm(stormDate(storm), 90))).toBeDefined();
+    expect(
+      screen.getAllByText(copy.storms.archivedLabel(getDonkiArchive().retrievedAt), {
+        exact: false,
+      }).length,
+    ).toBeGreaterThan(0);
   });
 
   it('AC3: the mass-vs-risk chart lists every tested design', () => {
@@ -84,9 +92,13 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
     const play = screen.getByRole('button', { name: new RegExp(copy.replay.play) });
     fireEvent.click(play);
     expect(screen.getByRole('button', { name: new RegExp(copy.replay.pause) })).toBeDefined();
-    expect(screen.getByText(copy.replay.sunWindow(worst.sun.startDate))).toBeDefined();
-    expect(screen.getAllByRole('link', { name: copy.replay.donkiLink }).length).toBe(
-      worst.sun.storms.length,
+    expect(
+      screen.getByText(copy.replay.replayStorm(stormDate(storm), storm.flareClass), {
+        exact: false,
+      }),
+    ).toBeDefined();
+    expect(screen.getByRole('link', { name: copy.replay.donkiLink }).getAttribute('href')).toBe(
+      storm.link,
     );
   });
 

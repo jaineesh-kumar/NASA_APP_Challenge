@@ -92,16 +92,16 @@ export const quizQuestions: QuizQuestion[] = [
   {
     id: 'q6',
     question:
-      'Some years had many more solar storms than others. What should a careful engineer do?',
+      'Your base stays safe in a small real storm but runs into trouble in the biggest one. What should a careful engineer do?',
     options: [
-      'Plan only for the calmest year.',
-      'Test the base against stormy years too, and keep extra protection.',
-      'Ignore the Sun completely.',
+      'Plan only for the small storm.',
+      'Plan for the big storms too, with shield layers or a shelter rule.',
+      'Ignore storms completely.',
       'Launch only at night.',
     ],
     correctIndex: 1,
     explanation:
-      'NASA’s DONKI records show big changes from year to year (source S12). A good design keeps a margin for the stormy years.',
+      'Real storms are not all the same. NASA’s DONKI links each storm to a flare with a class (source S12). In this game, bigger flare classes make stronger storms (our simplification). A good design keeps a margin for the big ones.',
     conceptRef: 'margin',
     needsReview: true,
   },

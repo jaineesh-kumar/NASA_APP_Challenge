@@ -1,0 +1,68 @@
+{
+  "source": "S12",
+  "endpoint": "https://api.nasa.gov/DONKI/SEP (+ /notifications?type=SEP for flare class)",
+  "query": "windows of 30 days backwards from 2026-11-14; C/M/X linked flare; one event per month; max 5",
+  "retrievedAt": "2026-11-14",
+  "events": [
+    {
+      "id": "2026-09-05T16:30:00-SEP-001",
+      "eventTime": "2026-09-05T16:30Z",
+      "flareClass": "M1.0",
+      "flareId": "2026-09-05T15:04:00-FLR-001",
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/48554/-1",
+      "classEvidence": {
+        "kind": "notification",
+        "id": "20260905-AL-005",
+        "url": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/48553/1"
+      }
+    },
+    {
+      "id": "2026-07-30T20:58:00-SEP-001",
+      "eventTime": "2026-07-30T20:58Z",
+      "flareClass": "M1.9",
+      "flareId": "2026-07-30T15:53:00-FLR-001",
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/47887/-1",
+      "classEvidence": {
+        "kind": "notification",
+        "id": "20260730-AL-001",
+        "url": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/47870/1"
+      }
+    },
+    {
+      "id": "2025-11-14T16:10:00-SEP-001",
+      "eventTime": "2025-11-14T16:10Z",
+      "flareClass": "X4.0",
+      "flareId": "2025-11-14T07:44:00-FLR-001",
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/42720/-1",
+      "classEvidence": {
+        "kind": "notification",
+        "id": "20251114-AL-005",
+        "url": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/42707/1"
+      }
+    },
+    {
+      "id": "2024-10-28T08:57:00-SEP-001",
+      "eventTime": "2024-10-28T08:57Z",
+      "flareClass": "M9.5",
+      "flareId": "2024-10-26T05:57:00-FLR-001",
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/34250/-1",
+      "classEvidence": {
+        "kind": "notification",
+        "id": "20241026-AL-006",
+        "url": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/34215/1"
+      }
+    },
+    {
+      "id": "2024-05-10T14:50:00-SEP-001",
+      "eventTime": "2024-05-10T14:50Z",
+      "flareClass": "X2.2",
+      "flareId": "2024-05-09T08:45:00-FLR-001",
+      "link": "https://ccmc.gsfc.nasa.gov/DONKI/view/SEP/30684/-1",
+      "classEvidence": {
+        "kind": "notification",
+        "id": "20240509-AL-004",
+        "url": "https://ccmc.gsfc.nasa.gov/DONKI/view/Alert/30611/1"
+      }
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import { ConceptHintBox } from '../components/ConceptHintBox.tsx';
 import { MassVsRiskChart } from '../components/MassVsRiskChart.tsx';
 import { ReplayTimeline } from '../components/ReplayTimeline.tsx';
 import { RiskBarChart } from '../components/RiskBarChart.tsx';
-import { eraName } from '../components/SpaceWeatherPanel.tsx';
+import { StormResultLine } from '../components/StormPicker.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
 
 const params = loadParams();
@@ -147,14 +147,19 @@ export const ReviewScreen: React.FC = () => {
         </div>
       </section>
 
-      <section className="panel-card" aria-labelledby="sun-title">
-        <h3 id="sun-title" className="card-title">
-          {t.sunTitle}
+      <section className="panel-card" aria-labelledby="storms-title">
+        <h3 id="storms-title" className="card-title">
+          {t.stormsTitle}
         </h3>
-        <p>{t.sunSummary(eraName(c.sunEra), c.stormsPerRunMean.toFixed(1), c.stormsMaxInRun)}</p>
-        <p className={c.warningsMissed > 0 ? 'notice' : 'muted'} style={{ marginTop: 8 }}>
-          {t.warningsMissed(c.warningsMissed)}
-        </p>
+        <StormResultLine
+          mode={c.stormMode}
+          survivalRate={c.survivalRate}
+          shieldLayers={state.design.shieldingLayers}
+          doseUsvP95={c.doseUsvP95}
+          doseLimitUsv={k.doseLimitUsv}
+          stormsPerRunMean={c.stormsPerRunMean}
+          stormsMaxInRun={c.stormsMaxInRun}
+        />
       </section>
 
       <div className="grid-2col">
@@ -162,7 +167,11 @@ export const ReviewScreen: React.FC = () => {
         <MassVsRiskChart history={history} />
       </div>
 
-      <ReplayTimeline key={`${worst.seed}-${history.length}`} worstResult={worst} />
+      <ReplayTimeline
+        key={`${worst.seed}-${history.length}`}
+        worstResult={worst}
+        stormMode={c.stormMode}
+      />
       <ConceptHintBox worstResult={worst} />
 
       <div className="row-between" style={{ marginTop: 24 }}>

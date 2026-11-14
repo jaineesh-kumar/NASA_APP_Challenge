@@ -20,8 +20,8 @@ describe('ModelCardScreen Component (Spec Part C L8 AC3)', () => {
     expect(screen.getByText(copy.modelCard.simplificationsTitle)).toBeDefined();
     for (const item of copy.modelCard.simplifications)
       expect(screen.getByText(item.topic)).toBeDefined();
-    expect(screen.getByText(new RegExp(copy.modelCard.dataTitle))).toBeDefined();
-    expect(screen.getByText(/DONKI records/)).toBeDefined();
+    expect(screen.getByRole('region', { name: new RegExp(copy.dataPanel.title) })).toBeDefined();
+    expect(screen.getByText(/archived NASA DONKI storms/)).toBeDefined();
   });
 
   it('renders table containing every parameter with value, unit, source, confidence (AC3)', () => {

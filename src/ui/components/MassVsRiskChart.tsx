@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { copy } from '../../content/copy.ts';
 import { loadParams } from '../../engine/params.ts';
 import { TriedDesign } from '../../state/store.tsx';
-import { eraName } from './SpaceWeatherPanel.tsx';
+import { stormModeName } from './StormPicker.tsx';
 
 const budget = loadParams().getNumber('mass.budget');
 
@@ -22,7 +22,7 @@ export const MassVsRiskChart: React.FC<{ history: readonly TriedDesign[] }> = ({
   const latest = history.at(-1);
   const shown = history.find((p) => p.n === hover) ?? latest;
   const describe = (p: TriedDesign) =>
-    `${copy.charts.tried(p.n)}: ${p.massUsed} mu, ${p.riskPct.toFixed(1)}% · ${eraName(p.sunEra)}`;
+    `${copy.charts.tried(p.n)}: ${p.massUsed} mu, ${p.riskPct.toFixed(1)}% · ${stormModeName(p.stormMode)}`;
 
   return (
     <section className="panel-card" aria-labelledby="mvr-title">

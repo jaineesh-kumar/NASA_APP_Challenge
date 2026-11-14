@@ -1,11 +1,19 @@
-// Seeded dust events and component failures; real solar storm timeline
-// Spec B5.3, B5.5, ADR-005
+// Seeded events: solar particle events, dust, component failures
+// Spec B5.3, B5.4 step 1, B5.5
 
 import { COMPONENT_IDS, SimConstants } from './constants.ts';
-import { ScheduledStorm } from './spaceWeather.ts';
 import { ComponentId, Design } from './types.ts';
 
+/** A scheduled solar particle event: warned from warnH, active in [onsetH, endH). */
+export interface ScheduledSpe {
+  warnH: number;
+  onsetH: number;
+  endH: number;
+  multiplier: number;
+}
+
 export interface EventsState {
+  spe: ScheduledSpe | null;
   dustLeftH: number;
   isOk: Record<ComponentId, boolean>;
   sparesLeft: Record<ComponentId, number>;
@@ -15,14 +23,25 @@ export interface EventsState {
 
 export interface EventsStep {
   state: EventsState;
+  isSpeWarningStarted: boolean;
+  isSpeStarted: boolean;
+  isSpeEnded: boolean;
+  /** Spec B5.5: true from the draw until the event ends (pending or active). */
+  isSpeWarning: boolean;
+  /** Storm multiplier this hour (1 when no event is active). */
+  speMultiplier: number;
   isDustStarted: boolean;
   failed: ComponentId[];
 }
 
 export { COMPONENT_IDS };
 
-export function createInitialEventsState(design: Design): EventsState {
+export function createInitialEventsState(
+  design: Design,
+  spe: ScheduledSpe | null = null,
+): EventsState {
   return {
+    spe,
     dustLeftH: 0,
     isOk: { co2_scrubber: true, o2_generator: true, water_processor: true, power_array: true },
     sparesLeft: { ...design.spares },
@@ -31,13 +50,35 @@ export function createInitialEventsState(design: Design): EventsState {
 }
 
 /**
- * Spec B5.3 (as amended by ADR-005): every tick draws, always and in this order,
- * uDust then one draw per component in ComponentId order. Solar storms are no longer drawn;
- * they come from the real DONKI record (one window draw before tick 0).
+ * Spec B5.3 + B5.5. Every tick draws, always and in this order: uSpe, uDust, then one draw
+ * per component in ComponentId order. `allowRandomSpe` is false in replay mode (B5.11): the
+ * uSpe draw still happens so all other randomness is unchanged, but it cannot start an event.
  */
-export function stepEvents(s: EventsState, rng: () => number, k: SimConstants): EventsStep {
+export function stepEvents(
+  s: EventsState,
+  t: number,
+  rng: () => number,
+  k: SimConstants,
+  allowRandomSpe = true,
+): EventsStep {
+  const uSpe = rng();
   const uDust = rng();
   const uComp = [rng(), rng(), rng(), rng()];
+
+  // Scheduled SPE milestones for hour t, then a possible new event.
+  let spe = s.spe;
+  let isSpeEnded = false;
+  if (spe && t >= spe.endH) {
+    spe = null;
+    isSpeEnded = true;
+  }
+  if (spe === null && allowRandomSpe && uSpe < k.speChancePerTick) {
+    const onsetH = t + k.speWarningLeadH;
+    spe = { warnH: t, onsetH, endH: onsetH + k.speDurationH, multiplier: k.speMultiplier };
+  }
+  const isSpeWarningStarted = spe !== null && t === spe.warnH;
+  const isSpeActive = spe !== null && t >= spe.onsetH && t < spe.endH;
+  const isSpeStarted = spe !== null && t === spe.onsetH;
 
   let dustLeftH = s.dustLeftH > 0 ? s.dustLeftH - 1 : 0;
   let isDustStarted = false;
@@ -50,30 +91,35 @@ export function stepEvents(s: EventsState, rng: () => number, k: SimConstants): 
   COMPONENT_IDS.forEach((id, i) => {
     if (s.isOk[id] && (uComp[i] ?? 1) < k.failureChancePerTick[id]) failed.push(id);
   });
+
+  let state: EventsState;
   if (failed.length === 0) {
-    // Common case: only the dust timer changed, so share the other fields (no copies).
-    return { state: { ...s, dustLeftH }, isDustStarted, failed };
-  }
-  const isOk = { ...s.isOk };
-  const sparesLeft = { ...s.sparesLeft };
-  const repairsLeftH = { ...s.repairsLeftH };
-  failed.forEach((id) => {
-    isOk[id] = false;
-    if (sparesLeft[id] > 0) {
-      sparesLeft[id] -= 1;
-      repairsLeftH[id] = k.repairHours[id];
-    } else {
-      repairsLeftH[id] = Infinity;
+    // Common case: share the unchanged maps (no copies).
+    state = { ...s, spe, dustLeftH };
+  } else {
+    const isOk = { ...s.isOk };
+    const sparesLeft = { ...s.sparesLeft };
+    const repairsLeftH = { ...s.repairsLeftH };
+    for (const id of failed) {
+      isOk[id] = false;
+      if (sparesLeft[id] > 0) {
+        sparesLeft[id] -= 1;
+        repairsLeftH[id] = k.repairHours[id];
+      } else {
+        repairsLeftH[id] = Infinity;
+      }
     }
-  });
+    state = { spe, dustLeftH, isOk, sparesLeft, repairsLeftH };
+  }
 
-  return { state: { dustLeftH, isOk, sparesLeft, repairsLeftH }, isDustStarted, failed };
-}
-
-/** Hour mask of active storm radiation; overlapping storms merge. */
-export function buildStormMask(storms: readonly ScheduledStorm[], k: SimConstants): Uint8Array {
-  const mask = new Uint8Array(k.missionHours);
-  for (const s of storms)
-    mask.fill(1, s.onsetH, Math.min(k.missionHours, s.onsetH + k.speDurationH));
-  return mask;
+  return {
+    state,
+    isSpeWarningStarted,
+    isSpeStarted,
+    isSpeEnded,
+    isSpeWarning: spe !== null && t >= spe.warnH,
+    speMultiplier: isSpeActive && spe ? spe.multiplier : 1,
+    isDustStarted,
+    failed,
+  };
 }
