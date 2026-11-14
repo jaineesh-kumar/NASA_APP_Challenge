@@ -4,6 +4,7 @@ import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { Icon } from './Icon.tsx';
+import { ModeToggle } from './ModeToggle.tsx';
 
 const BrandMark: React.FC = () => (
   <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true" focusable="false">
@@ -46,6 +47,7 @@ export const Header: React.FC = () => {
         </div>
       </div>
       <div className="header-tabs">
+        <ModeToggle />
         {tab('learn', copy.nav.learn, 'book')}
         {tab('model_card', copy.nav.modelCard, 'bulb')}
         <span className="real-data-badge hide-on-phone">

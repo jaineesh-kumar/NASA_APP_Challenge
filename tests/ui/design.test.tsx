@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
@@ -59,12 +59,26 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
     expect(screen.getByText(copy.design.overBudgetWarning)).toBeDefined();
   });
 
-  it('example bases load their designs', () => {
+  it('L11 AC3: Junior shows three starter kits and four items; kits load their designs', () => {
     renderDesign();
-    const crater = missionPresets.find((p) => p.id === 'crater_camp');
-    expect(crater).toBeDefined();
-    fireEvent.click(screen.getByText(crater?.name ?? ''));
-    const craterRadio = screen.getByRole('radio', { name: new RegExp(copy.design.craterName) });
-    expect(craterRadio.getAttribute('aria-checked')).toBe('true');
+    expect(missionPresets.map((p) => p.id)).toEqual(['light', 'balanced', 'heavy']);
+    const heavy = missionPresets.find((p) => p.id === 'heavy');
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(heavy?.name ?? '') }));
+    const shields = screen.getByRole('status', { name: `${copy.design.shieldingLabel} count` });
+    expect(shields.textContent).toBe(String(heavy?.design.shieldingLayers));
+    // Four steppers outside More options: panels, batteries, shields, greenhouse.
+    const adjust = screen.getByRole('region', { name: copy.kits.adjustTitle });
+    expect(within(adjust).getAllByRole('button', { name: /^Increase / })).toHaveLength(4);
+    expect(screen.getByText(copy.kits.moreOptions)).toBeDefined();
+  });
+
+  it('Planner shows every control at once', () => {
+    render(
+      <AppStoreProvider initialState={{ ...initialAppState, mode: 'planner' }}>
+        <DesignScreen />
+      </AppStoreProvider>,
+    );
+    expect(screen.queryByText(copy.kits.moreOptions)).toBeNull();
+    expect(screen.getByRole('button', { name: `Increase ${copy.design.mastLabel}` })).toBeDefined();
   });
 });

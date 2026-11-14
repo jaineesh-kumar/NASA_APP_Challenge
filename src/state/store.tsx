@@ -17,6 +17,9 @@ import {
   StormMode,
 } from '../engine/types.ts';
 
+/** B10.7: Junior Mode (ages 7-12, default) or Planner Mode (older players, teachers). */
+export type PlayMode = 'junior' | 'planner';
+
 export type ScreenId =
   'briefing' | 'design' | 'rules' | 'rehearse' | 'review' | 'learn' | 'model_card';
 
@@ -45,6 +48,7 @@ export interface AppState {
   campaignProgress: number;
   campaignError: string | null;
   history: TriedDesign[];
+  mode: PlayMode;
 }
 
 export type Action =
@@ -66,6 +70,7 @@ export type Action =
   | { type: 'LOAD_MISSION'; mission: GuidedMission }
   | { type: 'LOAD_SCENARIO'; design: Design; rules: Rules; stormMode?: StormMode }
   | { type: 'SET_STORM_MODE'; stormMode: StormMode }
+  | { type: 'SET_MODE'; mode: PlayMode }
   | { type: 'START_CAMPAIGN' }
   | { type: 'SET_CAMPAIGN_PROGRESS'; progress: number }
   | { type: 'SET_CAMPAIGN_RESULT'; result: CampaignResult; worstRun: MissionResult }
@@ -89,6 +94,7 @@ export const initialAppState: AppState = {
   campaignProgress: 0,
   campaignError: null,
   history: [],
+  mode: 'junior',
 };
 
 export function sameStormMode(a: StormMode, b: StormMode): boolean {
@@ -214,6 +220,8 @@ export function appReducer(state: AppState, action: Action): AppState {
       );
     case 'LOAD_SCENARIO':
       return withConfig(state, action.design, action.rules, action.stormMode ?? state.stormMode);
+    case 'SET_MODE':
+      return { ...state, mode: action.mode };
     case 'SET_STORM_MODE':
       return sameStormMode(action.stormMode, state.stormMode)
         ? state

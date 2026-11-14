@@ -192,7 +192,7 @@ export function decodeScenarioCode(code: string): Scenario {
       `Scenario code is longer than ${MAX_CODE_LENGTH} characters.`,
     );
   }
-  const match = /^MM(\d+)-([A-Za-z0-9_-]+)$/.exec(code.trim());
+  const match = /^MM(\d+)-([A-Za-z0-9_+/=-]+)$/.exec(code.trim());
   if (!match || match[2] === undefined) {
     throw new EngineError('INVALID_SCENARIO_CODE', 'Scenario code must look like "MM2-..."');
   }

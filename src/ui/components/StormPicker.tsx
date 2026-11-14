@@ -4,6 +4,7 @@ import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { getDonkiArchive } from '../../engine/params.ts';
 import { DonkiEvent, StormMode } from '../../engine/types.ts';
+import { Term } from './Term.tsx';
 import { WhyThisNumber } from './WhyThisNumber.tsx';
 import { Icon } from './Icon.tsx';
 
@@ -51,6 +52,9 @@ export const StormPicker: React.FC<Props> = ({ value, onChange, disabled }) => {
       <p className="muted small" style={{ marginBottom: 12 }}>
         {s.intro}
       </p>
+      <div className="term-row">
+        <Term term="Solar storm" />
+      </div>
       <fieldset style={{ border: 'none' }} disabled={disabled}>
         <legend className="small" style={{ fontWeight: 600, marginBottom: 8 }}>
           {s.pickerLabel}

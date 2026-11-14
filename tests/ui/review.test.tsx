@@ -43,11 +43,12 @@ function findFailedRun(): MissionResult {
 }
 const worst = findFailedRun();
 
-const renderReview = () =>
+const renderReview = (mode: 'junior' | 'planner' = 'planner') =>
   render(
     <AppStoreProvider
       initialState={{
         ...initialAppState,
+        mode,
         campaignResult: fixture,
         worstMissionResult: worst,
         history: [
@@ -127,5 +128,14 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
       </AppStoreProvider>,
     );
     expect(screen.getByText(copy.review.noResultsTitle)).toBeDefined();
+  });
+
+  it('L11 AC5, AC6: Junior shows "X out of every 100" with a 100-icon grid, no decimals, kind words', () => {
+    renderReview('junior');
+    expect(screen.getByRole('img', { name: copy.hundred.label(90) })).toBeDefined();
+    expect(screen.queryByText(/90\.0%|86\.1%/)).toBeNull();
+    expect(screen.getByText(/What would you change\?/)).toBeDefined();
+    expect(screen.getByRole('button', { name: copy.kind.newChallenge })).toBeDefined();
+    expect(screen.getAllByRole('meter')).toHaveLength(3);
   });
 });

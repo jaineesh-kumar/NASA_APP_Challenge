@@ -6,6 +6,7 @@ import { copy } from '../../content/copy.ts';
 import { getSimConstants } from '../../engine/constants.ts';
 import { loadParams } from '../../engine/params.ts';
 import { ComponentId, LoadId, LogEntry, MissionResult, StormMode } from '../../engine/types.ts';
+import { CoreMeters } from './CoreMeters.tsx';
 import { ResourceChart } from './ResourceChart.tsx';
 import { findStorm, stormDate } from './StormPicker.tsx';
 
@@ -42,10 +43,11 @@ export function describeLog(e: LogEntry): string {
   }
 }
 
-export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: StormMode }> = ({
-  worstResult,
-  stormMode,
-}) => {
+export const ReplayTimeline: React.FC<{
+  worstResult: MissionResult;
+  stormMode: StormMode;
+  isJunior?: boolean;
+}> = ({ worstResult, stormMode, isJunior = false }) => {
   const r = worstResult;
   const replayed = findStorm(stormMode);
   const trace = r.trace;
@@ -129,7 +131,63 @@ export const ReplayTimeline: React.FC<{ worstResult: MissionResult; stormMode: S
         <span className="chart-tooltip">{R.hourNow(hour, k.missionHours)}</span>
       </div>
 
-      {trace ? (
+      {trace && isJunior ? <CoreMeters result={r} hour={hour} /> : null}
+      {trace && isJunior ? (
+        <details className="more-options">
+          <summary>{copy.meters.moreDetails}</summary>
+
+          <div>
+            <h4 className="small" style={{ fontWeight: 600, margin: '8px 0' }}>
+              {R.resourcesTitle}
+            </h4>
+            <div className="legend" aria-hidden="true" style={{ marginBottom: 8 }}>
+              <span>
+                <span
+                  className="legend-swatch"
+                  style={{
+                    background: 'var(--viz-dark-band)',
+                    border: '1px solid var(--color-border)',
+                  }}
+                />
+                {R.darkBand}
+              </span>
+              <span>
+                <span className="legend-swatch" style={{ background: 'var(--viz-storm-band)' }} />
+                {R.stormBand}
+              </span>
+            </div>
+            <ResourceChart
+              title={R.battery}
+              values={trace.batteryPct}
+              hour={hour}
+              isDark={trace.isDark}
+              isStorm={trace.isStorm}
+              format={(v) => `${v.toFixed(0)}%`}
+              onPickHour={setHour}
+            />
+            <ResourceChart
+              title={R.o2}
+              values={trace.o2Days}
+              hour={hour}
+              isDark={trace.isDark}
+              isStorm={trace.isStorm}
+              format={(v) => v.toFixed(1)}
+              onPickHour={setHour}
+            />
+            <ResourceChart
+              title={R.dose}
+              values={trace.doseUsv}
+              hour={hour}
+              isDark={trace.isDark}
+              isStorm={trace.isStorm}
+              limit={k.doseLimitUsv}
+              format={(v) => Math.round(v).toLocaleString()}
+              onPickHour={setHour}
+            />
+          </div>
+        </details>
+      ) : null}
+      {trace && !isJunior ? (
         <div>
           <h4 className="small" style={{ fontWeight: 600, margin: '8px 0' }}>
             {R.resourcesTitle}

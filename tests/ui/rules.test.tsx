@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
-import { AppStoreProvider } from '../../src/state/store.tsx';
+import { AppStoreProvider, initialAppState, useAppStore } from '../../src/state/store.tsx';
 import { RulesScreen } from '../../src/ui/screens/Rules.tsx';
 
 describe('RulesScreen Component (Spec Part C L6 AC4, AC5, AC7, AC9)', () => {
@@ -38,9 +38,9 @@ describe('RulesScreen Component (Spec Part C L6 AC4, AC5, AC7, AC9)', () => {
     expect(updatedThermalBtn.disabled).toBe(true);
   });
 
-  it('adds and removes rules via rule creator (AC5)', () => {
+  it('adds and removes rules via rule creator (AC5, Planner Mode)', () => {
     render(
-      <AppStoreProvider>
+      <AppStoreProvider initialState={{ ...initialAppState, mode: 'planner' }}>
         <RulesScreen />
       </AppStoreProvider>,
     );
@@ -60,5 +60,32 @@ describe('RulesScreen Component (Spec Part C L6 AC4, AC5, AC7, AC9)', () => {
 
     const countAfter = screen.queryAllByText(new RegExp(copy.rules.removeRule)).length;
     expect(countAfter).toBe(countBefore - 1);
+  });
+
+  it('L11 AC4: Junior Mode offers three ready-made switches that add and remove rules', () => {
+    const Count: React.FC = () => {
+      const { state } = useAppStore();
+      return <output data-testid="count">{state.rules.ifThen.length}</output>;
+    };
+    render(
+      <AppStoreProvider
+        initialState={{ ...initialAppState, rules: { ...initialAppState.rules, ifThen: [] } }}
+      >
+        <RulesScreen />
+        <Count />
+      </AppStoreProvider>,
+    );
+    const switches = screen.getAllByRole('switch');
+    expect(switches).toHaveLength(3);
+    expect(screen.queryByText(copy.rules.addRuleButton)).toBeNull();
+    fireEvent.click(screen.getByRole('switch', { name: new RegExp(copy.switches.storm) }));
+    expect(screen.getByTestId('count').textContent).toBe('1');
+    expect(
+      screen
+        .getByRole('switch', { name: new RegExp(copy.switches.storm) })
+        .getAttribute('aria-checked'),
+    ).toBe('true');
+    fireEvent.click(screen.getByRole('switch', { name: new RegExp(copy.switches.storm) }));
+    expect(screen.getByTestId('count').textContent).toBe('0');
   });
 });

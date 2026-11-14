@@ -32,7 +32,7 @@ export const copy = {
       design: 'Next: set the rules',
       rules: 'Next: test it',
       rehearse: 'See the results',
-      review: 'Change my base',
+      review: 'Try again: change my base',
     },
     locked: {
       overBudget: 'Your rocket is too heavy. Take something off to go on.',
@@ -68,6 +68,55 @@ export const copy = {
     importHint: (prefix: string) =>
       `Paste a friend’s scenario code (it starts with ${prefix}) to test their base.`,
   },
+  mode: {
+    label: 'Mode',
+    junior: 'Junior',
+    planner: 'Planner',
+    juniorHelp: 'Simple view for ages 7 to 12',
+    plannerHelp: 'Every control and number, for older players and teachers',
+  },
+  kits: {
+    title: 'Pick a starter kit',
+    intro: 'Every kit fits on the rocket, but each one gives something up.',
+    adjustTitle: 'Change a few things',
+    moreOptions: 'More options: landing spot, mast, recyclers and spare parts',
+  },
+  switches: {
+    title: 'Safety switches',
+    intro: 'Turn on the rules you want your crew to follow.',
+    batteryLow: 'Battery low: turn the greenhouse lights down',
+    storm: 'Storm warning: crew goes to the shelter',
+    broken: 'Something broke: fix it first',
+    on: 'On',
+    off: 'Off',
+  },
+  meters: {
+    title: 'Your three big meters',
+    power: 'Power',
+    lifeSupport: 'Life support',
+    shield: 'Shield',
+    batteryText: (pct: number) => `Battery ${pct}% full`,
+    lifeText: (what: string, days: string) => `Lowest: ${what}, about ${days} days left`,
+    air: 'air',
+    water: 'water',
+    food: 'food',
+    shieldText: (dose: string, limit: string, layers: number) =>
+      `Dose ${dose} of ${limit} µSv. Shield layers built: ${layers}`,
+    moreDetails: 'More details: charts for every supply',
+  },
+  hundred: {
+    label: (n: number) => `${n} out of 100 crews came home`,
+    home: 'came home',
+    trouble: 'ran into trouble',
+  },
+  kind: {
+    trouble: (cause: string) =>
+      `Some crews ran into trouble because of this: ${cause}. What would you change?`,
+    allHome: 'Every crew came home. Can you make it lighter and still keep them safe?',
+    newChallenge: 'New challenge: try a real storm',
+    tryAgain: 'Try again',
+    moreDetails: 'More details: charts and numbers',
+  },
   glossary: {
     title: 'Space words',
     terms: [
@@ -86,6 +135,20 @@ export const copy = {
         meaning: 'Hours when tall mountains block the Sun, so solar panels make no power.',
       },
       { term: 'Margin', meaning: 'Extra you keep “just in case”, like a spare snack in your bag.' },
+      {
+        term: 'Battery',
+        meaning:
+          'A box that stores electricity from the solar panels so machines keep running in the dark.',
+      },
+      {
+        term: 'Oxygen scrubber',
+        meaning:
+          'The air cleaner. It takes the carbon dioxide (CO₂) the crew breathes out back out of the air.',
+      },
+      {
+        term: 'Regolith',
+        meaning: 'The dusty, rocky soil on the Moon. Piled up in walls, it blocks radiation.',
+      },
       {
         term: 'Recycling loop',
         meaning: 'A machine that cleans used water or air so the crew can use it again.',

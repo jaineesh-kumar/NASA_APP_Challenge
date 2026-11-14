@@ -66,13 +66,45 @@ function strongestArchivedStorm(): StormMode {
   return top ? { kind: 'replay', eventId: top.id } : { kind: 'random' };
 }
 
+// B10.7 starter kits. Measured with 300-run campaigns (ADR-013): Light 58 mu, 75 of 100
+// home; Balanced 98 mu, 94 of 100; Heavy 102 mu, 73 of 100. No kit is free.
+const kitRules: Rules = {
+  priority: LADDER,
+  ifThen: [
+    {
+      condition: { kind: 'battery_below_pct', value: 30 },
+      action: { kind: 'greenhouse_low_power' },
+    },
+    shelterOnWarning,
+    fixFirst,
+  ],
+};
+
 export const missionPresets: MissionPreset[] = [
   {
-    id: 'ridge_starter',
-    name: 'Sunny Ridge Starter',
-    tagline: 'A balanced first base',
+    id: 'light',
+    name: 'Light kit',
+    tagline: 'Cheap and quick, but few backups',
     description:
-      'Sunny landing spot, good batteries, upgraded water recycler, one shield layer and spares.',
+      'Leaves lots of rocket space free. No shields and only one spare part, so breakdowns hurt.',
+    design: {
+      site: 'ridge',
+      panels: 4,
+      mastLevel: 0,
+      batteries: 5,
+      waterLoopTier: 0,
+      o2LoopTier: 0,
+      greenhouseModules: 1,
+      shieldingLayers: 0,
+      spares: { co2_scrubber: 1, o2_generator: 0, water_processor: 0, power_array: 0 },
+    },
+    rules: kitRules,
+  },
+  {
+    id: 'balanced',
+    name: 'Balanced kit',
+    tagline: 'A bit of everything',
+    description: 'Good batteries, a better water recycler, one shield layer and spare parts.',
     design: {
       site: 'ridge',
       panels: 4,
@@ -84,30 +116,11 @@ export const missionPresets: MissionPreset[] = [
       shieldingLayers: 1,
       spares: { co2_scrubber: 2, o2_generator: 1, water_processor: 1, power_array: 0 },
     },
-    rules: { priority: LADDER, ifThen: [saveScience(30), shelterOnWarning, fixFirst] },
+    rules: kitRules,
   },
   {
-    id: 'crater_camp',
-    name: 'Crater Ice Camp',
-    tagline: 'More water, longer nights',
-    description:
-      'Lands near ice for extra water. A tall mast and many batteries get it through long darkness.',
-    design: {
-      site: 'crater_edge',
-      panels: 4,
-      mastLevel: 2,
-      batteries: 9,
-      waterLoopTier: 0,
-      o2LoopTier: 0,
-      greenhouseModules: 1,
-      shieldingLayers: 0,
-      spares: { co2_scrubber: 2, o2_generator: 1, water_processor: 0, power_array: 0 },
-    },
-    rules: { priority: LADDER, ifThen: [saveScience(30), shelterOnWarning, fixFirst] },
-  },
-  {
-    id: 'storm_bunker',
-    name: 'Storm Bunker',
+    id: 'heavy',
+    name: 'Heavy kit',
     tagline: 'All-in on radiation shields',
     description:
       'Three shield layers block lots of radiation, but that weight left little room for spares.',
@@ -115,14 +128,14 @@ export const missionPresets: MissionPreset[] = [
       site: 'ridge',
       panels: 4,
       mastLevel: 0,
-      batteries: 5,
+      batteries: 6,
       waterLoopTier: 0,
       o2LoopTier: 0,
       greenhouseModules: 1,
       shieldingLayers: 3,
       spares: { co2_scrubber: 1, o2_generator: 1, water_processor: 0, power_array: 0 },
     },
-    rules: { priority: LADDER, ifThen: [saveScience(30), shelterOnWarning, fixFirst] },
+    rules: kitRules,
   },
 ];
 
