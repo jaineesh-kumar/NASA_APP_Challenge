@@ -33,6 +33,7 @@
 
 ## Open questions and human items
 
+00. Media (docs/MEDIA.md): commit the files in public/images and public/video (not tracked yet; tests/ui/mediaCard.test.tsx expects them), confirm their licence, compress the images (each about 2 MB) and the 4.45 MB grid video, export the pictures inside the concept sheet as separate files, and replace "./" in the og:image URLs with the deployed address.
 0. remake-web (ADR-014): confirm `missions.goal_home_per_100` (90, illustrative); review the new agent-drafted texts (debriefs, M4 and M5, coach tips, badges, glossary additions, teacher lesson plan; all `needsReview: true`); decide whether to use the art in `public/images/` and `public/video/` (not committed, licence unknown) and whether to build Shield Stack.
 
 1. Paste the challenge page's Resources tab into `docs/CHALLENGE_RESOURCES.md`.
