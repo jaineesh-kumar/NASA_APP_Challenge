@@ -1,9 +1,10 @@
 // Landing page (#/): the story hook beside the hero clip, one big Play button, the real-data
-// badge, the journey and storm clips, and a decorative Moon horizon at the bottom.
+// badge, the four-part journey, the crew and storm clips, and a decorative Moon horizon.
 // Crew size, mission length and test count come from data/params.json (A5.4).
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
+import { MediaId } from '../../content/media.ts';
 import { osdr } from '../../content/osdr.ts';
 import { getDonkiArchive, loadParams } from '../../engine/params.ts';
 import { Icon } from '../components/Icon.tsx';
@@ -15,6 +16,13 @@ const crew = params.getNumber('crew.size');
 const days = params.getNumber('mission.hours') / 24;
 const runs = params.getNumber('campaign.runs');
 const archive = getDonkiArchive();
+// The trip in order: lift-off, the flight across, the landing, then setting up camp.
+const JOURNEY: ReadonlyArray<[MediaId, keyof typeof copy.landing.storyParts]> = [
+  ['rocket-launch', 'launch'],
+  ['rocket-flight', 'flight'],
+  ['rocket-landing', 'landing'],
+  ['base-setup', 'base'],
+];
 // Both archives were fetched on the same day; show the older date if they ever differ.
 const retrieved = [archive.retrievedAt, osdr.retrievedAt].sort()[0] ?? archive.retrievedAt;
 
@@ -54,12 +62,26 @@ export const LandingScreen: React.FC = () => {
         </span>
       </a>
 
+      <section className="page-section" aria-labelledby="story-title">
+        <h3 id="story-title" className="card-title">
+          {l.storyTitle}
+        </h3>
+        <p className="muted small">{l.storyHint}</p>
+        <ol className="journey-strip" aria-label={l.storyLabel}>
+          {JOURNEY.map(([id, part]) => (
+            <li key={id}>
+              <MediaCard id={id} caption={l.storyParts[part]} autoPlay={false} />
+            </li>
+          ))}
+        </ol>
+      </section>
+
       <div className="landing-media-row page-section">
-        <section aria-labelledby="story-title">
-          <h3 id="story-title" className="card-title">
-            {l.storyTitle}
+        <section aria-labelledby="crew-title">
+          <h3 id="crew-title" className="card-title">
+            {l.crewTitle}
           </h3>
-          <MediaCard id="rocket-flight" caption={l.storyCaption} autoPlay={false} />
+          <MediaCard id="crew-walk" caption={l.crewCaption} autoPlay={false} />
         </section>
         <section aria-labelledby="storm-teaser-title">
           <h3 id="storm-teaser-title" className="card-title">

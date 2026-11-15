@@ -1,4 +1,4 @@
-// Where media appears: landing, briefing, the Test-screen loader, the storm picker and storm
+// Where media appears: landing, How to play, briefing, the Test-screen loader, the storm picker and storm
 // missions. Never on the Build or Rules screens. The share image exists.
 
 import { render, screen } from '@testing-library/react';
@@ -24,15 +24,34 @@ const ids = (root: ParentNode) =>
   [...root.querySelectorAll('[data-media-id]')].map((n) => n.getAttribute('data-media-id'));
 
 describe('media placement', () => {
-  it('landing: hero clip, journey clip, storm teaser and a decorative horizon', () => {
+  it('landing: hero clip, four journey clips, crew card, storm teaser and a horizon', () => {
     window.location.hash = '#/';
     const { container } = render(<App />);
     expect(ids(container)).toEqual([
       'crew-walkout',
+      'rocket-launch',
       'rocket-flight',
+      'rocket-landing',
+      'base-setup',
+      'crew-walk',
       'storm-shelter',
       'moon-horizon',
     ]);
+    const journey = screen.getByRole('list', { name: copy.landing.storyLabel });
+    expect(journey.querySelectorAll('li')).toHaveLength(4);
+    // Journey and crew clips wait for Play; only the hero and storm clips start on their own.
+    for (const id of [
+      'rocket-launch',
+      'rocket-flight',
+      'rocket-landing',
+      'base-setup',
+      'crew-walk',
+    ]) {
+      const card = container.querySelector(`[data-media-id="${id}"]`);
+      expect(card?.querySelector('button')?.getAttribute('aria-label'), id).toBe(
+        copy.media.playVideo,
+      );
+    }
     expect(screen.getByText(copy.landing.stormTeaser)).toBeDefined();
     const horizon = container.querySelector('[data-media-id="moon-horizon"]');
     expect(horizon?.getAttribute('aria-hidden')).toBe('true');
@@ -43,6 +62,12 @@ describe('media placement', () => {
     const { container } = render(<App />);
     const card = container.querySelector('[data-media-id="base-scene"] .media-frame');
     expect((card as HTMLElement | null)?.style.aspectRatio).toBe('4 / 3');
+  });
+
+  it('How to play shows the cargo clip on the Build card', () => {
+    window.location.hash = '#/how-to-play';
+    const { container } = render(<App />);
+    expect(ids(container)).toEqual(['cargo-weigh']);
   });
 
   it('the Build and Rules screens have no media', () => {

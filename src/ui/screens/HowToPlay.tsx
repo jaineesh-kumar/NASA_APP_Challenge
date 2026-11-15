@@ -1,27 +1,13 @@
-// How to Play (#/how-to-play): three picture cards, then the guided first mission (M1).
+// How to Play (#/how-to-play): three picture cards (the first is the cargo clip), then the guided first mission (M1).
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { Icon } from '../components/Icon.tsx';
+import { MediaCard } from '../components/MediaCard.tsx';
 import { PageIntro } from '../components/PageIntro.tsx';
 import { missionById, startMission } from '../missionFlow.ts';
 import { hrefFor } from '../router.ts';
-
-/** Picture 1: a rocket beside its cargo, with a nearly full weight bar. */
-const BuildPicture: React.FC<{ label: string }> = ({ label }) => (
-  <svg viewBox="0 0 240 140" role="img" aria-label={label} focusable="false">
-    <rect width="240" height="140" rx="14" fill="var(--color-bg-highlight)" />
-    <path d="M60 22c14 10 20 28 18 50l-8 10H50l-8-10c-2-22 4-40 18-50Z" fill="var(--coupon)" />
-    <circle cx="60" cy="52" r="7" fill="var(--carbon)" />
-    <path d="M42 82 32 100l14-4M78 82l10 18-14-4" fill="var(--rocket)" />
-    <rect x="108" y="58" width="30" height="24" rx="4" fill="var(--sun)" />
-    <rect x="144" y="50" width="30" height="32" rx="4" fill="var(--carbon)" />
-    <rect x="180" y="62" width="30" height="20" rx="4" fill="var(--rocket)" />
-    <rect x="108" y="104" width="102" height="14" rx="7" fill="var(--coupon)" />
-    <rect x="108" y="104" width="86" height="14" rx="7" fill="var(--navy)" />
-  </svg>
-);
 
 /** Picture 2: a priority ladder, the top rung marked as most important. */
 const RulesPicture: React.FC<{ label: string }> = ({ label }) => (
@@ -69,7 +55,8 @@ const TestPicture: React.FC<{ label: string }> = ({ label }) => (
   </svg>
 );
 
-const PICTURES = [BuildPicture, RulesPicture, TestPicture] as const;
+// Step 1 uses the cargo-and-scale clip; steps 2 and 3 keep their drawn pictures.
+const PICTURES = [null, RulesPicture, TestPicture] as const;
 
 export const HowToPlayScreen: React.FC = () => {
   const { dispatch } = useAppStore();
@@ -82,10 +69,14 @@ export const HowToPlayScreen: React.FC = () => {
 
       <ol className="picture-cards" aria-label={h.cardsLabel}>
         {h.cards.map((card, i) => {
-          const Picture = PICTURES[i] ?? BuildPicture;
+          const Picture = PICTURES[i];
           return (
             <li key={card.title} className="picture-card">
-              <Picture label={card.picture} />
+              {Picture ? (
+                <Picture label={card.picture} />
+              ) : (
+                <MediaCard id="cargo-weigh" caption={h.buildCaption} autoPlay={false} />
+              )}
               <h3>{card.title}</h3>
               <p>{card.body}</p>
             </li>

@@ -1053,6 +1053,32 @@ a.real-data-badge {
   gap: var(--space-6);
 }
 
+/* Four journey clips in a row; two by two on tablets, one column on phones. */
+.journey-strip {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+@media (max-width: 960px) {
+  .journey-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .journey-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.picture-card .media-card {
+  margin-bottom: var(--space-3);
+}
+
 .landing-storm-link {
   margin-top: var(--space-3);
 }

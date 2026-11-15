@@ -92,7 +92,16 @@ export const copy = {
     playHint: 'Start with a quick “How to play”, then fly your first mission.',
     heroCaption: 'Your crew’s home for the next month.',
     storyTitle: 'Watch the journey',
-    storyCaption: 'From Earth to the Moon. Press Play to watch.',
+    storyLabel: 'The journey in four short clips',
+    storyHint: 'Press Play on any clip to watch it.',
+    storyParts: {
+      launch: '1. Lift off from Earth',
+      flight: '2. Fly to the Moon',
+      landing: '3. Land near a crater',
+      base: '4. Set up the base',
+    },
+    crewTitle: 'Meet the explorers',
+    crewCaption: 'A young astronaut and a robot helper.',
     stormTitle: 'Real storms from the Sun',
     stormTeaser: 'Test your base against a real NASA storm',
     stormLink: 'Pick a real storm',
@@ -111,11 +120,13 @@ export const copy = {
     title: 'How to play',
     lead: 'You plan a Moon base, then test your plan many times. Three steps, then try again.',
     cardsLabel: 'The three steps',
+    buildCaption: 'Watch the cargo hop on the scale.',
     cards: [
       {
         title: '1. Build',
         body: 'Pack your rocket. Solar panels, batteries, shields, a greenhouse and spare parts all weigh something. The rocket has a weight limit.',
-        picture: 'A rocket with boxes beside it and a weight bar that is almost full.',
+        // Shown as the cargo clip; its description lives in media.ts ('cargo-weigh').
+        picture: '',
       },
       {
         title: '2. Set the rules',

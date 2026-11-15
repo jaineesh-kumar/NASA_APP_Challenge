@@ -5,6 +5,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it } from 'vitest';
 import App from '../../src/App.tsx';
 import { copy } from '../../src/content/copy.ts';
+import { media } from '../../src/content/media.ts';
 import { guidedMissions } from '../../src/content/missions.ts';
 import { CampaignResult, MissionResult } from '../../src/engine/types.ts';
 import { appReducer, AppStoreProvider, initialAppState } from '../../src/state/store.tsx';
@@ -22,8 +23,11 @@ describe('How to Play', () => {
     render(<App />);
     const cards = screen.getByRole('list', { name: copy.howTo.cardsLabel });
     expect(cards.querySelectorAll('li')).toHaveLength(3);
-    for (const card of copy.howTo.cards) {
-      expect(screen.getByRole('img', { name: card.picture })).toBeDefined();
+    // Step 1 is the cargo clip, described by its catalog alt text.
+    const clip = cards.querySelector('li [data-media-id="cargo-weigh"] video');
+    expect(clip?.getAttribute('aria-label')).toBe(media['cargo-weigh'].alt);
+    for (const [i, card] of copy.howTo.cards.entries()) {
+      if (i > 0) expect(screen.getByRole('img', { name: card.picture })).toBeDefined();
       expect(screen.getByRole('heading', { name: card.title })).toBeDefined();
     }
   });
