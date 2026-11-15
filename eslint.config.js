@@ -2,8 +2,8 @@ import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
-  // Sim/ and public/sim/ are the standalone 3D page kept exactly as the team wrote it (ADR-015).
-  { ignores: ['dist', 'node_modules', '.github', 'Sim', 'public/sim'] },
+  // public/sim/ is the standalone 3D page, kept exactly as the team wrote it.
+  { ignores: ['dist', 'node_modules', '.github', 'public/sim'] },
   ...tseslint.configs.recommended,
   {
     plugins: {

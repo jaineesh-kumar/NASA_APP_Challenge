@@ -65,3 +65,16 @@ prompt.md
 .impeccable/
 bun.lock
 /mission2050.html
+
+# Internal working notes (kept locally for the team and its tools, not part of the product)
+AGENTS.md
+AGENTS_NEW.md
+GEMINI.md
+DESIGN.md
+PRODUCT.md
+docs/DECISIONS.md
+docs/STATUS.md
+docs/MEDIA.md
+docs/PLAYTEST.md
+docs/CHALLENGE_RESOURCES.md
+submit/

@@ -1,6 +1,0 @@
-{
-  "name": "AstroSim",
-  "description": "Junior Astronaut Mission Trainer: run a Moon base, balance power, air and radiation shielding, and test it against real archived NASA solar storms.",
-  "requestFramePermissions": [],
-  "majorCapabilities": []
-}

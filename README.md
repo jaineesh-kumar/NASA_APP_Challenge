@@ -35,7 +35,7 @@ The game is one step at a time, like a ticket wallet with one coupon per step:
 | Quiz | `#/quiz` | A short space quiz (Quiz button in the header) |
 | Sim | `#/sim` | The 3D hands-on Sim: how to play, its five missions with screenshots, and a Launch button |
 
-**The 3D Sim** (`public/sim/index.html`, source copy in `Sim/`) is a separate page: land on the Moon, suit up, set up solar panels, build a regolith shield and survive a solar storm, grow plants and run a lab test. It loads its 3D library (three.js) from cdnjs, so it needs an internet connection. Everything else works offline.
+**The 3D Sim** (`public/sim/index.html`) is a separate page: land on the Moon, suit up, set up solar panels, build a regolith shield and survive a solar storm, grow plants and run a lab test. It loads its 3D library (three.js) from cdnjs, so it needs an internet connection. Everything else works offline.
 
 The site runs in **Junior Mode** (simple controls). Every number links to its source with "Why this number?".
 
@@ -83,7 +83,7 @@ npm run preview     # serve the production bundle locally
 ```bash
 npm run data:fetch                  # DONKI storms -> data/donki_archive.json (DEMO_KEY, or NASA_API_KEY in the environment)
 npm run data:osdr                   # OSDR studies -> data/osdr_cards.json
-npm run golden:update               # only after an approved model change (see docs/DECISIONS.md)
+npm run golden:update               # only after an approved model change
 ```
 
 Never commit an API key. `.env` is git-ignored; see `.env.example`.
@@ -110,9 +110,7 @@ The build in `dist/` is static and self-contained.
 
 ## Project documents
 
-- [`AGENTS_NEW.md`](AGENTS_NEW.md): the build contract
-- [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md): product truth and the design system
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/MODEL_CARD.md`](docs/MODEL_CARD.md), [`docs/DATA_USED.md`](docs/DATA_USED.md), [`docs/SOURCES.md`](docs/SOURCES.md), [`docs/DECISIONS.md`](docs/DECISIONS.md), [`docs/STATUS.md`](docs/STATUS.md)
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/MODEL_CARD.md`](docs/MODEL_CARD.md), [`docs/DATA_USED.md`](docs/DATA_USED.md), [`docs/SOURCES.md`](docs/SOURCES.md)
 
 ## Scientific citations
 
