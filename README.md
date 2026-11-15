@@ -81,59 +81,59 @@ The game flies **300 test missions** and shows **how many crews out of every 100
 
 ```mermaid
 flowchart LR
-    A([🛰️ Briefing<br/>the mission]) --> B[🧳 Build<br/>pick a kit, stay under<br/>the rocket weight limit]
-    B --> C[🧠 Rules<br/>power ladder +<br/>safety switches]
-    C --> D{☀️ Storms?}
-    D -->|Random| E[🎲 Test<br/>fly 300 missions]
-    D -->|Real NASA storm| E
-    E --> F[🔍 Review<br/>crews home out of 100,<br/>replay, cause chain]
-    F -->|Try again| B
-    F --> G([🏅 Logbook badge])
+    A(["Briefing<br/>the mission"]) --> B["Build<br/>pick a kit, stay under<br/>the rocket weight limit"]
+    B --> C["Rules<br/>power ladder and<br/>safety switches"]
+    C --> D{"Which storms?"}
+    D -->|"Random"| E["Test<br/>fly 300 missions"]
+    D -->|"Real NASA storm"| E
+    E --> F["Review<br/>crews home out of 100,<br/>replay, cause chain"]
+    F -->|"Try again"| B
+    F --> G(["Logbook badge"])
 ```
 
-### Inside one test: 300 missions × 720 hours
+### Inside one test: 300 missions, 720 hours each
 
 ```mermaid
 flowchart TD
-    S([Seed 1 … 300]) --> T0[Start: full battery,<br/>oxygen tank, water, food]
-    T0 --> H{{Every hour, for 720 hours}}
-    H --> E1[1 · Events<br/>storms, dust, breakdowns]
-    E1 --> E2[2 · Safety rules]
-    E2 --> E3[3 · Solar power<br/>dark hours, dust]
-    E3 --> E4[4 · Share the power<br/>ladder + battery]
-    E4 --> E5[5 · Life support<br/>oxygen, CO₂, water]
-    E5 --> E6[6 · Crew time<br/>repairs, science, building]
-    E6 --> E7[7 · Food + greenhouse]
-    E7 --> E8[8 · Radiation dose]
-    E8 --> E9{9 · Crew safe?}
-    E9 -->|yes| H
-    E9 -->|no| L[Mission lost:<br/>oxygen, CO₂, water,<br/>food or dose]
-    H -->|hour 720| W[Crew home ✅]
-    W --> R[(Results)]
+    S(["Seeds 1 to 300"]) --> T0["Start: full battery,<br/>oxygen tank, water, food"]
+    T0 --> H{{"Every hour, for 720 hours"}}
+    H --> E1["1. Events<br/>storms, dust, breakdowns"]
+    E1 --> E2["2. Safety rules"]
+    E2 --> E3["3. Solar power<br/>dark hours, dust"]
+    E3 --> E4["4. Share the power<br/>ladder and battery"]
+    E4 --> E5["5. Life support<br/>oxygen, CO2, water"]
+    E5 --> E6["6. Crew time<br/>repairs, science, building"]
+    E6 --> E7["7. Food and greenhouse"]
+    E7 --> E8["8. Radiation dose"]
+    E8 --> E9{"9. Crew safe?"}
+    E9 -->|"yes"| H
+    E9 -->|"no"| L["Mission lost:<br/>oxygen, CO2, water,<br/>food or dose"]
+    H -->|"hour 720"| W["Crew home"]
+    W --> R[("Results")]
     L --> R
-    R --> P[Crews home out of 100<br/>+ 95% likely range]
+    R --> P["Crews home out of 100<br/>and the 95% likely range"]
 ```
 
 ### Site map
 
 ```mermaid
 flowchart LR
-    Home((🏠 Home))
-    Home --> Play[▶️ Play]
-    Home --> Sim[🚀 Sim]
-    Home --> Learn[📚 Learn]
-    Home --> Log[🏅 Logbook]
-    Home --> About[ℹ️ About]
-    Home --> Quiz[💡 Quiz]
-    Play --> M[Missions M1–M5]
-    Play --> MD[Mission Day]
-    Play --> FB[Free build]
-    Sim --> S3D[3D hands-on Sim]
-    Learn --> HTP[How to play]
-    Learn --> TB[Training Bay]
-    Learn --> W[Space words]
-    About --> DS[Data and science]
-    About --> T[For teachers]
+    Home(("Home"))
+    Home --> Play["Play"]
+    Home --> Sim["Sim"]
+    Home --> Learn["Learn"]
+    Home --> Log["Logbook"]
+    Home --> About["About"]
+    Home --> Quiz["Quiz"]
+    Play --> M["Missions M1 to M5"]
+    Play --> MD["Mission Day"]
+    Play --> FB["Free build"]
+    Sim --> S3D["3D hands-on Sim"]
+    Learn --> HTP["How to play"]
+    Learn --> TB["Training Bay"]
+    Learn --> WD["Space words"]
+    About --> DS["Data and science"]
+    About --> T["For teachers"]
 ```
 
 | Page | Address | What it is |
@@ -245,29 +245,31 @@ The build in `dist/` is static and self-contained.
 
 ```mermaid
 flowchart TB
-    subgraph DATA["📦 data/ (archived, checked)"]
-        P[params.json<br/>every number + source]
-        D[donki_archive.json<br/>5 real storms]
-        O[osdr_cards.json<br/>5 real studies]
+    subgraph DATA["data folder: archived and checked"]
+        P["params.json<br/>every number and its source"]
+        D["donki_archive.json<br/>5 real storms"]
+        O["osdr_cards.json<br/>5 real studies"]
     end
-    subgraph ENGINE["⚙️ src/engine/ (pure TypeScript, deterministic)"]
-        SIM[runMission<br/>720 hourly ticks]
-        MC[runCampaign<br/>300 seeds + Wilson range]
-        REV[buildCauseChain]
+    subgraph ENGINE["src/engine: pure TypeScript, deterministic"]
+        SIM["runMission<br/>720 hourly ticks"]
+        MC["runCampaign<br/>300 seeds and a Wilson range"]
+        REV["buildCauseChain"]
     end
-    subgraph APP["🖥️ Browser"]
-        W[Web Worker<br/>runs the 300 missions]
-        ST[State<br/>useReducer + Context]
-        UI[React UI<br/>pages, SVG charts]
+    subgraph APP["Browser"]
+        W["Web Worker<br/>runs the 300 missions"]
+        ST["State<br/>useReducer and Context"]
+        UI["React UI<br/>pages and SVG charts"]
     end
-    SIM3D[🌙 public/sim<br/>3D Sim, three.js]
+    SIM3D["public/sim<br/>3D Sim with three.js"]
     P --> ENGINE
     D --> ENGINE
     O --> UI
     MC --> SIM
     SIM --> REV
-    ENGINE --> W --> ST --> UI
-    UI -. Launch .-> SIM3D
+    ENGINE --> W
+    W --> ST
+    ST --> UI
+    UI -. "Launch" .-> SIM3D
 ```
 
 ```
