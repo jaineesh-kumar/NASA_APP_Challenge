@@ -31,8 +31,13 @@ The game is one step at a time, like a ticket wallet with one coupon per step:
 | Space words | `#/words` | Every science word in plain language |
 | For teachers | `#/teachers` | A lesson plan, the big ideas, the pre/post quiz and scenario codes |
 | Data and science | `#/data` | Every archived storm, the OSDR findings, what is real and what we simplified, and every number with its source |
+| Mission Day | `#/mission-day` | Play the mission one day at a time, choosing one order each morning |
+| Quiz | `#/quiz` | A short space quiz (Quiz button in the header) |
+| Sim | `#/sim` | The 3D hands-on Sim: how to play, its five missions with screenshots, and a Launch button |
 
-**Junior Mode** (default) keeps it simple. **Planner Mode** (header toggle) shows every control, the if-then rule editor, likely ranges and all charts. **Learn** has guided missions, a quiz and scenario codes; **How it works** lists every number with its source.
+**The 3D Sim** (`public/sim/index.html`, source copy in `Sim/`) is a separate page: land on the Moon, suit up, set up solar panels, build a regolith shield and survive a solar storm, grow plants and run a lab test. It loads its 3D library (three.js) from cdnjs, so it needs an internet connection. Everything else works offline.
+
+The site runs in **Junior Mode** (simple controls). Every number links to its source with "Why this number?".
 
 ## The trade-offs it teaches
 
