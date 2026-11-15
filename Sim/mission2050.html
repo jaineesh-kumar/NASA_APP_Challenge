@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Junior Astronaut 2050: Hands-On Training</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--cy:#00e5ff;--mg:#ff2fd1;--gn:#39ff88;--pn:#070d1fe6;color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:#000;overflow:hidden;color:#dff6ff;font:13px/1.5 "Courier New",monospace;user-select:none}
+#c{position:fixed;inset:0;width:100%;height:100%;image-rendering:pixelated}
+.box{position:fixed;background:var(--pn);border:2px solid var(--cy);box-shadow:0 0 12px #00e5ff66;padding:8px 12px;z-index:5}
+#ml{top:12px;left:12px;font-size:12px}#ml .d{color:var(--gn)}#ml .a{color:var(--mg);font-weight:bold}#ml div{opacity:.6}#ml .d,#ml .a{opacity:1}
+#st{top:12px;right:12px;width:190px;font-size:12px}
+.bar{height:10px;border:1px solid var(--cy);background:#001;margin:4px 0 8px}.bar i{display:block;height:100%;background:var(--gn);width:100%}
+#obj{top:12px;left:50%;transform:translateX(-50%);text-align:center;max-width:44vw;border-color:var(--mg)}
+#msg{bottom:96px;left:50%;transform:translateX(-50%);text-align:center;max-width:90vw;min-width:260px}
+#pr{bottom:50px;left:50%;transform:translateX(-50%);padding:4px 12px;border-color:var(--gn);color:var(--gn);display:none}
+#pg{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);width:200px;height:8px;border:1px solid var(--gn);z-index:6;display:none}#pg i{display:block;height:100%;width:0;background:var(--gn)}
+#vis{position:fixed;inset:0;z-index:3;pointer-events:none;display:none;background:radial-gradient(circle,transparent 55%,#000c 80%,#000 100%);box-shadow:inset 0 0 90px #00e5ff55}
+#fl{position:fixed;inset:0;z-index:4;pointer-events:none;background:#f03;opacity:0;transition:opacity .5s}#fl.on{opacity:.45;transition:none}
+#ov{position:fixed;inset:0;z-index:20;background:#000d;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{max-width:540px;background:#060b18;border:2px solid var(--cy);box-shadow:0 0 40px #00e5ff55;padding:24px;text-align:center}
+.card h1{color:var(--mg);font-size:22px;margin:0 0 10px;text-shadow:0 0 10px var(--mg)}.card p{text-align:left}
+button{font:inherit;font-weight:bold;background:var(--mg);color:#fff;border:0;padding:10px 18px;cursor:pointer}
+#pad{position:fixed;bottom:14px;left:14px;z-index:8;display:none;grid-template:repeat(3,48px)/repeat(3,48px);gap:4px}
+#pad button{padding:0;background:#0a2a3a;border:2px solid var(--cy);color:var(--cy)}#act{position:fixed;bottom:20px;right:20px;z-index:8;display:none;width:80px;height:80px;border-radius:50%}
+@media(pointer:coarse){#pad{display:grid}#act{display:block}#st{width:150px;font-size:10px}#ml{font-size:10px;top:90px}#obj{max-width:60vw;top:140px;font-size:11px}}
+</style></head><body>
+<canvas id="c"></canvas><div id="vis"></div><div id="fl"></div>
+<div class="box" id="ml"></div>
+<div class="box" id="st">O₂ <b id="o2t">100%</b><div class="bar"><i id="o2b"></i></div>HEART <b id="hr">70</b> bpm<br>PRESSURE <b id="ps">1.0 atm</b></div>
+<div class="box" id="obj"></div><div class="box" id="msg"></div><div class="box" id="pr"></div><div id="pg"><i></i></div>
+<button id="skip" style="display:none;position:fixed;bottom:14px;right:14px;z-index:9;padding:8px 14px;background:#0a2a3a;border:2px solid var(--cy);color:var(--cy)">SKIP ▶</button>
+<button id="gfx" style="position:fixed;top:150px;right:12px;z-index:8;padding:6px 10px;font-size:11px;background:#0a2a3a;border:2px solid var(--cy);color:var(--cy)">GRAPHICS: SOFT</button>
+<div id="pad"><span></span><button data-k="up">▲</button><span></span><button data-k="left">◀</button><span></span><button data-k="right">▶</button><span></span><button data-k="down">▼</button></div>
+<button id="act" data-k="e">E</button>
+<div id="ov"><div class="card"><h1>JUNIOR ASTRONAUT 2050</h1>
+<p>2050. Your classroom terminal flashes: <b>SELECTED, Junior Astronaut Program, Vadodara Sector Alpha-1.</b> You and your student crew are heading to the Moon.</p>
+<p><b>HOW TO PLAY</b><br>1. Move with <b>W A S D</b> or the arrow keys (phone: the arrow buttons).<br>2. Follow the <b>glowing blue beam</b> and the arrow at the top. They always show your next task.<br>3. Stand next to the beam and <b>hold E</b> (phone: the E button) until the green bar fills. Your astronaut does the work.<br>4. Wrong object or wrong order costs 10% oxygen. Just retry that step.</p>
+<button id="go">START TRAINING</button></div></div>
+<script>
+const $=i=>document.getElementById(i),K={},cv=$("c");
+const scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x010206,.006);
+const cam=new THREE.PerspectiveCamera(55,1,.1,1000),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.shadowMap.enabled=true;
+let PX=2;function rs(){R.setSize(Math.floor(innerWidth/PX),Math.floor(innerHeight/PX),false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}rs();addEventListener("resize",rs);
+const sun=new THREE.DirectionalLight(0xfffaed,1.8);sun.position.set(50,60,30);sun.castShadow=true;Object.assign(sun.shadow.camera,{left:-45,right:45,top:45,bottom:-45,near:1,far:200});sun.shadow.mapSize.set(2048,2048);sun.shadow.bias=-.001;scene.add(sun,new THREE.AmbientLight(0x2a3a55,.8));
+const mat=(c,o)=>new THREE.MeshStandardMaterial(Object.assign({color:c,flatShading:true},o||{}));
+const box=(w,h,d,c,x,y,z,p)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));m.position.set(x||0,y||0,z||0);m.castShadow=true;(p||scene).add(m);return m};
+// world
+const gg=new THREE.PlaneGeometry(300,300,120,120);gg.rotateX(-Math.PI/2);{const P=gg.attributes.position;for(let i=0;i<P.count;i++){const x=P.getX(i),z=P.getZ(i);P.setY(i,(Math.sin(x*.35)*Math.cos(z*.3))*.12)}gg.computeVertexNormals()}
+{const gm=new THREE.Mesh(gg,mat(0x474c55));gm.receiveShadow=true;scene.add(gm)}
+{const s=[];for(let i=0;i<500;i++){const a=Math.random()*6.28,b=Math.random()*1.2+.05;s.push(Math.cos(a)*Math.cos(b)*400,Math.sin(b)*400,Math.sin(a)*Math.cos(b)*400)}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.Float32BufferAttribute(s,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({size:2,sizeAttenuation:false,fog:false})))}
+const earth=new THREE.Mesh(new THREE.SphereGeometry(10,16,12),mat(0x2563eb,{emissive:0x0c2340}));earth.position.set(-40,45,-120);scene.add(earth);
+const crater=new THREE.Mesh(new THREE.CircleGeometry(8,24),new THREE.MeshBasicMaterial({color:0x05060a}));crater.rotation.x=-Math.PI/2;crater.position.set(-18,.3,-24);scene.add(crater);
+const ship=new THREE.Group();ship.position.set(0,70,-14);scene.add(ship);
+const body=new THREE.Mesh(new THREE.ConeGeometry(2.8,7,10),mat(0xe2e8f0));body.position.y=3.5;body.castShadow=true;ship.add(body);
+const win=new THREE.Mesh(new THREE.SphereGeometry(.7,8,6),mat(0x00e5ff,{emissive:0x006688}));win.position.set(0,4,1.6);ship.add(win);
+for(let i=0;i<3;i++){const a=i*2.094,l=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,3.4,6),mat(0x94a3b8));l.position.set(Math.sin(a)*2.1,1.5,Math.cos(a)*2.1);l.rotation.set(-Math.cos(a)*.3,0,Math.sin(a)*.3);l.castShadow=true;ship.add(l)}
+const flame=new THREE.Mesh(new THREE.ConeGeometry(1.1,5,8),new THREE.MeshBasicMaterial({color:0xffa733,transparent:true,opacity:.85,fog:false}));flame.rotation.x=Math.PI;flame.position.y=-2.5;ship.add(flame);
+const plight=new THREE.PointLight(0xff9a40,3,40);plight.position.y=-1;ship.add(plight);
+const dome=new THREE.Mesh(new THREE.SphereGeometry(14,16,8,0,Math.PI*2,0,Math.PI/2),new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:.12,side:2}));dome.position.set(0,0,11);scene.add(dome);
+box(26,.3,16,0x2d3548,0,.1,11).receiveShadow=true;
+// stations: key,x,z,color,label,w,h,d
+const ST={};[["cool",-8,8,0x2563eb,"Cooling garment",1.4,1.4,1],["suit",-4,8,0xf1f5f9,"Pressure suit",1.4,1.8,1],["gl",0,8,0xffd23f,"Gloves",1,.6,1],["hel",4,8,0xaee6ff,"Helmet",1.1,1.1,1.1],["pk",8,8,0xe2e8f0,"Life-support backpack",1.3,1.6,.8],
+["cr",-14,-6,0x0284c7,"Solar panel crate",2,1.2,1.4],["pA",16,-10,0x6b7280,"Regolith pile",2.4,1.6,2.4],["pB",16,-2,0x6b7280,"Regolith pile",2.4,1.6,2.4],["mA",-7,-14,0xfacc15,"Shield spot",3,.2,3],["mB",7,-14,0xfacc15,"Shield spot",3,.2,3],
+["ic",-30,2,0xaee6ff,"Ice patch",3,.2,3],["tr",-24,-14,0x1f2937,"Grow tray",3,.6,2],["sd",-22,0,0x39ff88,"Seed pack",1.2,1,1.2],["sw",-29,-10,0xff2fd1,"Grow-light switch",.8,1.6,.8],
+["sc",26,4,0xff7a1a,"Sample case",1.6,1.1,1.2],["gb",22,-14,0xc084fc,"Glovebox",2.6,1.8,1.8],["lv",27,-10,0xef4444,"Seal lever",.8,1.4,.8],["an",31,-14,0x00e5ff,"Analyzer",1.8,1.6,1.4]]
+.forEach(([k,x,z,c,l,w,h,d])=>{ST[k]={x,z,label:l,m:box(w,h,d,c,x,h/2+.15,z)}});ST.sh={x:0,z:-14};
+// astronaut
+function astro(){const g=new THREE.Group(),C=[],W=[],GL=[];scene.add(g);
+ box(.9,1.1,.5,0x6b7280,0,1.3,0,g);const hd=new THREE.Mesh(new THREE.SphereGeometry(.32,8,6),mat(0xf0c8a0));hd.position.y=2.05;g.add(hd);
+ const limb=(x,y,w,h)=>{const p=new THREE.Group();p.position.set(x,y,0);g.add(p);box(w,h,w,0x6b7280,0,-h/2,0,p);const a=box(w+.12,h+.06,w+.12,0x2563eb,0,-h/2,0,p),b=box(w+.2,h+.1,w+.2,0xf1f5f9,0,-h/2,0,p);a.visible=b.visible=false;C.push(a);W.push(b);return p};
+ const lL=limb(-.22,.8,.3,.8),lR=limb(.22,.8,.3,.8),aL=limb(-.62,1.75,.26,.8),aR=limb(.62,1.75,.26,.8);
+ const t1=box(1,1.2,.6,0x2563eb,0,1.3,0,g),t2=box(1.18,1.35,.78,0xf1f5f9,0,1.3,0,g);t1.visible=t2.visible=false;C.push(t1);W.push(t2);
+ [aL,aR].forEach(p=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.22,6,5),mat(0xffd23f));m.position.y=-.85;m.visible=false;p.add(m);GL.push(m)});
+ const hm=new THREE.Mesh(new THREE.SphereGeometry(.55,10,8),mat(0xaee6ff,{transparent:true,opacity:.4}));hm.position.y=2.05;hm.visible=false;g.add(hm);const vz=box(.5,.22,.15,0xffb703,0,2.05,.4,g);vz.visible=false;
+ const pk=box(.8,1,.4,0xe2e8f0,0,1.4,-.5,g);pk.visible=false;const hold=new THREE.Group();hold.position.set(0,1.5,.85);g.add(hold);
+ return{g,lL,lR,aL,aR,C,W,GL,hm,vz,pk,hold}}
+const P=astro();P.g.position.set(0,0,14);P.g.rotation.y=Math.PI;
+const show=a=>a.forEach(m=>m.visible=true);
+const beam=new THREE.Mesh(new THREE.CylinderGeometry(.5,.5,10,12,1,true),new THREE.MeshBasicMaterial({color:0x00e5ff,transparent:true,opacity:.35,side:2,fog:false}));scene.add(beam);
+// effects
+const PL=[],place=p=>{const g=new THREE.Group();g.position.set(p.x,0,p.z);box(2.4,.1,1.6,0x0284c7,0,1.1,0,g).rotation.x=-.5;box(.12,1,.12,0x94a3b8,0,.5,0,g);scene.add(g)};
+const mound=k=>{const m=new THREE.Mesh(new THREE.ConeGeometry(3,2.6,6),mat(0x6b7280));m.position.set(ST[k].x,1.3,ST[k].z);scene.add(m)};
+let out=false;
+const S=(m,at,h,t,d,o)=>Object.assign({m,at,h,t,d},o);
+const STEPS=[
+S(1,"cool",1.5,"Put on the cooling garment (hold E at the gear rack)","Cooling garment on.",{fx:()=>show(P.C)}),
+S(1,"suit",1.8,"Pull on the pressure suit","Pressure suit sealed.",{fx:()=>show(P.W)}),
+S(1,"gl",1.2,"Put on your gloves","Gloves locked.",{fx:()=>show(P.GL)}),
+S(1,"hel",1.5,"Lock your helmet on","Helmet sealed, visor down.",{fx:()=>{show([P.hm,P.vz]);$("vis").style.display="block";$("ps").textContent="4.3 psi"}}),
+S(1,"pk",1.5,"Clip on the life-support backpack","Suit ready. The airlock is open!",{fx:()=>{show([P.pk]);out=true;dome.visible=false}}),
+S(2,"cr",1,"Pick up a solar panel from the crate","Panel in hand.",{give:"panel"}),
+S(2,"ground",1.5,"Carry it to a sunny spot and place it. Avoid the dark crater!","Panel placed.",{need:"panel",chk:()=>Math.hypot(P.g.position.x+18,P.g.position.z+24)<8&&"That crater is in permanent shadow, so no sunlight!",fx:()=>place(P.g.position)}),
+S(2,"cr",1,"Fetch the second panel","Panel in hand.",{give:"panel"}),
+S(2,"ground",1.5,"Place the second panel in sunlight","Solar array online!",{need:"panel",chk:()=>Math.hypot(P.g.position.x+18,P.g.position.z+24)<8&&"That crater is in permanent shadow, so no sunlight!",fx:()=>place(P.g.position)}),
+S(3,"pA",2.5,"Dig regolith at the pile (hold E)","Shovel full of regolith.",{give:"soil"}),
+S(3,"mA",1.5,"Pour it at the shield spot beside the lander","Shield mound built.",{need:"soil",fx:()=>mound("mA")}),
+S(3,"pB",2.5,"Dig a second load","Shovel full.",{give:"soil"}),
+S(3,"mB",1.5,"Pour it at the other shield spot","Second mound built.",{need:"soil",fx:()=>mound("mB")}),
+S(3,"sh",0,"☢ SOLAR STORM! Run to the lander shelter!","Storm passed. Your regolith shield held!",{storm:1}),
+S(4,"ic",3,"Mine water ice at the ice patch (hold E)","Ice collected.",{give:"ice"}),
+S(4,"tr",1.5,"Melt the ice into the grow tray","Tray filled with water.",{need:"ice",fx:()=>box(2.6,.1,1.6,0x38bdf8,ST.tr.x,.75,ST.tr.z)}),
+S(4,"sd",1,"Take the seed pack","Seeds in hand.",{give:"seeds"}),
+S(4,"tr",2,"Plant the seeds in the tray","Seeds planted.",{need:"seeds",fx:()=>{for(let i=0;i<3;i++){const m=new THREE.Mesh(new THREE.ConeGeometry(.25,.8,5),mat(0x39ff88));m.position.set(ST.tr.x-.9+i*.9,1.1,ST.tr.z);scene.add(m);PL.push(m)}}}),
+S(4,"sw",.6,"Switch on the grow lights","Plants are growing. Fresh food!",{fx:()=>{PL.forEach(m=>{m.scale.setScalar(2);m.position.y=1.5});const l=new THREE.PointLight(0xff2fd1,2,16);l.position.set(ST.tr.x,4,ST.tr.z);scene.add(l);ST.sw.m.material.emissive.set(0xff2fd1)}}),
+S(5,"sc",1,"Pick up the Moon sample case","Sample case in hand.",{give:"sample"}),
+S(5,"gb",1.5,"Put the sample inside the glovebox","Sample in the glovebox.",{need:"sample"}),
+S(5,"lv",.6,"Seal the glovebox before analyzing","Glovebox sealed, no contamination.",{fx:()=>ST.lv.m.material.color.set(0x22c55e)}),
+S(5,"an",3,"Run the analyzer (hold E)","Analysis complete!",{fx:()=>ST.an.m.material.emissive.set(0x00e5ff)})];
+const MN=["","Suit-Up","Solar Panels","Sun Shield","Agriculture","Lab Experiments"];
+const NOVA=["","Suit up in order, skin layer first. Mistakes cost oxygen.","Power first. Panels need sunlight, so stay away from the dark crater.","Build a regolith shield beside the lander. A solar storm is coming.","Time to grow food. Water first, then seeds, then light.","Final mission. Keep the sample clean: seal before you analyze."];
+// state
+let si=0,carry=null,prog=0,oxy=100,cd=0,stormT=14,over=false,started=false,hr=70,pe=false;
+const COL={panel:0x0284c7,soil:0x6b7280,ice:0xaee6ff,seeds:0x39ff88,sample:0xff7a1a};
+function setCarry(i){carry=i;while(P.hold.children.length)P.hold.remove(P.hold.children[0]);if(i)box(.9,.6,.9,COL[i],0,0,0,P.hold)}
+function say(t){$("msg").textContent=t}
+function mistake(t){oxy=Math.max(0,oxy-10);if(oxy<=0){oxy=40;t+=" O₂ ran out, so the reserve is back to 40%."}say("✖ −10 O₂. "+t+" Retry this step.");const f=$("fl");f.classList.add("on");setTimeout(()=>f.classList.remove("on"),150);cd=1}
+function ml(){const m=STEPS[Math.min(si,STEPS.length-1)].m;$("ml").innerHTML="<b>MISSIONS</b>"+[1,2,3,4,5].map(i=>`<div class="${over||i<m?"d":i===m?"a":""}">${over||i<m?"✓":i===m?"▶":"○"} ${i}. ${MN[i]}</div>`).join("")}
+function next(){const pm=STEPS[si].m;si++;prog=0;if(si>=STEPS.length){over=true;ml();$("pr").style.display=$("pg").style.display="none";$("ov").style.display="flex";$("ov").innerHTML=`<div class="card"><h1>JUNIOR ASTRONAUT CERTIFIED</h1><p style="text-align:center">You finished all 5 missions with <b>${oxy}%</b> oxygen left.<br><br>Signed, Commander Nova</p><button onclick="location.reload()">PLAY AGAIN</button></div>`;return}
+ const s=STEPS[si];if(s.m!==pm)say("Mission "+s.m+" · "+MN[s.m]+". Nova: "+NOVA[s.m]);if(s.storm)stormT=14;ml()}
+// input
+const KM={ArrowUp:"up",w:"up",ArrowDown:"down",s:"down",ArrowLeft:"left",a:"left",ArrowRight:"right",d:"right",e:"e"," ":"e"};
+addEventListener("keydown",e=>{const k=KM[e.key];if(k){K[k]=1;e.preventDefault()}});addEventListener("keyup",e=>{const k=KM[e.key];if(k)K[k]=0});
+document.querySelectorAll("[data-k]").forEach(b=>{b.onpointerdown=()=>K[b.dataset.k]=1;["pointerup","pointerleave","pointercancel"].forEach(ev=>b.addEventListener(ev,()=>K[b.dataset.k]=0))});
+$("go").onclick=()=>{$("ov").style.display="none";landing=true;["ml","st","obj"].forEach(i=>$(i).style.display="none");$("skip").style.display="block"};
+$("gfx").onclick=()=>{PX=PX===4?2:PX===2?1:4;rs();$("gfx").textContent="GRAPHICS: "+(PX===4?"PIXEL":PX===2?"SOFT":"SMOOTH")};
+// landing cinematic
+let landing=false,lt=0,landed=false,cap="";const parts=[];
+function say2(t){if(t!==cap){cap=t;say(t)}}
+function landStep(dt){lt+=dt;const T=9,k=Math.min(1,lt/T),e=1-Math.pow(1-k,3);ship.position.y=70*(1-e);flame.visible=k<1;flame.scale.set(.9+Math.random()*.3,.8+Math.random()*.6,.9+Math.random()*.3);plight.intensity=k<1?3:0;
+ const a=-.6+Math.min(lt,T)*.12;cam.position.set(Math.sin(a)*28,8+10*(1-k),-14+Math.cos(a)*28);cam.lookAt(0,ship.position.y+3,-14);
+ if(k>=1&&!landed){landed=true;for(let i=0;i<30;i++){const m=box(.5,.5,.5,0x9aa0aa,0,.4,-14),an=Math.random()*6.28,s=4+Math.random()*5;parts.push({m,vx:Math.cos(an)*s,vz:Math.sin(an)*s,vy:1+Math.random()*3,l:2.5})}}
+ say2(lt<3?"T-minus 60 seconds. Lunar descent, Sector Alpha-1.":k<1?"Engines firing. Slowing the descent...":"Touchdown! The lander is down safely.");
+ if(lt>T+2.5){landing=false;started=true;["ml","st","obj"].forEach(i=>$(i).style.display="");$("skip").style.display="none";ml();cap="";say("Follow the glowing blue beam to the first item, then hold E. "+NOVA[1])}}
+function puff(dt){for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.l-=dt;q.m.position.x+=q.vx*dt;q.m.position.z+=q.vz*dt;q.vy-=3*dt;q.m.position.y=Math.max(.2,q.m.position.y+q.vy*dt);q.m.scale.setScalar(Math.max(.01,q.l/2.5));if(q.l<=0){scene.remove(q.m);parts.splice(i,1)}}}
+$("skip").onclick=()=>{lt=99};
+// loop
+const clk=new THREE.Clock();
+function update(dt,t){
+ let dx=(K.right?1:0)-(K.left?1:0),dz=(K.down?1:0)-(K.up?1:0);const mv=dx||dz,g=P.g.position;
+ if(mv){const l=Math.hypot(dx,dz);dx/=l;dz/=l;g.x+=dx*6*dt;g.z+=dz*6*dt;P.g.rotation.y=Math.atan2(dx,dz)}
+ if(!out){g.x=Math.max(-12,Math.min(12,g.x));g.z=Math.max(3,Math.min(19,g.z))}
+ const st=STEPS[si];let tgt=null,bd=3.4;
+ const bt=ST[st.at];beam.visible=!!bt;let ar="";if(bt){beam.position.set(bt.x,5,bt.z);beam.scale.x=beam.scale.z=1+.15*Math.sin(t*4);const ex=bt.x-g.x,ez=bt.z-g.z;if(Math.hypot(ex,ez)>3.4)ar=["↑","↗","→","↘","↓","↙","←","↖"][Math.round(((Math.atan2(ex,-ez)+6.2832)%6.2832)/.7854)%8]+" "+Math.round(Math.hypot(ex,ez))+" m · "}
+ if(st.at==="ground")tgt="ground";else for(const k in ST){if(k==="sh")continue;const d=Math.hypot(g.x-ST[k].x,g.z-ST[k].z);if(d<bd){bd=d;tgt=k}}
+ const pressed=K.e&&!pe;pe=!!K.e;cd-=dt;let hold=false;
+ if(st.storm){const d=Math.hypot(g.x-ST.sh.x,g.z-ST.sh.z);stormT-=dt;$("obj").textContent=ar+"☢ SOLAR STORM! Run to the lander: "+Math.ceil(stormT)+"s";$("fl").style.opacity=.15+.15*Math.sin(t*10);
+  if(d<5){$("fl").style.opacity="";say("✔ "+st.d);next()}else if(stormT<=0){$("fl").style.opacity="";mistake("Radiation exposure! You were too slow.");stormT=14}}
+ else{$("obj").textContent=ar+st.t;
+  if(pressed&&tgt&&tgt!==st.at&&cd<=0)mistake("Wrong step. Right now: "+st.t+".");
+  else if(pressed&&tgt===st.at&&st.need&&carry!==st.need&&cd<=0)mistake("You need to be carrying the "+st.need+" first.");
+  if(K.e&&tgt===st.at&&(!st.need||carry===st.need)&&cd<=0){hold=true;prog+=dt;if(prog>=st.h){const r=st.chk&&st.chk();if(r){mistake(r);prog=0}else{if(st.fx)st.fx();if(st.give)setCarry(st.give);if(st.need)setCarry(null);say("✔ "+st.d);next()}}}else prog=0}
+ const pr=$("pr");if(tgt&&!st.storm){pr.style.display="block";pr.textContent=tgt==="ground"?"Hold E: place it here":"Hold E: "+ST[tgt].label}else pr.style.display="none";
+ $("pg").style.display=hold?"block":"none";$("pg").firstChild.style.width=(st.h?Math.min(100,prog/st.h*100):0)+"%";
+ const sw=Math.sin(t*9)*.7,w=mv?sw:0;P.lL.rotation.x=w;P.lR.rotation.x=-w;
+ if(hold||carry){const b=hold?Math.sin(t*12)*.35:0;P.aL.rotation.x=P.aR.rotation.x=-1.3+b}else{P.aL.rotation.x=-w;P.aR.rotation.x=w}
+ P.g.position.y=hold?Math.abs(Math.sin(t*12))*.08:0;
+ hr+=((68+(mv?32:0)+(hold?18:0)+(st.storm?25:0))-hr)*dt*2;$("hr").textContent=Math.round(hr);
+ $("o2t").textContent=oxy+"%";$("o2b").style.width=oxy+"%";$("o2b").style.background=oxy<35?"#ff2fd1":"#39ff88";
+ cam.position.lerp(new THREE.Vector3(g.x,9,g.z+13),.08);cam.lookAt(g.x,1.5,g.z)}
+cam.position.set(0,9,27);cam.lookAt(0,1.5,14);
+(function loop(){requestAnimationFrame(loop);const dt=Math.min(clk.getDelta(),.05);if(landing)landStep(dt);puff(dt);if(started&&!over)update(dt,clk.elapsedTime);R.render(scene,cam)})();
+</script></body></html>
