@@ -1,1 +1,1 @@
-<!-- UI component tests for Moonbase Margin screens -->
+<!-- UI component tests for AstroSim screens -->

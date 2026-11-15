@@ -1,4 +1,5 @@
-// How to Play (#/how-to-play): three picture cards (the first is the cargo clip), then the guided first mission (M1).
+// How to Play (#/how-to-play): three picture cards (the cargo clip, the ladder picture, a drawn
+// test grid), then the guided first mission (M1).
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
@@ -8,29 +9,6 @@ import { MediaCard } from '../components/MediaCard.tsx';
 import { PageIntro } from '../components/PageIntro.tsx';
 import { missionById, startMission } from '../missionFlow.ts';
 import { hrefFor } from '../router.ts';
-
-/** Picture 2: a priority ladder, the top rung marked as most important. */
-const RulesPicture: React.FC<{ label: string }> = ({ label }) => (
-  <svg viewBox="0 0 240 140" role="img" aria-label={label} focusable="false">
-    <rect width="240" height="140" rx="14" fill="var(--color-bg-highlight)" />
-    <path d="M70 14v112M170 14v112" stroke="var(--navy)" strokeWidth="6" />
-    {[30, 58, 86, 114].map((y, i) => (
-      <rect
-        key={y}
-        x="76"
-        y={y - 9}
-        width="88"
-        height="18"
-        rx="5"
-        fill={i === 0 ? 'var(--rocket)' : 'var(--coupon)'}
-        stroke="var(--navy)"
-        strokeWidth="2"
-      />
-    ))}
-    <path d="m190 30 10-8v16Z" fill="var(--rocket)" />
-    <circle cx="40" cy="36" r="14" fill="var(--sun)" />
-  </svg>
-);
 
 /** Picture 3: a grid of 20 crew dots; most filled (home), a few empty (trouble). */
 const TestPicture: React.FC<{ label: string }> = ({ label }) => (
@@ -55,8 +33,11 @@ const TestPicture: React.FC<{ label: string }> = ({ label }) => (
   </svg>
 );
 
-// Step 1 uses the cargo-and-scale clip; steps 2 and 3 keep their drawn pictures.
-const PICTURES = [null, RulesPicture, TestPicture] as const;
+// Step 1 is the cargo-and-scale clip, step 2 the ladder picture; step 3 keeps its drawing.
+const MEDIA = [
+  { id: 'cargo-weigh', caption: copy.howTo.buildCaption, fit: undefined },
+  { id: 'ladder-still', caption: copy.howTo.rulesCaption, fit: 'contain' },
+] as const;
 
 export const HowToPlayScreen: React.FC = () => {
   const { dispatch } = useAppStore();
@@ -69,13 +50,29 @@ export const HowToPlayScreen: React.FC = () => {
 
       <ol className="picture-cards" aria-label={h.cardsLabel}>
         {h.cards.map((card, i) => {
-          const Picture = PICTURES[i];
+          const m = MEDIA[i];
           return (
             <li key={card.title} className="picture-card">
-              {Picture ? (
-                <Picture label={card.picture} />
+              {m ? (
+                <MediaCard
+                  id={m.id}
+                  caption={m.caption}
+                  ratio="16/9"
+                  autoPlay={false}
+                  className={m.fit === 'contain' ? 'media-contain' : undefined}
+                />
               ) : (
-                <MediaCard id="cargo-weigh" caption={h.buildCaption} autoPlay={false} />
+                // Same frame and caption bar as the two media cards beside it.
+                <figure className="media-card">
+                  <div className="media-frame drawn-frame" style={{ aspectRatio: '16 / 9' }}>
+                    <TestPicture label={card.picture} />
+                  </div>
+                  <figcaption>
+                    <span className="media-caption-text">
+                      <span>{h.testCaption}</span>
+                    </span>
+                  </figcaption>
+                </figure>
               )}
               <h3>{card.title}</h3>
               <p>{card.body}</p>
@@ -87,7 +84,7 @@ export const HowToPlayScreen: React.FC = () => {
       {first ? (
         <section className="panel page-section first-mission" aria-labelledby="first-mission">
           <p className="page-kicker">
-            <Icon name="flag" size={16} /> {h.firstTitle}
+            <Icon name="rocket" size={16} /> {h.firstTitle}
           </p>
           <h3 id="first-mission">{first.title}</h3>
           <p>{first.objective}</p>

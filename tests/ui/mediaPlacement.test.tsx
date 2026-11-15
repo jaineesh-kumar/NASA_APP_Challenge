@@ -1,5 +1,6 @@
-// Where media appears: landing, How to play, briefing, the Test-screen loader, the storm picker and storm
-// missions. Never on the Build or Rules screens. The share image exists.
+// Where media appears: landing, How to play, briefing, the Test-screen loader, the storm picker,
+// mission cards, Teachers, Logbook and Space words. Never on the Build or Rules screens. The share
+// image exists.
 
 import { render, screen } from '@testing-library/react';
 import React from 'react';
@@ -24,7 +25,7 @@ const ids = (root: ParentNode) =>
   [...root.querySelectorAll('[data-media-id]')].map((n) => n.getAttribute('data-media-id'));
 
 describe('media placement', () => {
-  it('landing: hero clip, four journey clips, crew card, storm teaser and a horizon', () => {
+  it('landing: hero clip, four journey clips, crew card and storm teaser', () => {
     window.location.hash = '#/';
     const { container } = render(<App />);
     expect(ids(container)).toEqual([
@@ -35,7 +36,6 @@ describe('media placement', () => {
       'base-setup',
       'crew-walk',
       'storm-shelter',
-      'moon-horizon',
     ]);
     const journey = screen.getByRole('list', { name: copy.landing.storyLabel });
     expect(journey.querySelectorAll('li')).toHaveLength(4);
@@ -53,21 +53,21 @@ describe('media placement', () => {
       );
     }
     expect(screen.getByText(copy.landing.stormTeaser)).toBeDefined();
-    const horizon = container.querySelector('[data-media-id="moon-horizon"]');
-    expect(horizon?.getAttribute('aria-hidden')).toBe('true');
+    // The Moon horizon strip was removed from the bottom of the page.
+    expect(container.querySelector('[data-media-id="moon-horizon"]')).toBeNull();
   });
 
-  it('briefing shows the base picture as a small 4:3 card', () => {
+  it('briefing shows the base tour clip as a small 4:3 card', () => {
     window.location.hash = '#/free-build';
     const { container } = render(<App />);
-    const card = container.querySelector('[data-media-id="base-scene"] .media-frame');
+    const card = container.querySelector('[data-media-id="base-tour"] .media-frame');
     expect((card as HTMLElement | null)?.style.aspectRatio).toBe('4 / 3');
   });
 
-  it('How to play shows the cargo clip on the Build card', () => {
+  it('How to play shows the cargo clip and the ladder picture', () => {
     window.location.hash = '#/how-to-play';
     const { container } = render(<App />);
-    expect(ids(container)).toEqual(['cargo-weigh']);
+    expect(ids(container)).toEqual(['cargo-weigh', 'ladder-still']);
   });
 
   it('the Build and Rules screens have no media', () => {
@@ -104,16 +104,42 @@ describe('media placement', () => {
     expect(ids(running.container)).toContain('missions-grid');
   });
 
-  it('storm missions (M3, M5) show the storm clip on their card', () => {
+  it('every mission card shows its own clip', () => {
     window.location.hash = '#/missions';
     const { container } = render(<App />);
-    expect(ids(container).filter((i) => i === 'storm-shelter')).toHaveLength(2);
+    expect(ids(container)).toEqual([
+      'night-falls',
+      'recycler-fix',
+      'storm-shelter',
+      'greenhouse-grow',
+      'storm-warning',
+    ]);
+  });
+
+  it('Teachers shows the classroom, Logbook the waving crew and badge pictures', () => {
+    window.location.hash = '#/teachers';
+    const teachers = render(<App />);
+    expect(ids(teachers.container)).toContain('classroom');
+    teachers.unmount();
+
+    window.location.hash = '#/logbook';
+    const logbook = render(<App />);
+    expect(ids(logbook.container)).toContain('crew-wave');
+    // Four badges have a picture; the other two keep their icon.
+    expect(logbook.container.querySelectorAll('.badge-icon.has-picture img')).toHaveLength(4);
+    logbook.unmount();
+  });
+
+  it('Space words shows six system icons', () => {
+    window.location.hash = '#/words';
+    const { container } = render(<App />);
+    expect(container.querySelectorAll('img.word-icon')).toHaveLength(6);
   });
 
   it('index.html shares an existing image', () => {
     const m = indexHtml.match(/property="og:image" content="\.\/([^"]+)"/);
     expect(m).not.toBeNull();
-    expect(decodeURI(m?.[1] ?? '')).toBe(media['base-scene'].file);
+    expect(decodeURI(m?.[1] ?? '')).toBe(media['share-banner'].file);
     expect(indexHtml).toMatch(/name="twitter:image"/);
   });
 });

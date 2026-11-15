@@ -13,15 +13,20 @@ export type RouteId =
   | 'logbook'
   | 'words'
   | 'teachers'
-  | 'data';
+  | 'data'
+  | 'mission-day'
+  | 'quiz'
+  | 'sim';
 
 /** Every page, in menu order. */
 export const ROUTE_IDS: readonly RouteId[] = [
   'home',
   'how-to-play',
   'missions',
+  'mission-day',
   'training',
   'free-build',
+  'sim',
   'logbook',
   'words',
   'teachers',
@@ -34,10 +39,28 @@ export interface Route {
   sub: readonly string[];
 }
 
+/** Menu groups: a plain link, or a dropdown of related pages. */
+export type NavGroupId = 'play' | 'learn' | 'about';
+export type NavItem =
+  { kind: 'link'; id: RouteId } | { kind: 'group'; id: NavGroupId; pages: readonly RouteId[] };
+
+/** The main menu, in order. Every page in ROUTE_IDS appears exactly once. */
+export const NAV_ITEMS: readonly NavItem[] = [
+  { kind: 'link', id: 'home' },
+  { kind: 'group', id: 'play', pages: ['missions', 'mission-day', 'free-build'] },
+  { kind: 'link', id: 'sim' },
+  { kind: 'group', id: 'learn', pages: ['how-to-play', 'training', 'words'] },
+  { kind: 'link', id: 'logbook' },
+  { kind: 'group', id: 'about', pages: ['data', 'teachers'] },
+];
+
 const HOME: Route = { id: 'home', sub: [] };
 
+/** Pages reached from a header button instead of the menu. */
+export const EXTRA_ROUTE_IDS: readonly RouteId[] = ['quiz'];
+
 function isRouteId(s: string): s is RouteId {
-  return (ROUTE_IDS as readonly string[]).includes(s);
+  return ([...ROUTE_IDS, ...EXTRA_ROUTE_IDS] as readonly string[]).includes(s);
 }
 
 /** Reads a location hash. Returns null for hashes that are not routes (e.g. "#main-content"). */

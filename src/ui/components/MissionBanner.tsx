@@ -30,7 +30,7 @@ export const MissionBanner: React.FC<{ step: StepId }> = ({ step }) => {
     <section className="mission-banner" aria-labelledby="mission-banner-title">
       <div className="mission-banner-head">
         <p className="page-kicker">
-          <Icon name="flag" size={16} /> {m.bannerLabel}
+          <Icon name="rocket" size={16} /> {m.bannerLabel}
         </p>
         <h2 id="mission-banner-title" className="mission-banner-title">
           {mission.title}

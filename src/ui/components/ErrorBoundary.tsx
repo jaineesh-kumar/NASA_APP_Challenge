@@ -81,7 +81,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 marginBottom: '16px',
               }}
             >
-              Moonbase Margin encountered an unexpected hardware parameter or scenario calculation
+              AstroSim encountered an unexpected hardware parameter or scenario calculation
               error.
             </p>
 

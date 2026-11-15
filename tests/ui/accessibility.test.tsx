@@ -5,6 +5,7 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import App from '../../src/App.tsx';
+import { EXTRA_ROUTE_IDS, ROUTE_IDS } from '../../src/ui/router.ts';
 import { copy } from '../../src/content/copy.ts';
 import { ErrorBoundary } from '../../src/ui/components/ErrorBoundary.tsx';
 
@@ -32,11 +33,30 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
       expect(btn.tabIndex).toBeGreaterThanOrEqual(0);
     });
 
-    // Every page of the site is a real link in the main menu (keyboard reachable)
+    // Every page of the site is a real link (keyboard reachable): menu pages in the main menu,
+    // the quiz as the header's Quiz button.
     const menu = screen.getByRole('navigation', { name: copy.site.navLabel });
-    Object.values(copy.site.pages).forEach((page) => {
-      const link = within(menu).getByRole('link', { name: page });
-      expect(link.getAttribute('href')).toMatch(/^#\//);
+    // Open every dropdown one at a time and collect its links.
+    const found = new Map<string, string | null>();
+    const read = () => {
+      for (const a of within(menu).getAllByRole('link'))
+        found.set(a.textContent ?? '', a.getAttribute('href'));
+    };
+    read();
+    for (const b of within(menu).getAllByRole('button')) {
+      fireEvent.click(b);
+      read();
+    }
+    ROUTE_IDS.forEach((id) => {
+      expect(found.get(copy.site.pages[id])).toMatch(/^#\//);
+    });
+    // Each group button is a real button with its expanded state.
+    for (const b of within(menu).getAllByRole('button')) {
+      expect(b.getAttribute('aria-expanded')).toMatch(/true|false/);
+    }
+    EXTRA_ROUTE_IDS.forEach((id) => {
+      const link = screen.getByRole('link', { name: new RegExp(copy.site.pages[id]) });
+      expect(link.getAttribute('href')).toBe(`#/${id}`);
     });
   });
 
@@ -86,6 +106,13 @@ describe('Level 9 Verification: Accessibility, Contrast & Error States (Spec L9 
       ['danger text on elevated (urgent radio line)', '#b4231a', '#f2f6ff'],
       ['muted on highlight (site menu hover)', '#45557f', '#e4ecff'],
       ['white on navy (current menu page)', '#ffffff', '#14245c'],
+      // Editorial type (2026-11-15)
+      ['body gray on sky ground', '#333333', '#dcebff'],
+      ['body gray on white card', '#333333', '#ffffff'],
+      ['body gray on carbon wash', '#333333', '#eee9ff'],
+      ['meta gray on sky ground', '#555555', '#dcebff'],
+      ['meta gray on white card', '#555555', '#ffffff'],
+      ['red title accent (rocket-deep) on sky ground', '#a9211a', '#dcebff'],
     ];
     for (const [name, fg, bg] of pairs) {
       const ratio = getContrast(hex(fg), hex(bg));

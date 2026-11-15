@@ -30,6 +30,8 @@ interface Props {
   autoPlay?: boolean;
   /** Purely decorative: hidden from screen readers, no caption bar. */
   decorative?: boolean;
+  /** An extra control shown in the caption bar, next to the Play/Pause button. */
+  action?: React.ReactNode;
   className?: string;
 }
 
@@ -74,6 +76,7 @@ export const MediaCard: React.FC<Props> = ({
   ratio,
   autoPlay = true,
   decorative = false,
+  action,
   className,
 }) => {
   const entry = media[id];
@@ -127,6 +130,7 @@ export const MediaCard: React.FC<Props> = ({
   }
 
   const showToggle = isVideo && !hasFailed && !decorative;
+  const about = isVideo && !decorative ? m.about[id] : undefined;
   return (
     <figure
       className={`media-card${decorative ? ' is-decorative' : ''}${className ? ` ${className}` : ''}`}
@@ -136,20 +140,26 @@ export const MediaCard: React.FC<Props> = ({
       <div className="media-frame" style={{ aspectRatio: shownRatio.replace('/', ' / ') }}>
         {body}
       </div>
-      {!decorative && (caption || showToggle) ? (
+      {!decorative && (caption || showToggle || action) ? (
         <figcaption>
-          <span>{caption}</span>
-          {showToggle ? (
-            <button
-              type="button"
-              className="media-toggle"
-              aria-label={wantsPlay ? m.pauseVideo : m.playVideo}
-              onClick={() => setWantsPlay((w) => !w)}
-            >
-              <Icon name={wantsPlay ? 'pause' : 'play'} size={18} />
-              <span aria-hidden="true">{wantsPlay ? m.pause : m.play}</span>
-            </button>
-          ) : null}
+          <span className="media-caption-text">
+            <span>{caption}</span>
+            {about ? <span className="media-about">{about}</span> : null}
+          </span>
+          <span className="media-actions">
+            {action}
+            {showToggle ? (
+              <button
+                type="button"
+                className="media-toggle"
+                aria-label={wantsPlay ? m.pauseVideo : m.playVideo}
+                onClick={() => setWantsPlay((w) => !w)}
+              >
+                <Icon name={wantsPlay ? 'pause' : 'play'} size={18} />
+                <span aria-hidden="true">{wantsPlay ? m.pause : m.play}</span>
+              </button>
+            ) : null}
+          </span>
         </figcaption>
       ) : null}
     </figure>

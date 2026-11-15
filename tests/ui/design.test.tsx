@@ -21,6 +21,7 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
     renderDesign();
     expect(screen.getByText(copy.design.heading)).toBeDefined();
     expect(screen.getByRole('progressbar')).toBeDefined();
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.designJunior.adjust }));
     expect(
       screen.getByRole('button', { name: `Increase ${copy.design.panelsLabel}` }),
     ).toBeDefined();
@@ -28,6 +29,7 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
 
   it('AC2: "+" is disabled once the next item would break the mass budget', () => {
     renderDesign();
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.designJunior.adjust }));
     const plus = screen.getByRole('button', {
       name: `Increase ${copy.design.batteriesLabel}`,
     }) as HTMLButtonElement;
@@ -64,12 +66,13 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
     expect(missionPresets.map((p) => p.id)).toEqual(['light', 'balanced', 'heavy']);
     const heavy = missionPresets.find((p) => p.id === 'heavy');
     fireEvent.click(screen.getByRole('button', { name: new RegExp(heavy?.name ?? '') }));
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.designJunior.adjust }));
     const shields = screen.getByRole('status', { name: `${copy.design.shieldingLabel} count` });
     expect(shields.textContent).toBe(String(heavy?.design.shieldingLayers));
     // Four steppers outside More options: panels, batteries, shields, greenhouse.
     const adjust = screen.getByRole('region', { name: copy.kits.adjustTitle });
     expect(within(adjust).getAllByRole('button', { name: /^Increase / })).toHaveLength(4);
-    expect(screen.getByText(copy.kits.moreOptions)).toBeDefined();
+    expect(screen.getByRole('tab', { name: copy.stepTabs.designJunior.more })).toBeDefined();
   });
 
   it('Planner shows every control at once', () => {
@@ -78,7 +81,8 @@ describe('DesignScreen (L6 AC1, AC2, AC5, AC6)', () => {
         <DesignScreen />
       </AppStoreProvider>,
     );
-    expect(screen.queryByText(copy.kits.moreOptions)).toBeNull();
+    expect(screen.queryByRole('tab', { name: copy.stepTabs.designJunior.more })).toBeNull();
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.designPlanner.power }));
     expect(screen.getByRole('button', { name: `Increase ${copy.design.mastLabel}` })).toBeDefined();
   });
 });

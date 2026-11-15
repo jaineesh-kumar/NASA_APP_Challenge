@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { copy } from '../../src/content/copy.ts';
@@ -22,6 +22,7 @@ describe('comms link explained in kid words (L12 AC6)', () => {
     expect(screen.getByText(copy.rules.commsNote, { exact: false })).toBeDefined();
     expect(screen.getByText(note, { exact: false })).toBeDefined();
     expect(note).toContain('1.3 seconds');
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.rules.comms }));
     expect(
       screen.getByRole('button', { name: /Why this number for comms.moon_one_way_delay_s/ }),
     ).toBeDefined();

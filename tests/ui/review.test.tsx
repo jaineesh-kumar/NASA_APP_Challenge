@@ -89,6 +89,7 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
 
   it('AC4: the replay has play/pause and a scrubber, and shows the real storms', () => {
     renderReview();
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.review.replay }));
     const slider = screen.getByRole('slider', {
       name: copy.replay.scrubberLabel,
     }) as HTMLInputElement;
@@ -109,6 +110,7 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
 
   it('AC5: the cause chain comes from the log and a hint is shown', () => {
     renderReview();
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.review.why }));
     const section = screen.getByRole('region', { name: copy.causeChain.title });
     expect(within(section).getByText(/:/, { selector: 'p' })).toBeDefined();
   });
@@ -136,6 +138,7 @@ describe('ReviewScreen (L7 AC2-AC7)', () => {
     expect(screen.queryByText(/90\.0%|86\.1%/)).toBeNull();
     expect(screen.getByText(/What would you change\?/)).toBeDefined();
     expect(screen.getByRole('button', { name: copy.kind.newChallenge })).toBeDefined();
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.review.replay }));
     expect(screen.getAllByRole('meter')).toHaveLength(3);
   });
 });

@@ -1,1 +1,1 @@
-<!-- Reusable UI components for Moonbase Margin -->
+<!-- Reusable UI components for AstroSim -->

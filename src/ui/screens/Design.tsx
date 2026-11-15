@@ -1,6 +1,6 @@
 // Build screen: kits, hardware and spares within the mass budget (Spec B8, B10.7; L6, L11 AC3)
-// Junior Mode: three starter kits and at most four items to change, the rest under More options.
-// Planner Mode: every control at once.
+// Junior Mode: tabs for the three starter kits, four quick changes, and all other parts.
+// Planner Mode: tabs for examples, landing spot, power, life support and spares.
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
@@ -11,7 +11,9 @@ import { ComponentId, SiteId } from '../../engine/types.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { MassBudgetBar } from '../components/MassBudgetBar.tsx';
 import { NumberStepper } from '../components/NumberStepper.tsx';
+import { SectionTabs } from '../components/SectionTabs.tsx';
 import { SegmentedControl } from '../components/SegmentedControl.tsx';
+import { StepHeader } from '../components/StepHeader.tsx';
 import { Term } from '../components/Term.tsx';
 
 const params = loadParams();
@@ -163,121 +165,148 @@ export const DesignScreen: React.FC = () => {
     </>
   );
 
+  const tabs = isJunior
+    ? [
+        {
+          id: 'kits',
+          label: copy.stepTabs.designJunior.kits,
+          content: (
+            <section className="panel-card" aria-labelledby="kits-title">
+              <h3 id="kits-title" className="card-title">
+                {copy.kits.title}
+              </h3>
+              <p className="muted small" style={{ marginBottom: 12 }}>
+                {copy.kits.intro}
+              </p>
+              <div className="kit-list">
+                {missionPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className="kit"
+                    onClick={() => dispatch({ type: 'SET_PRESET', preset })}
+                  >
+                    <span className="kit-name">{preset.name}</span>
+                    <span className="small">{preset.tagline}</span>
+                    <span className="small muted">{preset.description}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ),
+        },
+        {
+          id: 'adjust',
+          label: copy.stepTabs.designJunior.adjust,
+          content: (
+            <section className="panel-card" aria-labelledby="adjust-title">
+              <h3 id="adjust-title" className="card-title">
+                {copy.kits.adjustTitle}
+              </h3>
+              <div className="term-row">
+                <Term term="Battery" />
+                <Term term="Regolith" />
+              </div>
+              {panels}
+              {batteries}
+              {shields}
+              {greenhouse}
+            </section>
+          ),
+        },
+        {
+          id: 'more',
+          label: copy.stepTabs.designJunior.more,
+          content: (
+            <section className="panel-card">
+              <p className="muted small" style={{ marginBottom: 8 }}>
+                {copy.kits.moreOptions}
+              </p>
+              <div className="term-row">
+                <Term term="Recycling loop" />
+                <Term term="Oxygen scrubber" />
+              </div>
+              <h3 className="card-title">{d.siteTitle}</h3>
+              {site}
+              {mast}
+              {water}
+              {o2}
+              <h3 className="card-title" style={{ marginTop: 16 }}>
+                {d.sparesSectionTitle}
+              </h3>
+              {spares}
+            </section>
+          ),
+        },
+      ]
+    : [
+        {
+          id: 'presets',
+          label: copy.stepTabs.designPlanner.presets,
+          content: (
+            <section className="panel-card" aria-labelledby="presets-title">
+              <h3 id="presets-title" className="card-title">
+                {d.presetsTitle}
+              </h3>
+              <div className="row">
+                {missionPresets.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => dispatch({ type: 'SET_PRESET', preset })}
+                    style={{ textAlign: 'left' }}
+                  >
+                    <div style={{ fontWeight: 600 }}>{preset.name}</div>
+                    <div className="muted small">{preset.tagline}</div>
+                  </button>
+                ))}
+              </div>
+            </section>
+          ),
+        },
+        {
+          id: 'site',
+          label: copy.stepTabs.designPlanner.site,
+          content: <section className="panel-card">{site}</section>,
+        },
+        {
+          id: 'power',
+          label: copy.stepTabs.designPlanner.power,
+          content: (
+            <section className="panel-card">
+              {panels}
+              {mast}
+              {batteries}
+            </section>
+          ),
+        },
+        {
+          id: 'life',
+          label: copy.stepTabs.designPlanner.life,
+          content: (
+            <section className="panel-card">
+              {water}
+              {o2}
+              {greenhouse}
+              {shields}
+            </section>
+          ),
+        },
+        {
+          id: 'spares',
+          label: copy.stepTabs.designPlanner.spares,
+          content: <section className="panel-card">{spares}</section>,
+        },
+      ];
+
   return (
     <div>
-      <h2 className="screen-title">{d.heading}</h2>
-      <p className="muted" style={{ marginBottom: 20 }}>
-        {d.subheading}
-      </p>
+      <StepHeader step="design" title={d.heading} lead={d.subheading} />
 
       <MassBudgetBar />
 
-      {isJunior ? (
-        <>
-          <section className="panel-card" aria-labelledby="kits-title">
-            <h3 id="kits-title" className="card-title">
-              {copy.kits.title}
-            </h3>
-            <p className="muted small" style={{ marginBottom: 12 }}>
-              {copy.kits.intro}
-            </p>
-            <div className="kit-list">
-              {missionPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  className="kit"
-                  onClick={() => dispatch({ type: 'SET_PRESET', preset })}
-                >
-                  <span className="kit-name">{preset.name}</span>
-                  <span className="small">{preset.tagline}</span>
-                  <span className="small muted">{preset.description}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="panel-card" aria-labelledby="adjust-title">
-            <h3 id="adjust-title" className="card-title">
-              {copy.kits.adjustTitle}
-            </h3>
-            <div className="term-row">
-              <Term term="Battery" />
-              <Term term="Regolith" />
-            </div>
-            {panels}
-            {batteries}
-            {shields}
-            {greenhouse}
-          </section>
-
-          <details className="more-options">
-            <summary>{copy.kits.moreOptions}</summary>
-            <div className="term-row">
-              <Term term="Recycling loop" />
-              <Term term="Oxygen scrubber" />
-            </div>
-            <h3 className="card-title">{d.siteTitle}</h3>
-            {site}
-            {mast}
-            {water}
-            {o2}
-            <h3 className="card-title" style={{ marginTop: 16 }}>
-              {d.sparesSectionTitle}
-            </h3>
-            {spares}
-          </details>
-        </>
-      ) : (
-        <>
-          <section className="panel-card" aria-labelledby="presets-title">
-            <h3 id="presets-title" className="card-title">
-              {d.presetsTitle}
-            </h3>
-            <div className="row">
-              {missionPresets.map((preset) => (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => dispatch({ type: 'SET_PRESET', preset })}
-                  style={{ textAlign: 'left' }}
-                >
-                  <div style={{ fontWeight: 600 }}>{preset.name}</div>
-                  <div className="muted small">{preset.tagline}</div>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <div className="grid-2col">
-            <div>
-              <section className="panel-card">
-                <h3 className="card-title">{d.siteTitle}</h3>
-                {site}
-              </section>
-              <section className="panel-card">
-                <h3 className="card-title">{d.powerSectionTitle}</h3>
-                {panels}
-                {mast}
-                {batteries}
-              </section>
-            </div>
-            <div>
-              <section className="panel-card">
-                <h3 className="card-title">{d.lifeSupportSectionTitle}</h3>
-                {water}
-                {o2}
-                {greenhouse}
-                {shields}
-              </section>
-              <section className="panel-card">
-                <h3 className="card-title">{d.sparesSectionTitle}</h3>
-                {spares}
-              </section>
-            </div>
-          </div>
-        </>
-      )}
+      {/* Junior and Planner have different tabs, so each mode gets a fresh tab strip. */}
+      <SectionTabs key={mode} label={copy.stepTabs.listLabel(copy.nav.design)} tabs={tabs} />
     </div>
   );
 };

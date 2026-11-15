@@ -75,6 +75,7 @@ describe('RulesScreen Component (Spec Part C L6 AC4, AC5, AC7, AC9)', () => {
         <Count />
       </AppStoreProvider>,
     );
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.rules.ifThen }));
     const switches = screen.getAllByRole('switch');
     expect(switches).toHaveLength(3);
     expect(screen.queryByText(copy.rules.addRuleButton)).toBeNull();

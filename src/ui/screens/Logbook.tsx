@@ -4,9 +4,11 @@
 import React, { useState } from 'react';
 import { badges } from '../../content/badges.ts';
 import { copy } from '../../content/copy.ts';
+import { badgeMedia, media } from '../../content/media.ts';
 import { guidedMissions } from '../../content/missions.ts';
 import { resetProgress, TrainingId, useProgress } from '../../state/progress.ts';
 import { Icon } from '../components/Icon.tsx';
+import { MediaCard, mediaUrl } from '../components/MediaCard.tsx';
 import { PageIntro } from '../components/PageIntro.tsx';
 
 const GAMES: ReadonlyArray<[TrainingId, string]> = [
@@ -23,8 +25,13 @@ export const LogbookScreen: React.FC = () => {
 
   return (
     <div className="page">
-      <PageIntro title={l.title} lead={l.lead} />
-      <p className="muted small">{l.privacy}</p>
+      <div className="page-intro-with-picture">
+        <div>
+          <PageIntro title={l.title} lead={l.lead} />
+          <p className="muted small">{l.privacy}</p>
+        </div>
+        <MediaCard id="crew-wave" ratio="1/1" caption={l.crewCaption} className="media-small" />
+      </div>
 
       <section className="page-section" aria-labelledby="badges-title">
         <h3 id="badges-title">{l.badgesTitle}</h3>
@@ -32,10 +39,15 @@ export const LogbookScreen: React.FC = () => {
         <ul className="badge-grid">
           {badges.map((b) => {
             const isEarned = b.isEarned(progress);
+            const pic = badgeMedia[b.id];
             return (
               <li key={b.id} className={`badge${isEarned ? ' is-earned' : ''}`}>
-                <span className="badge-icon" aria-hidden="true">
-                  <Icon name={isEarned ? 'star' : 'lock'} size={28} />
+                <span className={`badge-icon${pic ? ' has-picture' : ''}`} aria-hidden="true">
+                  {pic ? (
+                    <img src={mediaUrl(media[pic])} alt="" width={48} height={48} loading="lazy" />
+                  ) : (
+                    <Icon name={isEarned ? 'star' : 'lock'} size={28} />
+                  )}
                 </span>
                 <span className="badge-name">{b.name}</span>
                 <span className="badge-state">{isEarned ? l.earned : l.locked}</span>

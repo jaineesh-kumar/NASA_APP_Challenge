@@ -1,4 +1,5 @@
-// Test (rehearse) screen: pick the real Sun, run the campaign in a worker (Spec B8, L7 AC1)
+// Test (rehearse) screen: the Run button under the intro, then tabs for the storm choice, the base
+// summary and the data sources. The campaign runs in a worker (Spec B8, L7 AC1)
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
@@ -8,6 +9,8 @@ import { useAppStore } from '../../state/store.tsx';
 import { CAMPAIGN_RUNS, useCampaign } from '../../state/useCampaign.ts';
 import { DataPanel } from '../components/DataPanel.tsx';
 import { MediaCard } from '../components/MediaCard.tsx';
+import { SectionTabs } from '../components/SectionTabs.tsx';
+import { StepHeader } from '../components/StepHeader.tsx';
 import { StormPicker, StormResultLine } from '../components/StormPicker.tsx';
 import { Icon } from '../components/Icon.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
@@ -42,129 +45,142 @@ export const RehearseScreen: React.FC = () => {
     [t.rulesCount, String(rules.ifThen.length)],
   ];
 
+  const tabs = copy.stepTabs.rehearse;
   return (
     <div>
-      <h2 className="screen-title">{t.heading}</h2>
-      <p className="muted" style={{ marginBottom: 20 }}>
-        {t.subheading}
-      </p>
-
-      <section className="panel-card" aria-labelledby="base-summary">
-        <h3 id="base-summary" className="card-title">
-          {t.summaryTitle}
-        </h3>
-        <dl
-          className="tiles"
-          style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}
+      <StepHeader step="rehearse" title={t.heading} lead={t.subheading}>
+        <section
+          className="panel-card step-main-action"
+          style={{ textAlign: 'center', padding: '20px' }}
+          aria-live="polite"
         >
-          {rows.map(([label, value, paramId]) => (
-            <div key={label}>
-              <dt className="muted small">{label}</dt>
-              <dd style={{ fontWeight: 600 }}>
-                {value}
-                {paramId ? <WhyThisNumber paramId={paramId} /> : null}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
-
-      <StormPicker
-        value={stormMode}
-        onChange={(mode) => dispatch({ type: 'SET_STORM_MODE', stormMode: mode })}
-        disabled={isRunningCampaign}
-      />
-
-      <section
-        className="panel-card"
-        style={{ textAlign: 'center', padding: '32px 20px' }}
-        aria-live="polite"
-      >
-        {campaignError && !isRunningCampaign ? (
-          <div
-            className="notice notice-danger"
-            role="alert"
-            style={{ textAlign: 'left', marginBottom: 16 }}
-          >
-            <strong>{t.errorTitle}</strong>
-            <p>{t.errorBody(campaignError)}</p>
-          </div>
-        ) : null}
-
-        {isRunningCampaign ? (
-          <div>
-            <MediaCard id="missions-grid" caption={t.loaderCaption} className="media-loader" />
-            <p style={{ fontWeight: 600, marginBottom: 12 }}>{t.runningButton}</p>
+          {campaignError && !isRunningCampaign ? (
             <div
-              role="progressbar"
-              aria-valuenow={pct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={t.progressLabel}
-              style={{
-                maxWidth: 500,
-                height: 14,
-                margin: '0 auto 10px',
-                background: 'var(--color-bg-base)',
-                border: '1px solid var(--color-border)',
-                borderRadius: 'var(--radius-sm)',
-                overflow: 'hidden',
-              }}
+              className="notice notice-danger"
+              role="alert"
+              style={{ textAlign: 'left', marginBottom: 16 }}
             >
-              <div
-                style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)' }}
-              />
+              <strong>{t.errorTitle}</strong>
+              <p>{t.errorBody(campaignError)}</p>
             </div>
-            <p className="muted small">
-              {t.progressText(Math.round(campaignProgress * CAMPAIGN_RUNS), CAMPAIGN_RUNS)}
-            </p>
-          </div>
-        ) : hasFreshResult ? (
-          <div>
-            {campaignResult ? (
-              <div style={{ marginBottom: 16 }}>
-                <StormResultLine
-                  mode={campaignResult.stormMode}
-                  survivalRate={campaignResult.survivalRate}
-                  shieldLayers={design.shieldingLayers}
-                  doseUsvP95={campaignResult.doseUsvP95}
-                  doseLimitUsv={k.doseLimitUsv}
-                  stormsPerRunMean={campaignResult.stormsPerRunMean}
-                  stormsMaxInRun={campaignResult.stormsMaxInRun}
+          ) : null}
+
+          {isRunningCampaign ? (
+            <div>
+              <MediaCard id="missions-grid" caption={t.loaderCaption} className="media-loader" />
+              <p style={{ fontWeight: 600, marginBottom: 12 }}>{t.runningButton}</p>
+              <div
+                role="progressbar"
+                aria-valuenow={pct}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={t.progressLabel}
+                style={{
+                  maxWidth: 500,
+                  height: 14,
+                  margin: '0 auto 10px',
+                  background: 'var(--color-bg-base)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: 'var(--radius-sm)',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{ width: `${pct}%`, height: '100%', background: 'var(--color-primary)' }}
                 />
               </div>
-            ) : null}
-            <p
-              className="row"
-              style={{
-                fontWeight: 700,
-                color: 'var(--color-success)',
-                marginBottom: 16,
-                justifyContent: 'center',
-              }}
-            >
-              <Icon name="check" size={20} /> {t.completedNotice}
-            </p>
-            <div className="row" style={{ justifyContent: 'center' }}>
-              <button type="button" onClick={start}>
-                <Icon name="retry" size={18} /> {t.rerunButton}
-              </button>
+              <p className="muted small">
+                {t.progressText(Math.round(campaignProgress * CAMPAIGN_RUNS), CAMPAIGN_RUNS)}
+              </p>
             </div>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={start}
-            disabled={!state.isWithinBudget}
-            style={{ fontSize: '1.15rem', padding: '14px 32px' }}
-          >
-            <Icon name="rocket" size={22} /> {t.runButton(CAMPAIGN_RUNS)}
-          </button>
-        )}
-      </section>
+          ) : hasFreshResult ? (
+            <div>
+              {campaignResult ? (
+                <div style={{ marginBottom: 16 }}>
+                  <StormResultLine
+                    mode={campaignResult.stormMode}
+                    survivalRate={campaignResult.survivalRate}
+                    shieldLayers={design.shieldingLayers}
+                    doseUsvP95={campaignResult.doseUsvP95}
+                    doseLimitUsv={k.doseLimitUsv}
+                    stormsPerRunMean={campaignResult.stormsPerRunMean}
+                    stormsMaxInRun={campaignResult.stormsMaxInRun}
+                  />
+                </div>
+              ) : null}
+              <p
+                className="row"
+                style={{
+                  fontWeight: 700,
+                  color: 'var(--color-success)',
+                  marginBottom: 16,
+                  justifyContent: 'center',
+                }}
+              >
+                <Icon name="check" size={20} /> {t.completedNotice}
+              </p>
+              <div className="row" style={{ justifyContent: 'center' }}>
+                <button type="button" onClick={start}>
+                  <Icon name="retry" size={18} /> {t.rerunButton}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={start}
+              disabled={!state.isWithinBudget}
+              style={{ fontSize: '1.15rem', padding: '14px 32px' }}
+            >
+              <Icon name="rocket" size={22} /> {t.runButton(CAMPAIGN_RUNS)}
+            </button>
+          )}
+        </section>
+      </StepHeader>
 
-      <DataPanel />
+      <SectionTabs
+        label={copy.stepTabs.listLabel(copy.nav.rehearse)}
+        tabs={[
+          {
+            id: 'storms',
+            label: tabs.storms,
+            content: (
+              <StormPicker
+                value={stormMode}
+                onChange={(mode) => dispatch({ type: 'SET_STORM_MODE', stormMode: mode })}
+                disabled={isRunningCampaign}
+              />
+            ),
+          },
+          {
+            id: 'base',
+            label: tabs.base,
+            content: (
+              <section className="panel-card" aria-labelledby="base-summary">
+                <h3 id="base-summary" className="card-title">
+                  {t.summaryTitle}
+                </h3>
+                <dl
+                  className="tiles"
+                  style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))' }}
+                >
+                  {rows.map(([label, value, paramId]) => (
+                    <div key={label}>
+                      <dt className="muted small">{label}</dt>
+                      <dd style={{ fontWeight: 600 }}>
+                        {value}
+                        {paramId ? <WhyThisNumber paramId={paramId} /> : null}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </section>
+            ),
+          },
+          { id: 'data', label: tabs.data, content: <DataPanel /> },
+        ]}
+      />
     </div>
   );
 };

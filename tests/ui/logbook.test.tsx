@@ -93,10 +93,23 @@ describe('Data and science page', () => {
     expect(
       screen.getAllByText(copy.storms.archivedLabel(archive.retrievedAt)).length,
     ).toBeGreaterThanOrEqual(1);
+    // Every storm is a flash card: its date, flare class and a replay button.
     for (const e of archive.events) {
-      expect(screen.getByText(copy.dataPage.stormItem(stormDate(e), e.flareClass))).toBeDefined();
+      const date = stormDate(e);
+      expect(screen.getAllByRole('heading', { name: date }).length).toBeGreaterThanOrEqual(1);
+      expect(
+        screen.getAllByText(copy.dataPage.stormFlare(e.flareClass)).length,
+      ).toBeGreaterThanOrEqual(1);
+      expect(screen.getByRole('button', { name: copy.dataPage.replayButton(date) })).toBeDefined();
     }
-    for (const line of copy.dataPage.honesty) expect(screen.getByText(line)).toBeDefined();
+    for (const item of copy.dataPage.honesty) {
+      expect(screen.getByRole('heading', { name: item.title })).toBeDefined();
+      expect(screen.getByText(item.text)).toBeDefined();
+    }
+    // The jump buttons sit above the sections.
+    const jump = screen.getByRole('navigation', { name: copy.dataPage.jumpLabel });
+    for (const label of Object.values(copy.dataPage.jump))
+      expect(within(jump).getByRole('button', { name: label })).toBeDefined();
     expect(screen.getByRole('heading', { name: copy.osdr.title })).toBeDefined();
     expect(screen.getByRole('heading', { name: copy.modelCard.heading })).toBeDefined();
   });

@@ -14,6 +14,9 @@ import { DataScienceScreen } from './ui/screens/DataScience.tsx';
 import { FreeBuildScreen } from './ui/screens/FreeBuild.tsx';
 import { HowToPlayScreen } from './ui/screens/HowToPlay.tsx';
 import { LandingScreen } from './ui/screens/Landing.tsx';
+import { MissionDayScreen } from './ui/screens/MissionDay.tsx';
+import { QuizScreen } from './ui/screens/Quiz.tsx';
+import { SimScreen } from './ui/screens/Sim.tsx';
 import { LogbookScreen } from './ui/screens/Logbook.tsx';
 import { MissionsScreen } from './ui/screens/Missions.tsx';
 import { TeachersScreen } from './ui/screens/Teachers.tsx';
@@ -30,6 +33,9 @@ const PAGES: Record<RouteId, React.FC> = {
   words: WordsScreen,
   teachers: TeachersScreen,
   data: DataScienceScreen,
+  'mission-day': MissionDayScreen,
+  quiz: QuizScreen,
+  sim: SimScreen,
 };
 
 const AppContent: React.FC = () => {

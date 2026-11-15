@@ -26,8 +26,10 @@ describe('How to Play', () => {
     // Step 1 is the cargo clip, described by its catalog alt text.
     const clip = cards.querySelector('li [data-media-id="cargo-weigh"] video');
     expect(clip?.getAttribute('aria-label')).toBe(media['cargo-weigh'].alt);
+    // Step 2 is the ladder picture, described by its catalog alt text.
+    expect(screen.getByRole('img', { name: media['ladder-still'].alt })).toBeDefined();
     for (const [i, card] of copy.howTo.cards.entries()) {
-      if (i > 0) expect(screen.getByRole('img', { name: card.picture })).toBeDefined();
+      if (i > 1) expect(screen.getByRole('img', { name: card.picture })).toBeDefined();
       expect(screen.getByRole('heading', { name: card.title })).toBeDefined();
     }
   });

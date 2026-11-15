@@ -8,7 +8,7 @@ import { getDonkiArchive } from '../../engine/params.ts';
 import { ParamEntry } from '../../engine/types.ts';
 import { DataPanel } from '../components/DataPanel.tsx';
 import { WhyThisNumber } from '../components/WhyThisNumber.tsx';
-import { Icon } from '../components/Icon.tsx';
+import { Icon, IconName } from '../components/Icon.tsx';
 
 const paramsInstance = loadParams();
 const allParamEntries = paramsInstance.allEntries();
@@ -17,12 +17,83 @@ const SIMPLIFICATIONS = copy.modelCard.simplifications;
 const archive = getDonkiArchive();
 const mc = copy.modelCard;
 
+/** One symbol per "What we simplified" card, in the order of copy.modelCard.simplifications. */
+const SIMPLIFICATION_ICONS: readonly IconName[] = [
+  'clock',
+  'helmet',
+  'flare',
+  'rocket',
+  'sun',
+  'flag',
+  'antenna',
+  'lock',
+];
+
+/** Cards per page. A layout choice, not a domain number. */
+const PAGE_SIZE = 12;
+
+type SectionId = keyof typeof copy.modelCard.sections;
+const SECTION_IDS: readonly SectionId[] = [
+  'all',
+  'mission',
+  'crew',
+  'air',
+  'food',
+  'power',
+  'sites',
+  'radiation',
+  'repairs',
+  'mass',
+  'radio',
+  'other',
+];
+
+/** Which section a param belongs to, from the first part of its id (e.g. "crew.size"). */
+const SECTION_BY_PREFIX: Readonly<Record<string, SectionId>> = {
+  mission: 'mission',
+  missions: 'mission',
+  campaign: 'mission',
+  science: 'mission',
+  rating: 'mission',
+  crew: 'crew',
+  start: 'crew',
+  construction: 'crew',
+  water: 'air',
+  o2: 'air',
+  co2: 'air',
+  loss: 'air',
+  greenhouse: 'food',
+  power: 'power',
+  load: 'power',
+  site: 'sites',
+  radiation: 'radiation',
+  failure: 'repairs',
+  repair: 'repairs',
+  mass: 'mass',
+  comms: 'radio',
+};
+
+function sectionOf(id: string): SectionId {
+  return SECTION_BY_PREFIX[id.split('.')[0] ?? ''] ?? 'other';
+}
+
+/** Source ids that at least one param uses, in a stable order. */
+const SOURCES_IN_USE = [...new Set(allParamEntries.map(([, e]) => e.source))].sort();
+
 export const ModelCardScreen: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedConfidence, setSelectedConfidence] = useState<string>('all');
   const [selectedSource, setSelectedSource] = useState<string>('all');
+  const [section, setSection] = useState<SectionId>('all');
+  const [page, setPage] = useState(1);
 
-  const filteredEntries = useMemo(() => {
+  /** Any change to the filters starts again on page 1. */
+  const resetTo = (change: () => void) => {
+    change();
+    setPage(1);
+  };
+
+  const matchesFilters = useMemo(() => {
     return allParamEntries.filter(([id, entry]: [string, ParamEntry]) => {
       // Search text
       if (searchQuery.trim()) {
@@ -49,243 +120,235 @@ export const ModelCardScreen: React.FC = () => {
     });
   }, [searchQuery, selectedConfidence, selectedSource]);
 
+  // Section counts follow the search and dropdowns, so each chip says how many cards it opens.
+  const sectionCounts = useMemo(() => {
+    const counts = Object.fromEntries(SECTION_IDS.map((s) => [s, 0])) as Record<SectionId, number>;
+    for (const [id] of matchesFilters) {
+      counts[sectionOf(id)] += 1;
+      counts.all += 1;
+    }
+    return counts;
+  }, [matchesFilters]);
+
+  const filteredEntries =
+    section === 'all' ? matchesFilters : matchesFilters.filter(([id]) => sectionOf(id) === section);
+
+  const pageCount = Math.max(1, Math.ceil(filteredEntries.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const start = (safePage - 1) * PAGE_SIZE;
+  const pageEntries = filteredEntries.slice(start, start + PAGE_SIZE);
+
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      <h2 className="screen-title">{mc.heading}</h2>
-      <p className="muted" style={{ marginBottom: 24 }}>
-        {mc.intro(paramsInstance.version, allParamEntries.length)}
-      </p>
+    <div className="model-card">
+      <div className="model-card-intro">
+        <h2 className="screen-title">{mc.heading}</h2>
+        <p className="page-lead">{mc.intro(paramsInstance.version, allParamEntries.length)}</p>
+      </div>
 
       <DataPanel />
-      <p className="small" style={{ marginTop: -12, marginBottom: 24 }}>
-        {mc.stormStats(archive.events.length, archive.retrievedAt)}
+      <p className="data-block-note data-block-note--loose">
+        <Icon name="flare" size={18} /> {mc.stormStats(archive.events.length, archive.retrievedAt)}
       </p>
 
-      <section className="panel-card" aria-labelledby="comms-title">
-        <h3 id="comms-title" className="card-title">
-          <Icon name="antenna" size={22} /> {mc.commsTitle}
-          <WhyThisNumber paramId="comms.moon_one_way_delay_s" />
-        </h3>
-        <p className="small">
-          {mc.commsBody(
-            paramsInstance.getNumber('comms.moon_one_way_delay_s'),
-            paramsInstance.getNumberArray('comms.earth_mars_light_delay_min'),
-          )}
-        </p>
+      <section className="panel-card data-block data-block--radio" aria-labelledby="comms-title">
+        <div className="data-block-head">
+          <span className="data-block-icon" aria-hidden="true">
+            <Icon name="antenna" size={26} />
+          </span>
+          <div>
+            <h3 id="comms-title" className="card-title">
+              {mc.commsTitle}
+              <WhyThisNumber paramId="comms.moon_one_way_delay_s" />
+            </h3>
+            <p className="data-block-lead">
+              {mc.commsBody(
+                paramsInstance.getNumber('comms.moon_one_way_delay_s'),
+                paramsInstance.getNumberArray('comms.earth_mars_light_delay_min'),
+              )}
+            </p>
+          </div>
+        </div>
       </section>
 
-      <div className="panel-card" style={{ marginBottom: '28px' }}>
-        <h3 className="card-title">{mc.simplificationsTitle}</h3>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '14px',
-          }}
-        >
-          {SIMPLIFICATIONS.map((item, idx) => (
-            <div
-              key={idx}
-              style={{ padding: '12px 0', borderTop: '2px dashed var(--color-border)' }}
-            >
-              <div
-                style={{
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  color: 'var(--navy)',
-                  marginBottom: '4px',
-                }}
-              >
-                {item.topic}
-              </div>
-              <p style={{ margin: 0, fontSize: '0.85rem', lineHeight: 1.5 }}>{item.detail}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Parameters Table Section */}
-      <div className="panel-card">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '16px',
-            flexWrap: 'wrap',
-            gap: '12px',
-          }}
-        >
+      <section
+        className="panel-card data-block data-block--simple"
+        aria-labelledby="simplified-title"
+      >
+        <div className="data-block-head">
+          <span className="data-block-icon" aria-hidden="true">
+            <Icon name="bulb" size={26} />
+          </span>
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>
+            <h3 id="simplified-title" className="card-title">
+              {mc.simplificationsTitle}
+            </h3>
+          </div>
+        </div>
+        <ul className="flash-grid">
+          {SIMPLIFICATIONS.map((item, idx) => (
+            <li key={item.topic} className="flash-card simple-card">
+              <div className="flash-card-top">
+                <span className="flash-icon" aria-hidden="true">
+                  <Icon name={SIMPLIFICATION_ICONS[idx] ?? 'bulb'} size={22} />
+                </span>
+                <h4 className="flash-title">{item.topic}</h4>
+              </div>
+              <p className="flash-text">{item.detail}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Every number: section tabs, filters, a page of small cards, then the page buttons. */}
+      <section
+        className="panel-card data-block data-block--numbers params-browser"
+        aria-labelledby="params-title"
+      >
+        <div className="data-block-head">
+          <span className="data-block-icon" aria-hidden="true">
+            <Icon name="database" size={26} />
+          </span>
+          <div>
+            <h3 id="params-title" className="card-title">
               {mc.tableHeading(filteredEntries.length, allParamEntries.length)}
             </h3>
-            <span style={{ fontSize: '0.85rem', color: 'var(--color-text-muted)' }}>
-              {mc.tableIntro}
-            </span>
-          </div>
-
-          {/* Filters */}
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search parameters or notes..."
-              aria-label="Filter parameters by text"
-              style={{ minWidth: '200px', fontSize: '0.85rem' }}
-            />
-
-            <select
-              value={selectedConfidence}
-              onChange={(e) => setSelectedConfidence(e.target.value)}
-              aria-label="Filter by confidence level"
-              style={{ fontSize: '0.85rem' }}
-            >
-              <option value="all">All Confidences</option>
-              <option value="high">High Confidence</option>
-              <option value="medium">Medium Confidence</option>
-              <option value="low">Low Confidence (Illustrative)</option>
-            </select>
-
-            <select
-              value={selectedSource}
-              onChange={(e) => setSelectedSource(e.target.value)}
-              aria-label="Filter by source ID"
-              style={{ fontSize: '0.85rem' }}
-            >
-              <option value="all">All Sources</option>
-              <option value="S01">S01 (NASA BVAD)</option>
-              <option value="S02">S02 (Lunar Surface Dose)</option>
-              <option value="S03">S03 (Peaks of Eternal Light)</option>
-              <option value="S04">S04 (ECLSS Fact Sheet)</option>
-              <option value="S05">S05 (Sabatier Reactor)</option>
-              <option value="S06">S06 (NASA PRA Guide)</option>
-              <option value="S08">S08 (ISS ECLSS)</option>
-              <option value="S09">S09 (Peaks Illumination)</option>
-              <option value="S10">S10 (ECLSS Sizing)</option>
-              <option value="DERIVED">DERIVED (Physics/Chem)</option>
-              <option value="ASSUMPTION">ASSUMPTION (Game Balance)</option>
-            </select>
+            <p className="data-block-lead">{mc.tableIntro}</p>
           </div>
         </div>
 
-        {/* Responsive Table */}
-        <div style={{ overflowX: 'auto' }}>
-          <table
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse',
-              fontSize: '0.85rem',
-              textAlign: 'left',
-            }}
+        <div className="params-sections" role="group" aria-label={mc.sectionsLabel}>
+          {SECTION_IDS.filter(
+            (sid) => sid === 'all' || sid === section || sectionCounts[sid] > 0,
+          ).map((sid) => (
+            <button
+              key={sid}
+              type="button"
+              className={`params-section-chip section-${sid}`}
+              aria-pressed={section === sid}
+              onClick={() => resetTo(() => setSection(sid))}
+            >
+              {mc.sections[sid]} <span className="params-chip-count">{sectionCounts[sid]}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="params-filters">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => resetTo(() => setSearchQuery(e.target.value))}
+            placeholder={mc.searchPlaceholder}
+            aria-label={mc.searchLabel}
+          />
+          <select
+            value={selectedConfidence}
+            onChange={(e) => resetTo(() => setSelectedConfidence(e.target.value))}
+            aria-label={mc.confidenceLabel}
           >
-            <thead>
-              <tr style={{ borderBottom: '2px solid var(--color-border)' }}>
-                <th style={{ padding: '10px 8px' }}>{mc.colId}</th>
-                <th style={{ padding: '10px 8px' }}>{mc.colValue}</th>
-                <th style={{ padding: '10px 8px' }}>{mc.colSource}</th>
-                <th style={{ padding: '10px 8px' }}>{mc.colConfidence}</th>
-                <th style={{ padding: '10px 8px' }}>{mc.colNotes}</th>
-                <th style={{ padding: '10px 8px', textAlign: 'center' }}>{mc.colDetails}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredEntries.map(([id, entry]: [string, ParamEntry]) => {
-                const isIllustrative = entry.source === 'ASSUMPTION' || entry.confidence === 'low';
-                return (
-                  <tr
-                    key={id}
-                    style={{
-                      borderBottom: '1px solid var(--color-border)',
-                      transition: 'background-color 0.1s ease',
-                    }}
-                  >
-                    <td
-                      style={{
-                        padding: '10px 8px',
-                        fontWeight: 600,
-                        color: 'var(--navy)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {id}
-                    </td>
-
-                    <td style={{ padding: '10px 8px', whiteSpace: 'nowrap', fontWeight: 600 }}>
-                      {Array.isArray(entry.value) ? `[${entry.value.join(', ')}]` : entry.value}{' '}
-                      <span style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
-                        {entry.unit}
-                      </span>
-                    </td>
-
-                    <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
-                      <span
-                        style={{
-                          backgroundColor: 'var(--color-bg-base)',
-                          border: '1px solid var(--color-border)',
-                          padding: '2px 6px',
-                          borderRadius: 'var(--radius-sm)',
-                          fontWeight: 600,
-                        }}
-                      >
-                        {entry.source}
-                      </span>
-                    </td>
-
-                    <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
-                      <span
-                        style={{
-                          padding: '2px 6px',
-                          borderRadius: 'var(--radius-sm)',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          textTransform: 'uppercase',
-                          backgroundColor:
-                            entry.confidence === 'high'
-                              ? 'var(--color-success-bg)'
-                              : 'var(--color-warning-bg)',
-                          color:
-                            entry.confidence === 'high'
-                              ? 'var(--color-success)'
-                              : 'var(--color-warning)',
-                        }}
-                      >
-                        {entry.confidence}
-                      </span>
-                      {isIllustrative && (
-                        <div
-                          style={{
-                            fontSize: '0.7rem',
-                            color: 'var(--color-text-muted)',
-                            marginTop: '2px',
-                          }}
-                        >
-                          Illustrative (Spec B9)
-                        </div>
-                      )}
-                    </td>
-
-                    <td
-                      style={{
-                        padding: '10px 8px',
-                        lineHeight: 1.4,
-                        color: 'var(--color-text-main)',
-                      }}
-                    >
-                      {entry.note}
-                    </td>
-
-                    <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                      <WhyThisNumber paramId={id} label="?" />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+            <option value="all">{mc.allConfidences}</option>
+            <option value="high">{mc.confidenceOptions.high}</option>
+            <option value="medium">{mc.confidenceOptions.medium}</option>
+            <option value="low">{mc.confidenceOptions.low}</option>
+          </select>
+          <select
+            value={selectedSource}
+            onChange={(e) => resetTo(() => setSelectedSource(e.target.value))}
+            aria-label={mc.sourceLabel}
+          >
+            <option value="all">{mc.allSources}</option>
+            {SOURCES_IN_USE.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
         </div>
-      </div>
+
+        {pageEntries.length === 0 ? (
+          <p className="params-empty">{mc.noMatches}</p>
+        ) : (
+          <ul className="params-grid">
+            {pageEntries.map(([id, entry]) => {
+              const sid = sectionOf(id);
+              const isIllustrative = entry.source === 'ASSUMPTION' || entry.confidence === 'low';
+              return (
+                <li key={id} className={`param-card section-${sid}`}>
+                  <div className="param-card-top">
+                    <span className="param-section-tag">{mc.sections[sid]}</span>
+                    <span className={`param-sure sure-${entry.confidence}`}>
+                      {mc.sureLabel(entry.confidence)}
+                    </span>
+                  </div>
+                  <p className="param-value">
+                    {Array.isArray(entry.value) ? entry.value.join(', ') : entry.value}
+                    <span className="param-unit"> {entry.unit}</span>
+                  </p>
+                  <p className="param-id">{id}</p>
+                  <p className="param-note">{entry.note}</p>
+                  <div className="param-card-foot">
+                    <span className="param-source">{mc.sourceChip(entry.source)}</span>
+                    {isIllustrative ? (
+                      <span className="param-illustrative">{mc.illustrative}</span>
+                    ) : null}
+                    <span className="param-why">
+                      <WhyThisNumber paramId={id} label={mc.whyButton} />
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        <div className="params-pager">
+          <p className="params-showing" aria-live="polite">
+            {mc.showing(
+              filteredEntries.length === 0 ? 0 : start + 1,
+              start + pageEntries.length,
+              filteredEntries.length,
+            )}
+          </p>
+          {pageCount > 1 ? (
+            <nav aria-label={mc.pageLabel}>
+              <ul className="params-pages">
+                <li>
+                  <button
+                    type="button"
+                    className="params-page-btn"
+                    disabled={safePage === 1}
+                    onClick={() => setPage(safePage - 1)}
+                  >
+                    {mc.prevPage}
+                  </button>
+                </li>
+                {Array.from({ length: pageCount }, (_, i) => i + 1).map((n) => (
+                  <li key={n}>
+                    <button
+                      type="button"
+                      className="params-page-btn"
+                      aria-label={mc.goToPage(n)}
+                      aria-current={n === safePage ? 'page' : undefined}
+                      onClick={() => setPage(n)}
+                    >
+                      {n}
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  <button
+                    type="button"
+                    className="params-page-btn"
+                    disabled={safePage === pageCount}
+                    onClick={() => setPage(safePage + 1)}
+                  >
+                    {mc.nextPage}
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          ) : null}
+        </div>
+      </section>
     </div>
   );
 };

@@ -406,38 +406,92 @@ input[type='checkbox'] {
   right: -11px;
 }
 
-/* ---------- Footer pager ---------- */
+/* ---------- Step header: title, paragraph, then the step's buttons ---------- */
 
-.step-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  margin: 0 calc(-1 * var(--space-4));
-  padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
-  background: rgba(255, 255, 255, 0.96);
-  border-top: 2px solid var(--color-border);
-  box-shadow: 0 -10px 24px -18px rgba(20, 36, 92, 0.5);
+.step-header {
+  margin-bottom: var(--space-4);
 }
 
-.step-footer-inner {
-  max-width: 1088px;
-  margin: 0 auto;
+.step-header.has-media {
+  display: grid;
+  grid-template-columns: 1fr minmax(200px, 300px);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.step-lead {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 62ch;
+  color: var(--color-text-muted);
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+.step-main-action {
+  margin-bottom: var(--space-4);
+}
+
+/* Back / Next sit right under the paragraph, so no scrolling to move on. */
+.step-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
 }
 
-.step-footer-reason {
-  flex: 1;
+.step-nav .btn-primary {
+  min-width: 10rem;
+  font-size: 1rem;
+}
+
+.step-nav-reason {
+  flex: 1 1 14rem;
   font-size: var(--text-small);
   font-weight: 600;
   color: var(--color-warning);
-  text-align: center;
 }
 
-.step-footer .btn-primary {
-  min-width: 10rem;
-  font-size: 1rem;
+.step-nav-reason:empty {
+  display: none;
+}
+
+/* ---------- Section tabs: one part of a step at a time ---------- */
+
+.section-tab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.section-tab {
+  min-height: var(--tap);
+  padding: 8px 16px;
+  border: 2px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--coupon);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.section-tab:hover {
+  background: var(--carbon-wash);
+}
+
+/* Selected: filled violet plus a check-like underline, so colour is not the only signal. */
+.section-tab[aria-selected='true'] {
+  background: var(--carbon);
+  border-color: var(--carbon);
+  color: var(--coupon);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+.section-tab-panel:focus-visible {
+  outline-offset: 6px;
 }
 
 /* ---------- Shared building blocks ---------- */
@@ -653,9 +707,12 @@ input[type='checkbox'] {
   .stub-label {
     font-size: 0.72rem;
   }
-  .step-footer .btn-primary {
+  .step-nav .btn-primary {
     min-width: 0;
     flex: 1;
+  }
+  .step-header.has-media {
+    grid-template-columns: 1fr;
   }
   .brand-sub {
     display: none;
@@ -885,15 +942,11 @@ input[type='checkbox'] {
 
 /* Pager on phones: the lock reason gets its own line above the buttons */
 @media (max-width: 420px) {
-  .step-footer-inner {
-    flex-wrap: wrap;
-  }
-  .step-footer-reason {
+  .step-nav-reason {
     order: -1;
     flex-basis: 100%;
-    text-align: left;
   }
-  .step-footer .btn-primary {
+  .step-nav .btn-primary {
     white-space: nowrap;
   }
 }

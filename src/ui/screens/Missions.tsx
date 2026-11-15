@@ -4,6 +4,7 @@
 import React from 'react';
 import { concepts } from '../../content/concepts.ts';
 import { copy } from '../../content/copy.ts';
+import { missionMedia } from '../../content/media.ts';
 import { guidedMissions, GuidedMission } from '../../content/missions.ts';
 import { ConceptId } from '../../engine/review.ts';
 import { useProgress } from '../../state/progress.ts';
@@ -23,6 +24,7 @@ const MissionCard: React.FC<{ mission: GuidedMission; n: number }> = ({ mission,
   const done = useProgress().missions[mission.id];
   const hasTested = done?.bestHome !== null && done?.bestHome !== undefined;
   const titleId = `mission-${mission.id}`;
+  const clip = missionMedia[mission.id];
 
   return (
     <li className={`mission-card${done?.isDebriefDone ? ' is-complete' : ''}`}>
@@ -32,10 +34,10 @@ const MissionCard: React.FC<{ mission: GuidedMission; n: number }> = ({ mission,
       <div className="mission-card-body">
         <h3 id={titleId}>{mission.title}</h3>
         <p className="mission-card-sub">{mission.subtitle}</p>
-        {mission.stormMode.kind === 'replay' ? (
+        {clip ? (
           <MediaCard
-            id="storm-shelter"
-            caption={p.stormCaption}
+            id={clip}
+            caption={p.mediaCaptions[mission.id]}
             autoPlay={false}
             className="mission-media"
           />

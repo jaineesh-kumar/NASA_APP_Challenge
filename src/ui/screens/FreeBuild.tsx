@@ -1,11 +1,11 @@
-// Free build: the five-step mission flow (Briefing, Build, Rules, Test, Review) on one page.
+// Free build: the five-step mission flow (Briefing, Build, Rules, Test, Review), one step at a time.
+// Each step puts its Back / Next buttons under its intro paragraph (StepHeader).
 // The current step lives in the store (state.currentScreen); the page itself is #/free-build.
 
 import React, { useEffect, useRef } from 'react';
 import { copy } from '../../content/copy.ts';
 import { useAppStore } from '../../state/store.tsx';
 import { MissionBanner } from '../components/MissionBanner.tsx';
-import { StepFooter } from '../components/StepFooter.tsx';
 import { StepTrack } from '../components/StepTrack.tsx';
 import { isStep, stepIndex, STEPS, StepId } from '../flow.ts';
 import { BriefingScreen } from './Briefing.tsx';
@@ -54,7 +54,6 @@ export const FreeBuildScreen: React.FC = () => {
           <Screen />
         </div>
       </article>
-      <StepFooter step={step} />
     </>
   );
 };

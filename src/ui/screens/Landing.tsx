@@ -1,5 +1,5 @@
 // Landing page (#/): the story hook beside the hero clip, one big Play button, the real-data
-// badge, the four-part journey, the crew and storm clips, and a decorative Moon horizon.
+// badge, the four-part journey, and the crew and storm clips.
 // Crew size, mission length and test count come from data/params.json (A5.4).
 
 import React from 'react';
@@ -28,6 +28,10 @@ const retrieved = [archive.retrievedAt, osdr.retrievedAt].sort()[0] ?? archive.r
 
 export const LandingScreen: React.FC = () => {
   const l = copy.landing;
+  // The last word of the headline is set in the brand red.
+  const titleWords = l.title.split(' ');
+  const titleEnd = titleWords.pop() ?? '';
+  const titleStart = titleWords.join(' ');
   return (
     <div className="page landing">
       <section className="landing-hero" aria-labelledby="landing-title">
@@ -36,12 +40,21 @@ export const LandingScreen: React.FC = () => {
             <Icon name="antenna" size={16} /> {l.kicker}
           </p>
           <h2 id="landing-title" className="landing-title">
-            {l.title}
+            {titleStart} <span className="accent">{titleEnd}</span>
           </h2>
           <p className="page-lead">{l.story(crew, days)}</p>
           <div className="button-row landing-cta">
             <a className="btn-link btn-primary btn-big" href={hrefFor('how-to-play')}>
               <Icon name="play" size={22} /> {l.play}
+            </a>
+            <a className="btn-link btn-big landing-storm-link" href={hrefFor('data')}>
+              <Icon name="sun" size={22} /> {l.stormLink}
+            </a>
+            <a className="btn-link btn-big landing-sim-link" href={hrefFor('sim')}>
+              <Icon name="rocket" size={22} /> {l.simButton}
+              <span className="landing-sim-badge" aria-hidden="true">
+                {l.simBadge}
+              </span>
             </a>
           </div>
           <p className="muted small">{l.playHint}</p>
@@ -88,9 +101,6 @@ export const LandingScreen: React.FC = () => {
             {l.stormTitle}
           </h3>
           <MediaCard id="storm-shelter" caption={l.stormTeaser} />
-          <a className="btn-link landing-storm-link" href={hrefFor('data')}>
-            <Icon name="sun" size={18} /> {l.stormLink}
-          </a>
         </section>
       </div>
 
@@ -120,8 +130,6 @@ export const LandingScreen: React.FC = () => {
           </li>
         </ul>
       </section>
-
-      <MediaCard id="moon-horizon" decorative className="horizon-strip" />
     </div>
   );
 };

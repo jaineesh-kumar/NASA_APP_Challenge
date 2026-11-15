@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+﻿import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
 import App from '../../src/App.tsx';
@@ -23,14 +23,12 @@ function allText(value: unknown, out: string[] = []): string[] {
 }
 
 describe('Junior Mode (L11)', () => {
-  it('AC1: Junior is the default and a visible toggle switches to Planner', () => {
+  it('AC1: Junior is the default and the header no longer shows a Junior/Planner switch', () => {
+    // Team request 2026-11-15: the switch was removed from the header (ADR-017).
     expect(initialAppState.mode).toBe('junior');
     render(<App />);
-    const junior = screen.getByRole('radio', { name: copy.mode.junior });
-    const planner = screen.getByRole('radio', { name: copy.mode.planner });
-    expect(junior.getAttribute('aria-checked')).toBe('true');
-    fireEvent.click(planner);
-    expect(planner.getAttribute('aria-checked')).toBe('true');
+    expect(screen.queryByRole('radio', { name: copy.mode.junior })).toBeNull();
+    expect(screen.queryByRole('radio', { name: copy.mode.planner })).toBeNull();
   });
 
   it('AC6: no content ever says "You failed"', () => {

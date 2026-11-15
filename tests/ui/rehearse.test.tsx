@@ -34,6 +34,7 @@ describe('RehearseScreen (L7 AC1, L10 AC6, AC7)', () => {
       ).toBeDefined();
     }
     expect(screen.getAllByText(copy.storms.sourceBadge)).toHaveLength(archive.events.length);
+    fireEvent.click(screen.getByRole('tab', { name: copy.stepTabs.rehearse.data }));
     expect(screen.getByRole('region', { name: new RegExp(copy.dataPanel.title) })).toBeDefined();
   });
 

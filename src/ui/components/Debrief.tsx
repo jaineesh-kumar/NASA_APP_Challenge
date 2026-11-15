@@ -12,6 +12,7 @@ import { useAppStore } from '../../state/store.tsx';
 import { startMission } from '../missionFlow.ts';
 import { hrefFor } from '../router.ts';
 import { Icon } from './Icon.tsx';
+import { MediaCard } from './MediaCard.tsx';
 
 type Feedback = { kind: 'right' } | { kind: 'wrong'; option: number } | { kind: 'empty' };
 
@@ -77,6 +78,9 @@ export const Debrief: React.FC<{ mission: GuidedMission }> = ({ mission }) => {
         </h3>
         <p>{d.doneBody(mission.title)}</p>
         <p className="muted">{isGoalMet ? d.goalAlso : d.goalNotYet}</p>
+        {isGoalMet ? (
+          <MediaCard id="crew-cheer" caption={d.cheerCaption} className="debrief-media" />
+        ) : null}
         <div className="button-row">
           {nextMission ? (
             <button

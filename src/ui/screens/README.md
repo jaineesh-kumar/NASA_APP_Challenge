@@ -1,1 +1,1 @@
-<!-- Primary UI screens for Moonbase Margin -->
+<!-- Primary UI screens for AstroSim -->

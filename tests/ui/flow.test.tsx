@@ -5,7 +5,7 @@ import App from '../../src/App.tsx';
 import { copy } from '../../src/content/copy.ts';
 import { loadParams } from '../../src/engine/params.ts';
 import { AppStoreProvider, initialAppState } from '../../src/state/store.tsx';
-import { StepFooter } from '../../src/ui/components/StepFooter.tsx';
+import { StepNav } from '../../src/ui/components/StepNav.tsx';
 
 const budget = loadParams().getNumber('mass.budget');
 
@@ -53,7 +53,7 @@ describe('step-by-step flow (pagination)', () => {
           isWithinBudget: false,
         }}
       >
-        <StepFooter step="design" />
+        <StepNav step="design" />
       </AppStoreProvider>,
     );
     const next = screen.getByRole('button', {
@@ -66,7 +66,7 @@ describe('step-by-step flow (pagination)', () => {
   it('locks See the results until a test has run', () => {
     render(
       <AppStoreProvider initialState={{ ...initialAppState, currentScreen: 'rehearse' }}>
-        <StepFooter step="rehearse" />
+        <StepNav step="rehearse" />
       </AppStoreProvider>,
     );
     expect(
@@ -84,9 +84,11 @@ describe('step-by-step flow (pagination)', () => {
     fireEvent.click(screen.getByRole('button', { name: new RegExp(copy.flow.next.briefing) }));
     expect(screen.getByText(copy.flow.stepOf(2, 5))).toBeDefined();
     const menu = screen.getByRole('navigation', { name: copy.site.navLabel });
+    fireEvent.click(within(menu).getByRole('button', { name: copy.site.groups.learn }));
     fireEvent.click(within(menu).getByRole('link', { name: copy.site.pages.words }));
     expect(await screen.findByRole('heading', { name: copy.words.title })).toBeDefined();
     expect(screen.queryByText(copy.flow.stepOf(2, 5))).toBeNull();
+    fireEvent.click(within(menu).getByRole('button', { name: copy.site.groups.play }));
     fireEvent.click(within(menu).getByRole('link', { name: copy.site.pages['free-build'] }));
     expect(await screen.findByText(copy.flow.stepOf(2, 5))).toBeDefined();
   });

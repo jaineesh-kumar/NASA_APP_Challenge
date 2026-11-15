@@ -1,10 +1,11 @@
 // In-app Data panel (B10.6): every dataset, what we use it for, archived or live, and a link.
+// Shown as flash cards: a symbol, the dataset name, what we use it for, its status and a link.
 
 import React from 'react';
 import { copy } from '../../content/copy.ts';
 import { osdr } from '../../content/osdr.ts';
 import { getDonkiArchive } from '../../engine/params.ts';
-import { Icon } from './Icon.tsx';
+import { Icon, IconName } from './Icon.tsx';
 
 const archive = getDonkiArchive();
 
@@ -18,46 +19,69 @@ const LINKS: Readonly<Record<string, string>> = {
   osdr: 'https://osdr.nasa.gov/bio/repo/',
 };
 
+const ROW_ICON: Readonly<Record<string, IconName>> = {
+  donki: 'flare',
+  S02: 'atom',
+  S04: 'drop',
+  S05: 'retry',
+  S03: 'sun',
+  osdr: 'dna',
+};
+
 export const DataPanel: React.FC = () => {
   const d = copy.dataPanel;
   return (
-    <section className="panel-card" aria-labelledby="data-panel-title">
-      <h3 id="data-panel-title" className="card-title">
-        <Icon name="book" size={22} /> {d.title}
-      </h3>
-      <p className="muted small" style={{ marginBottom: 12 }}>
-        {d.intro}
-      </p>
-      <div style={{ overflowX: 'auto' }}>
-        <table className="small" style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ textAlign: 'left' }}>
-              <th scope="col">{d.colDataset}</th>
-              <th scope="col">{d.colUse}</th>
-              <th scope="col">{d.colStatus}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {d.rows.map((row) => (
-              <tr key={row.id} style={{ borderTop: '1px solid var(--color-border)' }}>
-                <td style={{ padding: '6px 8px 6px 0' }}>
-                  <a href={LINKS[row.id]} target="_blank" rel="noopener noreferrer">
-                    {row.name}
-                  </a>
-                </td>
-                <td style={{ padding: '6px 8px 6px 0' }}>{row.use}</td>
-                <td style={{ padding: '6px 0' }}>
-                  {row.id === 'donki'
-                    ? d.archived(archive.retrievedAt)
-                    : row.id === 'osdr'
-                      ? d.archived(osdr.retrievedAt)
-                      : d.published}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <section
+      className="panel-card data-block data-block--sources"
+      aria-labelledby="data-panel-title"
+    >
+      <div className="data-block-head">
+        <span className="data-block-icon" aria-hidden="true">
+          <Icon name="database" size={26} />
+        </span>
+        <div>
+          <h3 id="data-panel-title" className="card-title">
+            {d.title}
+          </h3>
+          <p className="data-block-lead">{d.intro}</p>
+        </div>
       </div>
+      <ul className="flash-grid source-grid">
+        {d.rows.map((row) => {
+          const isArchived = row.id === 'donki' || row.id === 'osdr';
+          const status =
+            row.id === 'donki'
+              ? d.archived(archive.retrievedAt)
+              : row.id === 'osdr'
+                ? d.archived(osdr.retrievedAt)
+                : d.published;
+          return (
+            <li key={row.id} className="flash-card source-card">
+              <div className="flash-card-top">
+                <span className="flash-icon" aria-hidden="true">
+                  <Icon name={ROW_ICON[row.id] ?? 'book'} size={22} />
+                </span>
+                <h4 className="flash-title">{row.name}</h4>
+              </div>
+              <p className="flash-text">{row.use}</p>
+              <div className="flash-card-foot">
+                <span className={`flash-chip ${isArchived ? 'chip-archived' : 'chip-published'}`}>
+                  <Icon name={isArchived ? 'archive' : 'book'} size={14} /> {status}
+                </span>
+                <a
+                  className="flash-link"
+                  href={LINKS[row.id]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {d.openSource}
+                  <span className="sr-only">: {row.name}</span> <Icon name="external" size={14} />
+                </a>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 };

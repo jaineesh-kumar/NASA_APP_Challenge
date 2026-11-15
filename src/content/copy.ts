@@ -4,7 +4,7 @@
 
 export const copy = {
   header: {
-    title: 'Moonbase Margin',
+    title: 'AstroSim',
     subtitle: 'Junior Astronaut Mission Trainer',
     missionDuration: (days: number, crew: number) => `${days}-day Moon mission • crew of ${crew}`,
     realDataBadge: 'Uses real NASA data',
@@ -14,7 +14,7 @@ export const copy = {
     menu: 'Menu',
     closeMenu: 'Close menu',
     skipLink: 'Skip to the main content',
-    homeLink: 'Moonbase Margin home page',
+    homeLink: 'AstroSim home page',
     pages: {
       home: 'Home',
       'how-to-play': 'How to play',
@@ -25,8 +25,17 @@ export const copy = {
       words: 'Space words',
       teachers: 'For teachers',
       data: 'Data and science',
+      'mission-day': 'Mission Day',
+      quiz: 'Quiz',
+      sim: 'Sim',
     },
-    docTitle: (page: string) => `${page} · Moonbase Margin`,
+    sim: 'Sim',
+    groups: {
+      play: 'Play',
+      learn: 'Learn',
+      about: 'About',
+    },
+    docTitle: (page: string) => `${page} · AstroSim`,
   },
   nav: {
     label: 'Mission steps',
@@ -59,6 +68,23 @@ export const copy = {
       running: 'Wait for the tests to finish.',
     },
     stopCode: (n: number) => `MB-${String(n).padStart(2, '0')}`,
+    actionsLabel: 'Step buttons',
+  },
+  // Tab names for the parts of each step: one part shows at a time, so nobody scrolls far.
+  stepTabs: {
+    listLabel: (step: string) => `Parts of the ${step} step`,
+    briefing: { jobs: 'Your four jobs', data: 'Real data', words: 'Word list' },
+    designJunior: { kits: 'Kits', adjust: 'Quick changes', more: 'All parts' },
+    designPlanner: {
+      presets: 'Examples',
+      site: 'Landing spot',
+      power: 'Power',
+      life: 'Air, water, food',
+      spares: 'Spares',
+    },
+    rules: { ladder: 'Power order', ifThen: 'If-then rules', comms: 'Radio' },
+    rehearse: { storms: 'Solar storms', base: 'Your base', data: 'Data sources' },
+    review: { results: 'Results', replay: 'Replay', why: 'Why it happened' },
   },
   briefing: {
     heading: 'Welcome, Commander!',
@@ -81,7 +107,7 @@ export const copy = {
     realDataBody:
       'You can test your base against real solar storms. NASA recorded them in a space weather database called DONKI. The game uses a saved copy, so it is not live.',
     startButton: 'Start building',
-    mediaCaption: 'Your base at the Moon’s south pole.',
+    mediaCaption: 'A look inside your Moon base.',
   },
   landing: {
     kicker: 'Incoming message from Mission Control',
@@ -105,6 +131,8 @@ export const copy = {
     stormTitle: 'Real storms from the Sun',
     stormTeaser: 'Test your base against a real NASA storm',
     stormLink: 'Pick a real storm',
+    simButton: 'Try the 3D Sim',
+    simBadge: 'New',
     badgeTitle: 'Real NASA data',
     badgeBody: (storms: number, date: string) =>
       `Test your base against ${storms} real solar storms from NASA’s DONKI database, and read real astronaut studies from NASA OSDR. These are saved copies, retrieved ${date}. Not live.`,
@@ -121,6 +149,8 @@ export const copy = {
     lead: 'You plan a Moon base, then test your plan many times. Three steps, then try again.',
     cardsLabel: 'The three steps',
     buildCaption: 'Watch the cargo hop on the scale.',
+    rulesCaption: 'Air at the top: it keeps power longest.',
+    testCaption: 'Filled circles came home. Empty ones ran into trouble.',
     cards: [
       {
         title: '1. Build',
@@ -131,7 +161,8 @@ export const copy = {
       {
         title: '2. Set the rules',
         body: 'Choose which machines keep power longest when energy runs low. Switch on safety rules, like hiding from solar storms.',
-        picture: 'A ladder of machines, with life support at the top.',
+        // Shown as the ladder picture; its description lives in media.ts ('ladder-still').
+        picture: '',
       },
       {
         title: '3. Test and review',
@@ -170,7 +201,13 @@ export const copy = {
     notStarted: 'Not started yet',
     best: (n: number) => `Best test: ${n} out of 100 home`,
     goalStar: 'Goal reached',
-    stormCaption: 'This mission faces a real solar storm.',
+    mediaCaptions: {
+      M1: 'Night falls and the solar panels go dark.',
+      M2: 'The recycler breaks. Is there a spare part?',
+      M3: 'This mission faces a real solar storm.',
+      M4: 'Plants make food, but they need power and water.',
+      M5: 'A real solar storm is coming. Time to hide!',
+    } as Record<string, string>,
     complete: 'Mission complete',
   },
   debrief: {
@@ -189,6 +226,7 @@ export const copy = {
     doneBody: (title: string) =>
       `You finished the debrief for ${title}. It is saved in your Logbook.`,
     goalAlso: 'You also reached the mission goal. Great engineering!',
+    cheerCaption: 'Your crew is cheering!',
     goalNotYet: 'You can still go back and reach the mission goal for a star.',
     nextMission: 'Next mission',
     backToMissions: 'All missions',
@@ -269,6 +307,30 @@ export const copy = {
     },
   },
   media: {
+    // A short line under each clip: what it shows and why it matters in the game.
+    // Game facts only (B4.10, F14). Agent-drafted: needs human review.
+    about: {
+      'crew-walkout':
+        'Your crew lives here for the whole mission. Every choice you make keeps them safe.',
+      'rocket-launch':
+        'Everything the base needs rides on this rocket. In the game, the rocket has a weight limit.',
+      'rocket-flight': 'The trip to the Moon. The crew only has what you packed.',
+      'rocket-landing': 'The crew lands near the Moon’s south pole, where your base will be.',
+      'base-setup': 'Solar panels go up first. In the game they make all of the base’s power.',
+      'crew-walk': 'A young astronaut and a robot helper. They count on your plan.',
+      'storm-shelter':
+        'When a solar storm comes, the crew hides in the shelter. Test your base against real storms NASA recorded.',
+      'cargo-weigh': 'Every item weighs something. More of one thing means less room for another.',
+      'base-tour':
+        'A desk for science, a small greenhouse, a battery and a water tank. You choose how much of each to bring.',
+      'missions-grid': 'Your base is tested many times, each time with different luck.',
+      'night-falls':
+        'When the Sun hides, the panels stop. The base runs on its batteries until morning.',
+      'recycler-fix': 'Machines can break. With a spare part, the crew can fix them.',
+      'greenhouse-grow': 'Plants make food, but they need power, water and crew time.',
+      'storm-warning': 'Hide in the shelter, or build a shield? Both cost something.',
+      'crew-cheer': 'Mission complete! Your plan brought the crew home.',
+    } as Partial<Record<string, string>>,
     play: 'Play',
     pause: 'Pause',
     playVideo: 'Play video',
@@ -282,6 +344,7 @@ export const copy = {
   logbook: {
     title: 'Logbook',
     lead: 'Your missions, training scores and badges.',
+    crewCaption: 'Your crew says hello!',
     privacy:
       'Your logbook is saved only in this browser on this device. Nothing is sent anywhere. If this browser blocks saving, it lasts until you close the page.',
     badgesTitle: 'Badges',
@@ -310,7 +373,8 @@ export const copy = {
   },
   teachers: {
     title: 'For teachers and parents',
-    lead: 'Moonbase Margin is a free browser game for ages 7 to 12. Players plan a Moon base, then test it many times, so a mistake becomes a lesson instead of a game over.',
+    lead: 'AstroSim is a free browser game for ages 7 to 12. Players plan a Moon base, then test it many times, so a mistake becomes a lesson instead of a game over.',
+    classroomCaption: 'Plan a Moon base together as a class.',
     privacy:
       'No accounts, no ads, no tracking. Nothing is sent anywhere. Progress stays in the browser on this device.',
     planTitle: 'A 45-minute lesson',
@@ -339,14 +403,51 @@ export const copy = {
       'These are the archived storms you can replay on the Test step and in Storm Shelter. Each one is a real solar energetic particle event, linked to a solar flare with a recorded class.',
     stormItem: (date: string, flareClass: string) => `${date}: flare class ${flareClass}`,
     replayButton: (date: string) => `Test my base against the storm of ${date}`,
+    replayShort: 'Test my base',
+    stormFlare: (flareClass: string) => `Linked to a class ${flareClass} solar flare.`,
+    stormStrength: {
+      C: 'Small storm in the game',
+      M: 'Medium storm in the game',
+      X: 'Biggest storm in the game',
+    } as Record<string, string>,
+    flareLabel: 'Flare class',
+    jumpLabel: 'On this page',
+    jump: {
+      storms: 'Solar storms',
+      honesty: 'Real or simplified',
+      findings: 'Astronaut findings',
+      numbers: 'How the game works',
+    },
     honestyTitle: 'Real data, honest labels',
+    honestyLead: 'What comes from real science, and what we made simpler for the game.',
+    honestyKinds: { real: 'Real', simplified: 'Simplified', offline: 'Offline' },
     honesty: [
-      'Real: which solar storms happened, when, and the class of their linked flare (NASA DONKI, S12).',
-      'Real: the studies on the astronaut finding cards (NASA OSDR, S13).',
-      'Real measurements: everyday radiation on the Moon (S02), water recycling on the space station (S04) and the Sabatier oxygen recovery limit (S05).',
-      'Our simplification: how strong each storm is in the game, and every number marked ASSUMPTION, which we label “illustrative”.',
-      'Nothing here is live. The game uses saved copies and never goes online while you play.',
-    ],
+      {
+        kind: 'real',
+        title: 'Solar storms',
+        text: 'Which solar storms happened, when, and the class of their linked flare (NASA DONKI, S12).',
+      },
+      {
+        kind: 'real',
+        title: 'Astronaut studies',
+        text: 'The studies on the astronaut finding cards (NASA OSDR, S13).',
+      },
+      {
+        kind: 'real',
+        title: 'Measurements',
+        text: 'Everyday radiation on the Moon (S02), water recycling on the space station (S04) and the Sabatier oxygen recovery limit (S05).',
+      },
+      {
+        kind: 'simplified',
+        title: 'Storm strength and game numbers',
+        text: 'How strong each storm is in the game, and every number marked ASSUMPTION, which we label “illustrative”.',
+      },
+      {
+        kind: 'offline',
+        title: 'Nothing is live',
+        text: 'The game uses saved copies and never goes online while you play.',
+      },
+    ] as const,
   },
   learnTabs: {
     missions: 'Guided missions',
@@ -399,6 +500,7 @@ export const copy = {
       `Some crews ran into trouble because of this: ${cause}. What would you change?`,
     allHome: 'Every crew came home. Can you make it lighter and still keep them safe?',
     newChallenge: 'New challenge: try a real storm',
+    celebrateCaption: 'Great job, Commander!',
     tryAgain: 'Try again',
     moreDetails: 'More details: charts and numbers',
   },
@@ -410,6 +512,15 @@ export const copy = {
     source: (id: string, title: string) => `NASA OSDR (S13), study ${id}: ${title}`,
     link: 'See the study in NASA OSDR',
     archived: (date: string) => `Archived NASA data, retrieved ${date}. Not live.`,
+    topics: {
+      astronauts: 'Astronaut bodies',
+      radiation: 'Space radiation',
+      bones: 'Bones',
+      muscles: 'Muscles',
+      plants: 'Plants in space',
+    } as Record<string, string>,
+    studyChip: (id: string) => `Study ${id}`,
+    studyTitle: 'Study title',
   },
   glossary: {
     title: 'Space words',
@@ -593,6 +704,7 @@ export const copy = {
     colStatus: 'Status',
     archived: (date: string) => `Archived, retrieved ${date}`,
     published: 'Published source',
+    openSource: 'Open source',
     rows: [
       {
         id: 'donki',
@@ -732,6 +844,115 @@ export const copy = {
     rule_fired: (rule: string) => `A rule switched on: ${rule}`,
     failure: (cause: string) => `Mission lost: ${cause}.`,
   },
+  // Quiz cards (#/quiz). The questions live in src/content/quiz.ts (needsReview).
+  quizCards: {
+    button: 'Quiz',
+    title: 'Space quiz',
+    lead: 'One question per card. Pick an answer, then press Next (or swipe the card left).',
+    progress: (n: number, total: number) => `Question ${n} of ${total}`,
+    optionsLabel: 'Answers',
+    next: 'Next',
+    finish: 'See my result',
+    pickFirst: 'Pick an answer first.',
+    resultTitle: 'Your result',
+    score: (n: number, total: number) => `You got ${n} of ${total} right!`,
+    great: 'Amazing! You think like a mission planner.',
+    good: 'Nice work! Read the explanations to learn the rest.',
+    keepGoing: 'Good start! Every astronaut learns by trying again.',
+    yourAnswer: 'Your answer:',
+    rightAnswer: 'Right answer:',
+    right: 'Right',
+    wrong: 'Not quite',
+    again: 'Try the quiz again',
+    home: 'Back to home',
+    swipeHint: 'Tip: on a phone you can swipe the card left to go on.',
+  },
+  // Mission Day (ADR-016). Agent-drafted: needs human review (B9).
+  missionDay: {
+    title: 'Mission Day',
+    lead: 'Run the Moon base one day at a time. Each morning you give the crew one order. Every order helps with something and costs something else.',
+    needsReview: true,
+    stormLine: (name: string) => `A real solar storm is in this mission: ${name}.`,
+    mediaCaption: 'Night falls on the base.',
+    setupLine:
+      'Your base is the Light kit: no radiation shield and only one spare part. There are no automatic rules: your order is the plan.',
+    dayOf: (n: number, total: number) => `Day ${n} of ${total}`,
+    beforeStart: 'Day 1 is about to start.',
+    science: (done: number, goal: number) =>
+      `Science: ${done} of ${goal} crew-hours done (the goal is illustrative).`,
+    newsTitle: (n: number) => `What happened on day ${n}`,
+    quietDay: 'A quiet day. Everything worked.',
+    forecastTitle: 'What the crew knows about tomorrow',
+    darkTomorrow:
+      'The Sun will hide behind the hills tomorrow. Solar panels make no power in the dark.',
+    sunnyTomorrow: 'The Sun stays up tomorrow.',
+    stormHeard: 'Radio message from Earth: a solar storm is coming or already here!',
+    noStormHeard: 'No storm warnings on the radio.',
+    radioDelay: (s: number) =>
+      `Radio messages take about ${s} seconds to travel between Earth and the Moon.`,
+    ordersLegend: 'Your order for today',
+    run: (n: number) => `Run day ${n}`,
+    gain: 'Helps:',
+    cost: 'Costs:',
+    orders: {
+      full_speed: {
+        name: 'Full speed',
+        gain: 'Science and shield building go as fast as they can.',
+        cost: 'Uses the most power.',
+      },
+      save_power: {
+        name: 'Save power',
+        gain: 'Science machines switch off, so the battery lasts longer.',
+        cost: 'No science today.',
+      },
+      greenhouse_low: {
+        name: 'Dim the greenhouse',
+        gain: 'The greenhouse uses less power.',
+        cost: 'The plants grow less food.',
+      },
+      radio_off: {
+        name: 'Radio off',
+        gain: 'Saves the radio’s power.',
+        cost: 'You will not hear storm warnings, and Earth cannot help with repairs.',
+      },
+      fix_first: {
+        name: 'Fix first',
+        gain: 'The crew fixes broken machines before any other job.',
+        cost: 'Less time for plants and science.',
+      },
+      shelter: {
+        name: 'Stay in the shelter',
+        gain: 'The crew gets much less radiation.',
+        cost: 'Nobody can work: no science, no building, no repairs, no plant care.',
+      },
+    },
+    news: {
+      dark_window_start: 'The Sun went behind the hills. Night began.',
+      dark_window_end: 'The Sun came back. The panels make power again.',
+      dust_start: 'Moon dust settled on the solar panels. They make a bit less power.',
+      spe_warning: 'Earth sent a solar storm warning.',
+      spe_start_sheltered: 'The solar storm hit. The crew was safe in the shelter.',
+      spe_start_unsheltered: 'The solar storm hit while the crew was outside the shelter!',
+      spe_end: 'The solar storm is over.',
+      warning_missed: 'A storm came, but the radio was off, so no warning got through.',
+      component_failed: (name: string) => `Broken: ${name}.`,
+      component_failed_no_spare: (name: string) => `Broken: ${name}. There is no spare part!`,
+      component_repaired: (name: string) => `Fixed: ${name}.`,
+      battery_empty: 'The battery ran flat. Some machines lost power.',
+      shield_layer_built: 'The crew finished a layer of Moon-soil shield.',
+      failure: (cause: string) => `The mission ended: the crew ${cause}.`,
+    },
+    hour: (h: number) => `Hour ${h}`,
+    wonTitle: 'Your crew made it through all 30 days!',
+    lostTitle: 'The mission ended early.',
+    scienceMet: 'You also reached the science goal. Great planning!',
+    scienceMissed:
+      'The crew is safe, but the science goal was not reached. Which days could have done more?',
+    lostHint: 'Look at the news from the last days. Which order would you change?',
+    again: 'Play this mission again',
+    newMission: 'New mission with a different storm',
+    yourOrders: 'Your orders',
+  },
   components: {
     co2_scrubber: 'Air cleaner',
     o2_generator: 'Oxygen maker',
@@ -812,13 +1033,46 @@ export const copy = {
     tableHeading: (shown: number, total: number) =>
       `Every number in the game (${shown} of ${total})`,
     tableIntro:
-      'The Source column shows where each number comes from. ASSUMPTION means an illustrative game choice made by our team.',
+      'Each card shows where its number comes from. ASSUMPTION means an illustrative game choice made by our team.',
     colId: 'Number',
     colValue: 'Value',
     colSource: 'Source',
     colConfidence: 'How sure',
     colNotes: 'Notes',
     colDetails: 'Details',
+    searchPlaceholder: 'Search numbers or notes...',
+    searchLabel: 'Search the numbers',
+    confidenceLabel: 'Filter by how sure we are',
+    sourceLabel: 'Filter by source',
+    allConfidences: 'Any confidence',
+    confidenceOptions: { high: 'High', medium: 'Medium', low: 'Low (illustrative)' },
+    allSources: 'Any source',
+    sectionsLabel: 'Sections',
+    sections: {
+      all: 'All',
+      mission: 'Mission and goals',
+      crew: 'Crew and supplies',
+      air: 'Air and water',
+      radiation: 'Radiation',
+      power: 'Power',
+      sites: 'Landing sites',
+      food: 'Greenhouse',
+      repairs: 'Breakdowns and repairs',
+      mass: 'Launch mass',
+      radio: 'Radio',
+      other: 'Other',
+    },
+    illustrative: 'Illustrative',
+    sureLabel: (c: string) => `${c} confidence`,
+    sourceChip: (s: string) => `Source ${s}`,
+    whyButton: 'Why?',
+    noMatches: 'No numbers match. Try another search or section.',
+    pageLabel: 'Pages',
+    prevPage: 'Previous',
+    nextPage: 'Next',
+    goToPage: (n: number) => `Page ${n}`,
+    showing: (from: number, to: number, total: number) =>
+      total === 0 ? 'Showing 0 numbers' : `Showing ${from} to ${to} of ${total}`,
     heading: 'How the game works',
     intro: (version: string, count: number) =>
       `Model version ${version}. Every number the game uses is listed below (${count} in all), with where it came from and how sure we are. Numbers marked ASSUMPTION are illustrative game choices, not NASA requirements.`,
@@ -869,4 +1123,125 @@ export const copy = {
     ],
   },
   illustrative: 'illustrative',
+  simPage: {
+    kicker: 'New: hands-on training',
+    title: 'Walk on the Moon in 3D',
+    lead: 'Land on the Moon, put on your spacesuit and build your base with your own hands. Five short missions, one big adventure.',
+    launch: 'Launch the Sim',
+    howButton: 'How to play',
+    heroAlt: 'The lander comes down over the grey Moon, with Earth in the black sky.',
+    stats: [
+      { value: '5', label: 'missions' },
+      { value: '1', label: 'solar storm' },
+      { value: '3D', label: 'Moon base' },
+    ],
+    howTitle: 'How to play',
+    howLead: 'Four simple moves. That is all you need.',
+    how: [
+      {
+        icon: 'keys',
+        title: 'Move',
+        text: 'Use W A S D or the arrow keys. On a phone, tap the arrow buttons.',
+      },
+      {
+        icon: 'beam',
+        title: 'Follow the beam',
+        text: 'The glowing blue beam and the arrow at the top always show your next task.',
+      },
+      {
+        icon: 'hold',
+        title: 'Hold E',
+        text: 'Stand by the beam and hold E until the green bar fills. Your astronaut does the work.',
+      },
+      {
+        icon: 'oxygen',
+        title: 'Watch your oxygen',
+        text: 'The wrong object or the wrong order costs 10% oxygen. Just try that step again.',
+      },
+    ],
+    missionsTitle: 'Your five missions',
+    missionsLead: 'Each mission teaches one job that real Moon crews have to do.',
+    missionLabel: (n: number) => `Mission ${n}`,
+    missions: [
+      {
+        title: 'Suit-Up',
+        text: 'Put on your gear in the right order: cooling layer, suit, gloves, helmet, backpack.',
+        shot: 'sim-suit-up',
+        alt: 'The astronaut stands at the gear rack inside the base, with the blue beam over the helmet.',
+      },
+      {
+        title: 'Solar Panels',
+        text: 'Carry two panels outside and set them up in the sunlight. Keep away from the dark crater.',
+        shot: 'sim-solar-panels',
+        alt: 'The astronaut carries a blue solar panel across the grey ground. One panel already stands nearby.',
+      },
+      {
+        title: 'Sun Shield',
+        text: 'Dig Moon soil and pile it into shield walls. Then a solar storm comes: run to the lander!',
+        shot: 'sim-solar-storm',
+        alt: 'Two piles of Moon soil stand beside the lander while a storm timer counts down.',
+      },
+      {
+        title: 'Agriculture',
+        text: 'Melt ice for water, plant the seeds, then switch on the grow lights.',
+        shot: 'sim-greenhouse',
+        alt: 'Green sprouts grow in a tray under pink grow lights.',
+      },
+      {
+        title: 'Lab Experiments',
+        text: 'Put a Moon sample in the glovebox, seal it, then run the analyzer.',
+        shot: 'sim-lab',
+        alt: 'The astronaut stands between the glovebox, the seal lever and the analyzer.',
+      },
+    ],
+    galleryTitle: 'Look inside',
+    galleryLead: 'Tap a picture to see it big.',
+    galleryShow: (title: string) => `Show: ${title}`,
+    gallery: [
+      {
+        shot: 'sim-start',
+        title: 'Start screen',
+        alt: 'The start screen with the story and the rules.',
+      },
+      {
+        shot: 'sim-landing',
+        title: 'Landing',
+        alt: 'The lander fires its engine just above the ground.',
+      },
+      { shot: 'sim-suit-up', title: 'Suit-Up', alt: 'The gear rack inside the base.' },
+      { shot: 'sim-solar-panels', title: 'Solar Panels', alt: 'Carrying a solar panel outside.' },
+      {
+        shot: 'sim-solar-storm',
+        title: 'Solar storm',
+        alt: 'Running to the lander during a storm.',
+      },
+      { shot: 'sim-greenhouse', title: 'Greenhouse', alt: 'Plants growing under grow lights.' },
+    ],
+    tipsTitle: 'Good to know',
+    tips: [
+      {
+        icon: 'phone',
+        title: 'Phone or computer',
+        text: 'Play with a keyboard, or with the on-screen buttons on a phone or tablet.',
+      },
+      {
+        icon: 'graphics',
+        title: 'Change the look',
+        text: 'The Graphics button switches between pixel, soft and smooth pictures.',
+      },
+      {
+        icon: 'skip',
+        title: 'Skip the landing',
+        text: 'Seen the landing already? Press Skip to go straight to your first mission.',
+      },
+      {
+        icon: 'wifi',
+        title: 'Needs the internet',
+        text: 'The 3D Sim downloads its 3D tools when it starts, so it needs the internet. The rest of the site works offline.',
+      },
+    ],
+    readyTitle: 'Ready for launch?',
+    readyText: 'Finish all five missions to become a certified Junior Astronaut.',
+    opensNote: 'The Sim opens as its own page. Use your browser’s Back button to return.',
+  },
 };

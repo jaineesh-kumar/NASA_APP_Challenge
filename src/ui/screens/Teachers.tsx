@@ -5,6 +5,7 @@ import React from 'react';
 import { concepts } from '../../content/concepts.ts';
 import { copy } from '../../content/copy.ts';
 import { SOURCE_LABELS, SourceId } from '../../content/sources.ts';
+import { MediaCard } from '../components/MediaCard.tsx';
 import { PageIntro } from '../components/PageIntro.tsx';
 import { MISSION_GOAL_HOME } from '../missionFlow.ts';
 import { LearnScreen } from './Learn.tsx';
@@ -16,6 +17,7 @@ export const TeachersScreen: React.FC = () => {
   return (
     <div className="page">
       <PageIntro title={t.title} lead={t.lead} />
+      <MediaCard id="classroom" caption={t.classroomCaption} className="page-picture" />
       <p className="muted small">{t.privacy}</p>
 
       <section className="page-section" aria-labelledby="plan-title">
