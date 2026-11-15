@@ -2,7 +2,7 @@
 // Spec B5.2, B5.4 step 2
 
 import { LOAD_IDS } from './constants.ts';
-import { Condition, EngineError, LoadId, Rules } from './types.ts';
+import { Condition, DayOrder, EngineError, LoadId, Rules } from './types.ts';
 
 export const MAX_RULES = 5;
 
@@ -100,6 +100,35 @@ export function evaluateRules(rules: Rules, s: RuleState): RuleFlags {
     }
   }
   return flags;
+}
+
+/**
+ * Mission Day (ADR-016): adds the day's order to the rule flags for one tick. Returns new flags;
+ * the input is not changed. 'full_speed' adds nothing.
+ */
+export function applyDayOrder(flags: RuleFlags, order: DayOrder | undefined): RuleFlags {
+  const next: RuleFlags = { ...flags, forcedOff: new Set(flags.forcedOff) };
+  switch (order) {
+    case 'save_power':
+      next.pauseScience = true;
+      break;
+    case 'shelter':
+      next.shelter = true;
+      break;
+    case 'radio_off':
+      next.forcedOff.add('comms');
+      break;
+    case 'greenhouse_low':
+      next.ghLow = true;
+      break;
+    case 'fix_first':
+      next.repairFirst = true;
+      break;
+    case 'full_speed':
+    case undefined:
+      break;
+  }
+  return next;
 }
 
 export function describeRule(rules: Rules, index: number): string {

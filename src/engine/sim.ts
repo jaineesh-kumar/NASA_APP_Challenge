@@ -10,7 +10,7 @@ import { flareClassIndex, getDonkiArchive, LoadedParams, loadParams } from './pa
 import { allocatePower, computeDemands, computeGeneration, updateBattery } from './power.ts';
 import { hourlyDoseUsv } from './radiation.ts';
 import { mulberry32 } from './rng.ts';
-import { describeRule, evaluateRules, RuleState, validateRules } from './rules.ts';
+import { applyDayOrder, describeRule, evaluateRules, RuleState, validateRules } from './rules.ts';
 import { buildDarkMask, computeDarkWindows, hoursUntilNextDark } from './schedule.ts';
 import {
   Design,
@@ -69,6 +69,7 @@ function emptyTrace(): MissionTrace {
     isStorm: [],
     isSheltering: [],
     isCommsOn: [],
+    scienceHours: [],
   };
 }
 
@@ -165,7 +166,11 @@ export function runMission(
 
     // 2. Rules (state at the end of the previous tick)
     prev.hoursToNextDark = hoursUntilNextDark(t, darkWindows);
-    const flags = evaluateRules(rules, prev);
+    // Mission Day (ADR-016): the player's order for this day joins the rule flags.
+    const flags = applyDayOrder(
+      evaluateRules(rules, prev),
+      options.dayOrders?.[Math.floor(t / 24)],
+    );
     for (let i = 0; i < flags.fired.length; i++) {
       if (flags.fired[i] && !prevFired[i]) add(t, 'rule_fired', describeRule(rules, i));
     }
@@ -305,6 +310,7 @@ export function runMission(
       trace.isStorm.push(isStorm);
       trace.isSheltering.push(isSheltering);
       trace.isCommsOn.push(isCommsOn);
+      trace.scienceHours.push(scienceHours);
     }
 
     // Spec B5.6: first condition hit ends the mission.

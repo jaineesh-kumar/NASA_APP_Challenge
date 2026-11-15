@@ -1,4 +1,4 @@
-// Types definition for Moonbase Margin simulation engine
+// Types definition for AstroSim simulation engine
 // Spec B5.2 and B4.3
 
 export class EngineError extends Error {
@@ -79,8 +79,17 @@ export interface LogEntry {
 // Spec B5.11: random storms (B5.5) or one real archived DONKI storm.
 export type StormMode = { kind: 'random' } | { kind: 'replay'; eventId: string };
 
+/**
+ * Mission Day (ADR-016): the player's order for one mission day. Each order maps onto rule
+ * flags the engine already has, so every order has a cost inside the same model.
+ */
+export type DayOrder =
+  'full_speed' | 'save_power' | 'shelter' | 'radio_off' | 'greenhouse_low' | 'fix_first';
+
 export interface MissionOptions {
   stormMode?: StormMode;
+  /** Mission Day (ADR-016): orders by mission day (index = floor(t / 24)); missing days are full speed. */
+  dayOrders?: readonly DayOrder[];
   /** Record an hourly trace of key resources (used only for the replay, not campaigns). */
   trace?: boolean;
 }
@@ -120,6 +129,8 @@ export interface MissionTrace {
   isStorm: boolean[];
   isSheltering: boolean[];
   isCommsOn: boolean[];
+  /** Science crew-hours done so far (Mission Day, ADR-016). */
+  scienceHours: number[];
 }
 
 export interface MissionResult {

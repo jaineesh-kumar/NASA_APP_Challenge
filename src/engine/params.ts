@@ -1,4 +1,4 @@
-// Parameter loader and validation for Moonbase Margin
+// Parameter loader and validation for AstroSim
 // Spec B6, A5.4, B4.3
 
 import defaultArchiveJson from '../../data/donki_archive.json' with { type: 'json' };
