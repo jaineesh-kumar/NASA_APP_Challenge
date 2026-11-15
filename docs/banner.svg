@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" width="1280" height="360" role="img" aria-label="AstroSim: Junior Astronaut Mission Trainer">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14245c"/>
+      <stop offset="1" stop-color="#0b1440"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.2" r="0.5">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="card"><rect width="1280" height="360" rx="28"/></clipPath>
+  </defs>
+  <g clip-path="url(#card)">
+    <rect width="1280" height="360" fill="url(#sky)"/>
+    <rect width="1280" height="360" fill="url(#glow)"/>
+    <g fill="#ffffff">
+      <circle cx="90" cy="60" r="2"/><circle cx="600" cy="120" r="1.6"/><circle cx="380" cy="40" r="1.4"/>
+      <circle cx="560" cy="320" r="2"/><circle cx="700" cy="70" r="1.6"/><circle cx="820" cy="30" r="2.2"/>
+      <circle cx="930" cy="140" r="1.4"/><circle cx="1220" cy="60" r="2"/><circle cx="1180" cy="210" r="1.4"/>
+      <circle cx="640" cy="200" r="1.2"/><circle cx="760" cy="230" r="1.2"/><circle cx="1010" cy="300" r="1.6"/>
+    </g>
+    <path d="M820 26l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#ffc233"/>
+    <path d="M640 40l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#ffc233"/>
+    <!-- Earth -->
+    <circle cx="1180" cy="72" r="30" fill="#2563eb"/>
+    <path d="M1162 60c8-6 18-4 20 4s-6 12-12 10-12-8-8-14zM1186 84c6-2 12 2 10 8s-10 6-12 2 0-8 2-10z" fill="#34c06b"/>
+    <!-- Moon -->
+    <circle cx="1060" cy="390" r="190" fill="#e7ebf5"/>
+    <circle cx="990" cy="300" r="34" fill="#c9d2e6"/>
+    <circle cx="1120" cy="260" r="22" fill="#c9d2e6"/>
+    <circle cx="1170" cy="330" r="16" fill="#c9d2e6"/>
+    <!-- Base dome on the Moon -->
+    <path d="M930 252a46 46 0 0 1 92 0z" fill="#ffffff" stroke="#14245c" stroke-width="5"/>
+    <rect x="960" y="226" width="16" height="18" rx="4" fill="#ffc233" stroke="#14245c" stroke-width="3"/>
+    <rect x="984" y="226" width="16" height="18" rx="4" fill="#ffc233" stroke="#14245c" stroke-width="3"/>
+    <rect x="1032" y="230" width="34" height="18" rx="2" fill="#2563eb" stroke="#14245c" stroke-width="3" transform="rotate(-14 1049 239)"/>
+    <!-- Rocket with dotted path -->
+    <path d="M660 300c90-120 190-170 300-190" fill="none" stroke="#cc2a1f" stroke-width="5" stroke-dasharray="2 14" stroke-linecap="round"/>
+    <g transform="translate(990 92) scale(0.9) rotate(62)">
+      <path d="M0-56c22 18 30 46 27 80l-12 18H-15l-12-18C-30-10-22-38 0-56z" fill="#ffffff"/>
+      <circle cx="0" cy="-8" r="11" fill="#0f6e78" stroke="#14245c" stroke-width="4"/>
+      <path d="M-27 24-42 56l21-6M27 24l15 32-21-6" fill="#cc2a1f"/>
+      <path d="M-12 42h24L0 82z" fill="#ffc233"/>
+    </g>
+    <!-- Text -->
+    <text x="72" y="118" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="3" fill="#ffc233">NASA SPACE APPS CHALLENGE 2026</text>
+    <text x="68" y="212" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="104" font-weight="800" fill="#ffffff">AstroSim</text>
+    <text x="72" y="262" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="34" font-weight="600" fill="#dbe4ff">Junior Astronaut Mission Trainer</text>
+    <text x="72" y="306" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="20" fill="#9fb0e6">Build a Moon base. Test it 300 times. Bring your crew home.</text>
+  </g>
+</svg>
