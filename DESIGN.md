@@ -1,5 +1,5 @@
 ---
-name: Moonbase Margin
+name: AstroSim
 description: Junior Astronaut Mission Trainer, a bright jet-age ticket wallet for a Moon-base rehearsal game.
 colors:
   sky-stock: "#dcebff"
@@ -155,7 +155,7 @@ components:
     size: "26px"
 ---
 
-# Design System: Moonbase Margin
+# Design System: AstroSim
 
 ## Overview
 

@@ -1,1 +1,1 @@
-<!-- Authoritative domain data directory for Moonbase Margin -->
+<!-- Authoritative domain data directory for AstroSim -->

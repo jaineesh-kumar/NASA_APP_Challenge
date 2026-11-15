@@ -12,7 +12,7 @@ Kids aged 7 to 12 are the primary players. They play alone on a phone or a schoo
 
 ## Product Purpose
 
-Moonbase Margin is a free browser game for the NASA Space Apps 2026 challenge "Build a Junior Astronaut Mission Trainer". The player runs a 4-person Moon base at the lunar south pole for 30 days. They build the base within a rocket weight limit, set power rules, then test the plan: the game flies 300 simulated missions and reports how many crews out of every 100 came home, why the others ran into trouble, and a replay of the hardest mission.
+AstroSim is a free browser game for the NASA Space Apps 2026 challenge "Build a Junior Astronaut Mission Trainer". The player runs a 4-person Moon base at the lunar south pole for 30 days. They build the base within a rocket weight limit, set power rules, then test the plan: the game flies 300 simulated missions and reports how many crews out of every 100 came home, why the others ran into trouble, and a replay of the hardest mission.
 
 Success: a young player walks away understanding that every choice in space costs something (launch mass, power or crew time), and that engineers plan, test many times and learn from what went wrong.
 
@@ -36,7 +36,7 @@ Real NASA data drives the gameplay: players can replay a real solar storm archiv
 
 ## Brand Commitments
 
-- Name: Moonbase Margin, "Junior Astronaut Mission Trainer".
+- Name: AstroSim, "Junior Astronaut Mission Trainer".
 - Voice: kind, plain words, grade 3 to 5 reading level. Never "You failed"; say "Your crew ran into trouble because..." and "What would you change?".
 - Honesty is part of the brand: what is real NASA data and what is a game simplification is always said on screen.
 

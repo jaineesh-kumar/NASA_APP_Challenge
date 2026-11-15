@@ -1,6 +1,6 @@
 # Source Registry
 
-This document lists authoritative reference sources and IDs used throughout Moonbase Margin.
+This document lists authoritative reference sources and IDs used throughout AstroSim.
 Per AGENTS.md rule A4 (F9) and rule B7, agents may not add rows to this table.
 Rows S12 to S14 are copied from AGENTS_NEW.md v1.2, section B7.
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-11-14T00:00:00Z",
-  "title": "Design System: Moonbase Margin",
+  "title": "Design System: AstroSim",
   "extensions": {
     "colorMeta": {
       "sky-stock": { "role": "neutral", "displayName": "Sky Stock", "canonical": "#dcebff", "tonalRamp": ["#0f2440", "#1e3d66", "#35609a", "#5785c4", "#86aee6", "#b4cff5", "#dcebff", "#f1f7ff"] },

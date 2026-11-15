@@ -1,6 +1,6 @@
-# Architecture Decision Records (ADR) Log
+﻿# Architecture Decision Records (ADR) Log
 
-This document records architectural decisions for Moonbase Margin. Any deviation, new assumption, or contract change requires human approval and an entry here (B4.12).
+This document records architectural decisions for AstroSim. Any deviation, new assumption, or contract change requires human approval and an entry here (B4.12).
 
 ---
 
@@ -22,7 +22,7 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 
 - **Date:** 2026-10-15
 - **Status:** Accepted
-- **Context:** Establishing the repository structure, toolchains (Vite, Vitest, TypeScript, ESLint, Prettier), and CI pipeline for the Moonbase Margin simulation.
+- **Context:** Establishing the repository structure, toolchains (Vite, Vitest, TypeScript, ESLint, Prettier), and CI pipeline for the AstroSim simulation.
 - **Decision:** Follow the repository specification in B3 and dependency bounds in B2.
 - **Consequences:** Provides reproducible environment, strict TypeScript type checking, unit testing capability, and linting.
 
@@ -54,7 +54,7 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 - **Status:** Accepted (requested by the team lead: "communication delay" mechanic from the challenge statement)
 - **Context:** The comms load used power but had no effect, so shedding it was a free choice. The challenge lists communication delay as a core decision.
 - **Decision:** A storm warning is issued `leadH` hours before onset (from DONKI). The base hears it only in an hour when comms is powered; a storm with lead 0 is only detected at onset. The `spe_warning` rule condition is true from the hour a warning is heard, or a storm is detected, until the storm ends. If a storm hits before the warning was heard, the log records `warning_missed`; the cause chain links it to `load_off:comms` or `rule_fired: shed comms`. Real Earth-Moon light delay (1.28 s, DERIVED) is shown on the Model Card but not simulated (far below the 1-hour tick).
-- **Consequences:** Shedding comms now costs warning time. Measured on the Sunny Ridge preset, stormy era, 300 runs: shedding comms missed 367 warnings and raised dose P95 from 52,578 to 55,273 µSv. The effect on survival is small with current illustrative numbers (see ADR-008).
+- **Consequences:** Shedding comms now costs warning time. Measured on the Sunny Ridge preset, stormy era, 300 runs: shedding comms missed 367 warnings and raised dose P95 from 52,578 to 55,273 ÂµSv. The effect on survival is small with current illustrative numbers (see ADR-008).
 
 ---
 
@@ -79,7 +79,6 @@ This document records architectural decisions for Moonbase Margin. Any deviation
   - The comms penalty is real but small, because `radiation.spe_duration_h` and `spe_multiplier` are illustrative and the median DONKI lead is only 2 h.
   - Science is always met by survivors, so "success" equals "survival" for most designs.
 - **Decision needed:** whether to tune `failure.mtbf_h.co2_scrubber`, `radiation.spe_multiplier`, `radiation.dose_limit_usv_mission` (still TODO: verify against S11) and `science.target_hours`.
-
 
 ---
 
@@ -116,7 +115,6 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 - **Decision:** The core loop is paged one step per coupon (Briefing, Build, Rules, Test, Review) with a route-arc step track and a sticky Back/Next pager whose Next is locked with a plain-words reason (over the weight limit; no test results). Learn and How it works sit outside the flow. Visual world: bright translation of the ticket wallet (sky ground, white coupons with perforation and notches, navy strips, rocket-red single primary action, carbon-violet numbers, yellow Done stamps). Display face is an installed condensed stack because remote fonts are banned (F10) and font licences are a human decision.
 - **Consequences:** Screens no longer carry their own Back/Next buttons. Emoji glyphs replaced by an authored SVG icon set. Review leads with a boarding pass. Open human decision: self-host an OFL condensed grotesk so iPads and Chromebooks get the same display face.
 
-
 ---
 
 ### ADR-012: Comms link (L12, Spec B5.10)
@@ -125,7 +123,7 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 - **Status:** Accepted (autonomous P-PS sprint; B5.10 asks for an ADR and human approval, so the team lead should confirm the two new params)
 - **Context:** The comms load used power but had no effect, so switching it off was free (defect under B10.8).
 - **Decision:** `groundLinkUp` for tick t is whether comms is powered in step 4 of tick t; rules in tick t+1 read `speWarning = (SPE pending or active) AND groundLinkUp`. A storm that starts before any warning got through logs `warning_missed`. While the link is up, a failure's repair hours are cut by `comms.repair_assist_fraction` when the failure starts. The base starts with the link up. The cause chain gains `spe_start:unsheltered <- warning_missed <- load_off:comms | rule_fired:shed comms`, with concept "communication". New params (A3 additions): `comms.repair_assist_fraction` = 0.25 (ASSUMPTION, low, TODO human) and `comms.moon_one_way_delay_s` = 1.3 (DERIVED, display only). The earlier display params `comms.earth_moon_light_delay_s` and `comms.earth_mars_light_delay_min` stay (F1); the UI now reads the spec-named Moon param.
-- **Consequences:** Golden files regenerated (missions.json and replay.json). Measured on the Sunny Ridge starter, random storms, 300 runs: radio on 94.3% survival, dose P95 34,241 µSv, 0 dose losses; radio always off 93.0% survival, dose P95 55,051 µSv, 6 dose losses.
+- **Consequences:** Golden files regenerated (missions.json and replay.json). Measured on the Sunny Ridge starter, random storms, 300 runs: radio on 94.3% survival, dose P95 34,241 ÂµSv, 0 dose losses; radio always off 93.0% survival, dose P95 55,051 ÂµSv, 6 dose losses.
 
 ---
 
@@ -147,3 +145,52 @@ This document records architectural decisions for Moonbase Margin. Any deviation
 - **Decision:** Hash routes (`#/`, `#/how-to-play`, `#/missions[/<id>/debrief]`, `#/training[/<game>]`, `#/free-build`, `#/logbook`, `#/words`, `#/teachers`, `#/data`) with `useSyncExternalStore` on `hashchange`, no new dependency. The five-step flow is unchanged and lives on `#/free-build`; `AppState` gains `mission` (active guided mission) and `furthestStep`. Missions get a goal "at least N of every 100 crews come home" with N from the new param `missions.goal_home_per_100` = 90 (ASSUMPTION, low, UI only; added to `REQUIRED_PARAM_IDS` like earlier additions). Two new missions: M4 (no greenhouse, food runs out) and M5 (no shield or shelter rule against the second-biggest archived storm). Each mission has three debrief questions (`src/content/debriefs.ts`, needsReview) with a hint, a "why not" for every wrong option, an explanation and a source id from SOURCES.md. Training Bay games (Power Juggle, Storm Shelter) are turn-based and call the engine's own power and dose functions. Progress (missions and training scores only) is stored in `localStorage` under `moonbase-margin:progress` (F15); badges are derived, never stored.
 - **Consequences:** No engine formula, golden file or existing param value changed. `tests/ui/missionGoals.test.ts` runs real campaigns and shows each mission's start misses the goal and a sample fix reaches it. Measured with 300 runs: M1 start 0 of 100 home (CO2 after the batteries run flat in the 72 h crater dark), 8 batteries + mast 2 gives 95; M2 start 78, a water-recycler spare gives 93; M3 start 0, shelter rule and radio kept on gives 94; M4 start 0 (food), one greenhouse module gives 94; M5 start 0 (dose), shelter rule gives 94. **Finding:** before this change M1's old objective ("add batteries or a taller mast") could not be met by small changes; it needs about +4 batteries and mast level 2. Flow and accessibility tests now open `#/free-build` or `#/teachers` before rendering; their assertions are unchanged, and the contrast test gained six pairs. Not built: Shield Stack (Training Bay, "if time allows").
 
+---
+
+### ADR-015: Sim link in the site menu
+
+- **Date:** 2026-11-15
+- **Status:** Accepted by the team lead as an explicit exception ("link it exactly as is")
+- **Context:** The team added a standalone 3D page in `Sim/` (index.html, script.js, style.css) and asked for a "Sim" item in the navbar.
+- **Decision:** The three files are copied unchanged to `public/sim/` so Vite serves them at `<base>/sim/index.html`; the site menu ends with a plain link to that URL (`SIM_HREF` in `Header.tsx`). The page is not part of the React app or the engine.
+- **Consequences:** Known conflicts with this contract, accepted by the team lead: the page loads three.js r128 from cdnjs at runtime (F10, and a library outside B2), it is 3D (out of scope in B1), and it shows "LIVE NASA DONKI FEED: SOLAR WIND 345 KM/S", which is not live and has no source (F14, B10.1); its text also has stray "[cite: 7]"/"[cite: 8]" marks. **Update 2026-11-15 (ADR-016 session):** the fake feed line now shows the real archived DONKI storm of 14 Nov 2025 (class X4.0, from `data/donki_archive.json`), labelled "not live"; the practice-storm message no longer claims to be a NASA alert; the [cite] marks are removed. Both copies were edited the same way. Without internet the Sim page shows no 3D scene. `Sim/` at the repo root is the source copy; edits there must be copied to `public/sim/` again. **Update 2026-11-15 (menu groups):** the main menu now groups pages into dropdowns (Play: Missions, Mission Day, Free build, Sim; Learn: How to play, Training Bay, Space words; About: Data and science, For teachers; Home and Logbook stay plain links). Sim is the last item under Play; the separate Sim badge in the header row is removed. **Update 2026-11-15 (new simulator):** the team replaced the Sim page with a new single file, `Sim/mission2050.html` ("Junior Astronaut 2050: Hands-On Training": landing cinematic, then five hands-on missions: suit-up, solar panels, regolith shield with a solar-storm run, greenhouse, lab glovebox). It is copied unchanged to `public/sim/index.html` (same URL, so `SIM_HREF` and the menu are unchanged); the old `script.js` and `style.css` are removed. Same accepted conflicts as before: three.js r128 from cdnjs at runtime (F10, outside B2; no 3D scene offline), 3D (B1). New text not backed by `params.json` or `SOURCES.md` (F14), left as written: the suit pressure readout "4.3 psi", "That crater is in permanent shadow, so no sunlight", and the oxygen/heart-rate numbers, which are game values. TODO(human): label or source these if wanted.
+
+---
+
+### ADR-016: Mission Day (play the mission one day at a time)
+
+- **Date:** 2026-11-15
+- **Status:** Accepted by the team lead ("we go with whatever you say", 6 hours before the deadline). Agent-drafted texts carry `needsReview: true`.
+- **Context:** The challenge brief asks players to make decisions _during_ a mission ("trade oxygen reserves for an extra research opportunity", "reinforce shielding at the cost of tonight's power supply"). The app only offered plan-then-test.
+- **Decision:** New page `#/mission-day` (menu item "Mission Day"). Each morning the player picks one order; the page re-runs the whole seeded mission with the orders so far and shows the core meters, that day's log as news, and what the crew can know about tomorrow (the dark-window schedule, and a storm warning only if the radio heard it, B5.10). Engine change (F4 contract addition, additive): `DayOrder` type, `MissionOptions.dayOrders`, `applyDayOrder()` in `rules.ts`, applied at step 2 of each tick for day `floor(t / 24)`, and `MissionTrace.scienceHours`. Orders map onto existing flags only: save_power = pauseScience, shelter = shelter, radio_off = comms forced off, greenhouse_low = ghLow, fix_first = repairFirst, full_speed = nothing. No param added or changed. The base is the Light kit with the kit's ladder and no IF-THEN rules; round n uses seed n + 1 and archived DONKI storm n (mod archive size).
+- **Measured (why the Light kit):** with the Balanced kit at the ridge, full speed every day survived in all 6 tried rounds, so no order had a cost. With the Light kit: rounds 2 and 4 (big archived storms) are lost to dose on full speed and survived by sheltering on warning days and saving power near dark windows; round 5 loses to CO2 whatever the orders (every machine breaks with no spare). Radio off alone changes nothing in the engine for most seeds; its cost is in the game: the player does not see the storm warning.
+- **Consequences:** Without `dayOrders` every mission, golden file and campaign is unchanged (tested in `tests/engine/dayOrders.test.ts`). The science goal (`science.target_hours`, illustrative) is easy to reach in Mission Day; tuning it is a human job. Progress is not saved to the Logbook.
+
+---
+
+### ADR-017: Header: Quiz and Sim buttons, no Junior/Planner switch
+
+- **Date:** 2026-11-15
+- **Status:** Requested by the team ("remove the junior/planner, arrange the quiz button properly, add a sim button like quiz ... use a different colour for it")
+- **Context:** The header showed Quiz, a Junior/Planner switch and the real-data badge; on mid-size screens they wrapped under the menu.
+- **Decision:** The `ModeToggle` is removed from the header. A Sim button (space teal `--sim: #0f6e78`, white text about 6.0:1) sits next to the Quiz button, now violet (`--quiz: #5b3fc4`, white text about 7:1) instead of rocket red; both are equal-width pill buttons with the real-data badge centred under them. Sim stays in the Play menu too. Junior Mode test AC1 (ADR-013) now checks that Junior is the default and no switch is shown.
+- **Consequences:** Planner mode is no longer reachable from the UI; the app always runs in Junior (the default). The store, `SET_MODE` and `ModeToggle.tsx` are kept so the switch can come back.
+
+---
+
+### ADR-018: Site renamed to AstroSim
+
+- **Date:** 2026-11-15
+- **Status:** Requested by the team ("AstroSim is our new name of the website")
+- **Context:** The working name in B1 was "Moonbase Margin".
+- **Decision:** Every user-facing name (page title, Open Graph title, header, browser tab titles, About text, error screen), the README, docs, `metadata.json` and the `package.json` name now say AstroSim. The `localStorage` key `moonbase-margin:progress` is kept so players do not lose saved progress. `AGENTS.md` / `AGENTS_NEW.md` (the human-owned contract) are not edited by the agent.
+- **Consequences:** No engine, param or test logic changed. Humans may update the name in `AGENTS.md` themselves.
+
+---
+
+### ADR-018: Sim page, favicon, and flash-card Data page
+
+- **Date:** 2026-11-15
+- **Status:** Requested by the team (favicon; highlighted Sim button on Home and in the navbar; a new Sim page with screenshots, how to play, symbols and scroll animations; Data and science as flash cards with separated sections)
+- **Decision:** New route `#/sim` (top-level menu item "Sim", header Sim button, highlighted "Try the 3D Sim" button on Home). The page explains the 3D Sim and its Launch buttons open `public/sim/index.html` (ADR-015); the Sim link under Play is removed. Screenshots in `public/images/sim/` were captured from our own Sim page with headless Chrome (team-made content, no third-party licence). `public/favicon.svg` is the brand mark (Moon, rocket, navy). The Data and science page shows storms, honesty labels, OSDR findings, data sources and simplifications as flash cards; `copy.dataPage.honesty` is now a list of `{kind, title, text}`.
+- **Consequences:** The Sim page states that the 3D Sim needs the internet (it loads three.js from cdnjs). Its text describes game rules only, no science claims. Card animations stop under `prefers-reduced-motion`.

@@ -5,7 +5,7 @@ primary_target: "src/App.tsx"
 related_targets: ["src/ui/screens","src/ui/components"]
 ---
 
-# Surface: Moonbase Margin app shell and step flow
+# Surface: AstroSim app shell and step flow
 
 Scope: the whole web app (src/App.tsx and every screen). Visitor mode: Operate.
 Audience and job: kids 7-12 build a Moon base, set rules, test it 300 times and learn from the review; judges check the science once.

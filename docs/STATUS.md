@@ -1,7 +1,7 @@
-# Project status: Moonbase Margin
+# Project status: AstroSim
 
 **Contract:** AGENTS_NEW.md v1.2. Sprint L10 to L13 on branch `nasa-new`; kid-friendly site remake on branch `remake-web` (ADR-014).
-**Current work:** remake-web steps 1 to 7 complete; waiting for the team's review and the human items below.
+**Current work:** remake-web steps 1 to 7 complete, plus media batch 3, the Sim link (ADR-015) and Mission Day (ADR-016); waiting for the team's review and the human items below.
 **Last verified:** 2026-11-14 on `remake-web`. `npm run typecheck`, `lint`, `test` (40 files, 197 tests), `build` all pass.
 
 ## Levels
@@ -19,6 +19,10 @@
 - [x] remake-web 5: Training Bay: Power Juggle and Storm Shelter (Shield Stack not built)
 - [x] remake-web 6: Logbook (badges, progress in localStorage), Space words, Data and science, For teachers
 - [x] remake-web 7: Real Storm Replay from the Data page; archived label on the Review replay
+- [x] Mission Day (ADR-016): `#/mission-day`, one order per day, engine `dayOrders`; tests in `tests/engine/dayOrders.test.ts` and `tests/ui/missionDay.test.tsx`
+- [x] Quiz cards (`#/quiz`, header Quiz button; questions from `src/content/quiz.ts`), a short description under every clip (`copy.media.about`, needsReview), floating-pill header, 1200px container, two-column hero, pill buttons
+- [x] Sim link (ADR-015): standalone 3D page in `public/sim/`; fake live feed replaced with an archived DONKI storm
+- [x] Sim replaced (ADR-015 update): new single-file simulator `Sim/mission2050.html` copied to `public/sim/index.html`
 
 ## Challenge compliance (B10.9)
 
@@ -33,16 +37,18 @@
 
 ## Open questions and human items
 
-00. Media (docs/MEDIA.md): commit the files in public/images and public/video (not tracked yet; tests/ui/mediaCard.test.tsx expects them), confirm their licence, compress the images (each about 2 MB) and the 4.45 MB grid video, export the pictures inside the concept sheet as separate files, and replace "./" in the og:image URLs with the deployed address.
-0. remake-web (ADR-014): confirm `missions.goal_home_per_100` (90, illustrative); review the new agent-drafted texts (debriefs, M4 and M5, coach tips, badges, glossary additions, teacher lesson plan; all `needsReview: true`); decide whether to use the art in `public/images/` and `public/video/` (not committed, licence unknown) and whether to build Shield Stack.
+0. Mission Day (ADR-016): review the agent-drafted texts (`copy.missionDay`, needsReview); the science goal is easy to reach there (tuning `science.target_hours` is a human job); decide whether Mission Day should save to the Logbook.
 
-1. Paste the challenge page's Resources tab into `docs/CHALLENGE_RESOURCES.md`.
-2. Confirm the illustrative params added in the sprint: `radiation.replay_onset_h` (300 h), `radiation.spe_multiplier_by_flare_class` ([10, 20, 40]), `comms.repair_assist_fraction` (0.25).
-3. Balance (ADR-008): CO2 breakdowns dominate losses; shield layers matter little while a shelter rule is on.
-4. Verify S01 (BVAD) crew values and the S11 (NASA-STD-3001) dose limit.
-5. Review the agent-drafted texts marked `needsReview: true` (quiz, missions, concepts, OSDR summaries).
-6. Font licence: self-host an OFL condensed grotesk so iPads and Chromebooks get the same display face (DESIGN.md).
-7. Licence for the repository (no LICENSE file yet), deployment, demo video, playtest notes in `docs/PLAYTEST.md`.
+1. Media (docs/MEDIA.md): commit the files in public/images and public/video (not tracked yet; tests/ui/mediaCard.test.tsx expects them), confirm their licence, compress the images (each about 2 MB) and the 4.45 MB grid video, export the pictures inside the concept sheet as separate files, and replace "./" in the og:image URLs with the deployed address.
+2. remake-web (ADR-014): confirm `missions.goal_home_per_100` (90, illustrative); review the new agent-drafted texts (debriefs, M4 and M5, coach tips, badges, glossary additions, teacher lesson plan; all `needsReview: true`); decide whether to use the art in `public/images/` and `public/video/` (not committed, licence unknown) and whether to build Shield Stack.
+
+3. Paste the challenge page's Resources tab into `docs/CHALLENGE_RESOURCES.md`.
+4. Confirm the illustrative params added in the sprint: `radiation.replay_onset_h` (300 h), `radiation.spe_multiplier_by_flare_class` ([10, 20, 40]), `comms.repair_assist_fraction` (0.25).
+5. Balance (ADR-008): CO2 breakdowns dominate losses; shield layers matter little while a shelter rule is on.
+6. Verify S01 (BVAD) crew values and the S11 (NASA-STD-3001) dose limit.
+7. Review the agent-drafted texts marked `needsReview: true` (quiz, missions, concepts, OSDR summaries).
+8. Font licence: self-host an OFL condensed grotesk so iPads and Chromebooks get the same display face (DESIGN.md).
+9. Licence for the repository (no LICENSE file yet), deployment, demo video, playtest notes in `docs/PLAYTEST.md`.
 
 ## Decisions log
 

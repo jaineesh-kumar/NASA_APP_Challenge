@@ -1,4 +1,4 @@
-# Moonbase Margin
+# AstroSim
 
 **Junior Astronaut Mission Trainer**: a free browser game for NASA International Space Apps Challenge 2026, "Build a Junior Astronaut Mission Trainer".
 

@@ -1,6 +1,6 @@
 # Architecture
 
-Moonbase Margin is a static single-page app. Nothing runs on a server and nothing is fetched at runtime.
+AstroSim is a static single-page app. Nothing runs on a server and nothing is fetched at runtime.
 
 ```
 data/params.json  data/donki_archive.json  data/osdr_cards.json      (archived, human-owned data)

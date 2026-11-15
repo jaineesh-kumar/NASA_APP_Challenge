@@ -1,4 +1,4 @@
-# Data used in Moonbase Margin
+# Data used in AstroSim
 
 One page for judges and teachers: which real datasets the game uses, why, where they appear, and what is real versus our simplification. Nothing in the game is fetched at runtime; every dataset is archived in the repository and labelled "archived, not live" on screen.
 
