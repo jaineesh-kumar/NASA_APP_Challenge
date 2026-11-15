@@ -53,3 +53,15 @@ desktop.ini
 *.pdf
 .impeccable/reference/
 .impeccable/review/
+
+# Not part of the project: presentations, AI prompt notes, design-tool state, stray copies
+*.ppt
+*.pptx
+*.key
+*.docx
+ppt/
+presentation/
+prompt.md
+.impeccable/
+bun.lock
+/mission2050.html

@@ -63,7 +63,7 @@ Sizes were read from the files' own headers. ffmpeg is not installed, so no vide
 
 Step 3 picture (the Test card on How to play keeps its drawn SVG), the step pictures on the Landing page, the hero loop (`crew-walkout` stays), the thinking and worried mascot poses on Review (only the celebrate pose exists, so Review shows a picture only for a high score), the "Night shift" and "Storm ready" badges (they keep their icon), the star-tile background, real NASA photos on Data and science, and Training Bay pictures.
 
-The second and third batches' videos are 3.1 to 5.0 MB, over the 3 MB target in `prompt.md`. Every clip except the landing hero, the storm teaser and the debrief cheer waits for Play and uses `preload="metadata"`, so it is not downloaded until a player asks.
+The second and third batches' videos are 3.1 to 5.0 MB, over our 3 MB target. Every clip except the landing hero, the storm teaser and the debrief cheer waits for Play and uses `preload="metadata"`, so it is not downloaded until a player asks.
 
 ## Rules
 
